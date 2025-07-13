@@ -10,11 +10,11 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "packageManager": "pnpm@10.12.1",
   "workspaces": [
     "apps/*",
-    "apps/demos/*",
+    "apps/*/*",
     "packages/*"
   ]
 }
