@@ -15,7 +15,7 @@
         }
     },
     "scripts": {
-        "build:css": "postcss src/**/*.module.css --dir dist --ext .css",
+        "build:css": "postcss src/**/*.css --dir dist --ext .css",
         "build": "tsup src/index.ts && pnpm build:css",
         "dev": "tsup src/index.tsx --watch"
     },

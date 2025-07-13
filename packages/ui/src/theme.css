@@ -1,0 +1,19 @@
+/* src/theme.css */
+
+:root {
+    --ui-bg-color: #fff;
+    --ui-fg-color: #111;
+    --ui-radius: 0.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --ui-bg-color: #111;
+        --ui-fg-color: #eee;
+    }
+}
+
+[data-theme="transparent"]  {
+    --ui-bg-color: transparent;
+    --ui-fg-color: #fff;
+}
