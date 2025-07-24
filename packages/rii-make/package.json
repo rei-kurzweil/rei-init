@@ -1,25 +1,27 @@
 {
-  "name": "build",
+  "name": "rii-make",
   "version": "1.0.0",
   "type": "module",
   "private": true,
   "bin": {
-    "rii-make": "./cli.ts"
-  }, 
-  "main": "index.js",
+    "rii-make": "./bin/cli"
+  },
+  "main": "./index/index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "tsx src/index.ts"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@inquirer/prompts": "^7.6.0",
     "@types/node": "^24.0.12"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
     "execa": "^9.6.0",
     "fs-extra": "^11.3.0",
-    "prompts": "^2.4.2"
+    "prompts": "^2.4.2",
+    "tsx": "^4.20.3"
   }
 }

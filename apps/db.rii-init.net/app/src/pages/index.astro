@@ -1,0 +1,93 @@
+---
+import Welcome from '../components/Welcome.astro';
+import Layout from '../layouts/Layout.astro';
+import DatabaseBrowser from '../components/DatabaseBrowser.tsx';
+
+// Access D1 database from Astro context
+const { DB_D1 } = (Astro.locals.runtime.env as unknown) as { DB_D1: D1Database };
+
+interface Column {
+  cid: number;
+  name: string;
+  type: string;
+  notnull: number;
+  dflt_value: any;
+  pk: number;
+}
+
+interface TableData {
+  columns: Column[];
+  rows: Record<string, any>[];
+  error?: string;
+}
+
+// Ask D1 for list of tables
+let tables: { name: string }[] = [];
+let tableData: Record<string, TableData> = {};
+let error: string | null = null;
+
+try {
+	// Get list of tables from sqlite_master
+	const tablesResult = await DB_D1.prepare(`
+		SELECT name FROM sqlite_master 
+		WHERE type='table' AND name NOT LIKE 'sqlite_%'
+		ORDER BY name
+	`).all();
+	
+	tables = (tablesResult.results || []) as { name: string }[];
+	
+	// For each table, get schema and first 36 rows
+	for (const table of tables) {
+		const tableName = table.name as string;
+		
+		try {
+			// Get table schema
+			const schemaResult = await DB_D1.prepare(`PRAGMA table_info(${tableName})`).all();
+			const columns = ((schemaResult.results || []) as unknown) as Column[];
+			
+			// Get first 36 rows
+			const dataResult = await DB_D1.prepare(`SELECT * FROM ${tableName} LIMIT 36`).all();
+			let rows = (dataResult.results || []) as Record<string, any>[];
+			
+			// Replace password fields with '******'
+			rows = rows.map((row: Record<string, any>) => {
+				const sanitizedRow = { ...row };
+				Object.keys(sanitizedRow).forEach(key => {
+					if (key.toLowerCase().includes('password') || key.toLowerCase().includes('pwd')) {
+						sanitizedRow[key] = '******';
+					}
+				});
+				return sanitizedRow;
+			});
+			
+			tableData[tableName] = {
+				columns,
+				rows
+			};
+		} catch (tableError) {
+			console.error(`Error querying table ${tableName}:`, tableError);
+			tableData[tableName] = {
+				columns: [],
+				rows: [],
+				error: `Error loading table: ${tableError instanceof Error ? tableError.message : 'Unknown error'}`
+			};
+		}
+	}
+} catch (e) {
+	error = `Database connection error: ${e instanceof Error ? e.message : 'Unknown error'}`;
+	console.error('D1 Database Error:', e);
+}
+
+---
+
+<Layout>
+	<main class="container mx-auto px-4 py-8">
+		<h1 class="text-3xl font-bold text-gray-900 mb-8">Database Browser</h1>
+		<DatabaseBrowser 
+			tables={tables} 
+			tableData={tableData} 
+			error={error} 
+			client:load 
+		/>
+	</main>
+</Layout>
