@@ -3,8 +3,10 @@ import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
 import DatabaseBrowser from '../components/DatabaseBrowser.tsx';
 
+export const prerender = false;
+
 // Access D1 database from Astro context
-const { DB_D1 } = (Astro.locals.runtime.env as unknown) as { DB_D1: D1Database };
+const { DB } = (Astro.locals.runtime.env as unknown) as { DB: D1Database };
 
 interface Column {
   cid: number;
@@ -28,13 +30,21 @@ let error: string | null = null;
 
 try {
 	// Get list of tables from sqlite_master
-	const tablesResult = await DB_D1.prepare(`
+	const tablesResult = await DB.prepare(`
 		SELECT name FROM sqlite_master 
-		WHERE type='table' AND name NOT LIKE 'sqlite_%'
+		WHERE type='table' 
+		AND name NOT LIKE 'sqlite_%' 
+		AND name NOT LIKE '_cf_%'
 		ORDER BY name
 	`).all();
 	
 	tables = (tablesResult.results || []) as { name: string }[];
+	
+	if (tables.length === 0) {
+		error = 'No tables found in the database.';
+		console.warn('No tables found in the database.');
+		return;
+	}
 	
 	// For each table, get schema and first 36 rows
 	for (const table of tables) {
@@ -42,11 +52,11 @@ try {
 		
 		try {
 			// Get table schema
-			const schemaResult = await DB_D1.prepare(`PRAGMA table_info(${tableName})`).all();
+			const schemaResult = await DB.prepare(`PRAGMA table_info(${tableName})`).all();
 			const columns = ((schemaResult.results || []) as unknown) as Column[];
 			
 			// Get first 36 rows
-			const dataResult = await DB_D1.prepare(`SELECT * FROM ${tableName} LIMIT 36`).all();
+			const dataResult = await DB.prepare(`SELECT * FROM ${tableName} LIMIT 36`).all();
 			let rows = (dataResult.results || []) as Record<string, any>[];
 			
 			// Replace password fields with '******'
@@ -72,17 +82,19 @@ try {
 				error: `Error loading table: ${tableError instanceof Error ? tableError.message : 'Unknown error'}`
 			};
 		}
+		
 	}
+
 } catch (e) {
 	error = `Database connection error: ${e instanceof Error ? e.message : 'Unknown error'}`;
 	console.error('D1 Database Error:', e);
 }
-
 ---
 
 <Layout>
 	<main class="container mx-auto px-4 py-8">
-		<h1 class="text-3xl font-bold text-gray-900 mb-8">Database Browser</h1>
+		<h1 class="text-3xl font-bold text-gray-900 mb-8">Database Browser 🖬🥞᠁🦖🌎</h1>
+		
 		<DatabaseBrowser 
 			tables={tables} 
 			tableData={tableData} 

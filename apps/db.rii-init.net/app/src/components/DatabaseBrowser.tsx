@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 interface Column {
     cid: number;
@@ -22,8 +22,6 @@ interface DatabaseBrowserProps {
 }
 
 export default function DatabaseBrowser({ tables, tableData, error }: DatabaseBrowserProps) {
-    const [activeTab, setActiveTab] = useState<string>(tables[0]?.name || '');
-
     if (error) {
         return (
             <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -43,34 +41,17 @@ export default function DatabaseBrowser({ tables, tableData, error }: DatabaseBr
     }
 
     return (
-        <div className="w-full">
-            {/* Tab Headers */}
-            <div className="border-b border-gray-200 bg-gray-50">
-                <nav className="-mb-px flex space-x-8 px-4" aria-label="Tabs">
-                    {tables.map((table) => (
-                        <button
-                            key={table.name}
-                            onClick={() => setActiveTab(table.name)}
-                            className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeTab === table.name
-                                    ? 'border-blue-500 text-blue-600'
-                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                                }`}
-                        >
-                            {table.name}
-                        </button>
-                    ))}
-                </nav>
-            </div>
-
-            {/* Tab Content */}
-            <div className="mt-4">
-                {activeTab && tableData[activeTab] && (
-                    <TableDisplay
-                        tableName={activeTab}
-                        data={tableData[activeTab]}
-                    />
-                )}
-            </div>
+        <div className="w-full space-y-12">
+            {tables.map((table) => (
+                <div key={table.name}>
+                    {tableData[table.name] && (
+                        <TableDisplay
+                            tableName={table.name}
+                            data={tableData[table.name]}
+                        />
+                    )}
+                </div>
+            ))}
         </div>
     );
 }

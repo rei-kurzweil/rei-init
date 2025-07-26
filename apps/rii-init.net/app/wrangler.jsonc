@@ -4,10 +4,10 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "db-rii-init-net",
-	// "routes": [
-	// 	"db.rii-init.net/*"
-	// ],
+	"name": "rii-init-net",
+	"routes": [
+		"rii-init.net/*"
+	],
 
 	"main": "./dist/_worker.js/index.js",
 	"compatibility_date": "2025-07-24",
@@ -21,21 +21,7 @@
 	},
 	"observability": {
 		"enabled": true
-	},
-
-	/**
-	 * D1 Database Bindings
-	 * https://developers.cloudflare.com/d1/configuration/bindings/
-	 */
-
-	"d1_databases": [
-		{
-			"binding": "DB",
-			"database_name": "rii-init-db",
-			"database_id": "8da260b0-4b17-4c6f-85a4-8a6e78e8eb09"
-		}
-	]
-
+	}
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
