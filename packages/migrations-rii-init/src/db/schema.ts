@@ -17,22 +17,23 @@ export const users = sqliteTable('users', {
     updated_at: integer().notNull().default(sql`(strftime('%s','now'))`),
 });
 
+let itemsRef: any;
+
 export const items = sqliteTable('items', {
     id: integer().primaryKey(),
 
-    // authorship:
     from_user_id: integer().notNull()
-                            .references(() => users.id, { onDelete: 'cascade' }),
-    // replying to people or things:
-    to_user_id:   integer().references(() => users.id),
-    to_item_id:   integer().references(() => items.id),
+        .references(() => users.id, { onDelete: 'cascade' }),
 
-    content:        text().notNull().default("{}"),
-    content_type:   text().notNull().default("application/json"),
+    to_user_id: integer().references(() => users.id),
+    to_item_id: integer().references(() => itemsRef.id),
+
+    content: text().notNull().default("{}"),
+    content_type: text().notNull().default("application/json"),
     content_kv_key: text().unique(),
 
-    matrix:         text().notNull()
-                        .default("[1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]"),
+    matrix: text().notNull()
+        .default("[1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]"),
 
     x: real().notNull().default(0),
     y: real().notNull().default(0),
@@ -42,4 +43,4 @@ export const items = sqliteTable('items', {
     updated_at: integer().notNull().default(sql`(strftime('%s','now'))`),
 });
 
-
+itemsRef = items;
