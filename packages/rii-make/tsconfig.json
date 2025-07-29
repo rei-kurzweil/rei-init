@@ -10,5 +10,8 @@
         ],
         "skipLibCheck": true,
         "outDir": "dist"
-    }
+    },
+    "exclude": [ 
+        "src/package/migration-runner-package/template/"
+    ]
 }

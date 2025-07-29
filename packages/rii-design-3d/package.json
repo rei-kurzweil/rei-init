@@ -1,0 +1,20 @@
+{
+  "name": "@rii-init/rii-design-3d",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@types/react": "^19.1.8",
+    "react": "^19.1.0"
+  }
+}

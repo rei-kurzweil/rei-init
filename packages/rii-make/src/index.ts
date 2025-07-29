@@ -6,6 +6,10 @@ import { initPackageProject, createPackageByType } from './package/index.js'
 import chalk from 'chalk'
 import path from 'path'
 import fs from 'fs'
+import { findMonorepoRoot } from './util.js'
+
+
+const mono_repo_root = await findMonorepoRoot();
 
 console.log(chalk.magentaBright(`
 ╭────────────────────────────╮ ✿
@@ -33,13 +37,15 @@ if (kind === 'app') {
   })
   
   if (wantSubPackages) {
-    const appDir = path.resolve(process.cwd(), 'apps', appName)
+    const appDir = path.resolve(mono_repo_root, 'apps', appName)
+
     if (!fs.existsSync(appDir)) {
       console.log(chalk.red(`App directory ${appDir} not found. Skipping sub-packages.`))
     } else {
       await createSubPackagesForApp(appDir, appName)
     }
   }
+  
 } else if (kind === 'pkg') {
   const packageName = await initPackageProject();
   
@@ -50,7 +56,16 @@ if (kind === 'app') {
   })
   
   if (wantDemoApps) {
-    const packageDir = path.resolve(process.cwd(), 'packages', packageName)
+    const packageDir = path.resolve(mono_repo_root, 'packages', packageName)
+    // Package directory
+    // /home/plush/dev/rii-init/apps/packages/rii-design-3d not found. Skipping demo apps.
+    // /home/plush/dev/rii-init/apps/  apparently is cwd()
+    // but the directory that's used should be the mono repo root
+    // `${monoRepoRoot}/packages/${packageName}`
+    // and then
+    // `${monoRepoRoot}/packages/${packageName}/apps` is the package_apps_dir which we should pass to createDemoAppsForPackage
+    // 
+
     if (!fs.existsSync(packageDir)) {
       console.log(chalk.red(`Package directory ${packageDir} not found. Skipping demo apps.`))
     } else {
@@ -97,7 +112,11 @@ async function createSubPackagesForApp(appDir: string, appName: string) {
   }
 }
 
-async function createDemoAppsForPackage(packageDir: string, packageName: string) {
+async function createDemoAppsForPackage(
+    packageDir: string /** already contains packageName */, 
+    packageName: string
+  ) {
+  
   const appsDir = path.join(packageDir, 'apps')
   
   // Ensure apps directory exists

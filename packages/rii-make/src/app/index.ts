@@ -28,12 +28,11 @@ export async function initAppProject(): Promise<string> {
     })
 
     // Apps always go in apps/ and have app/ + packages/ structure
-    const appDir = path.join(root, 'apps', name)
-    const mainAppDir = path.join(appDir, 'app')
+    const appDir      = path.join(root,   'apps',     name)
     const packagesDir = path.join(appDir, 'packages')
 
     // Create the directory structure
-    await fs.ensureDir(mainAppDir)
+    await fs.ensureDir(appDir)
     await fs.ensureDir(packagesDir)
 
     // Create a README for the app
@@ -54,9 +53,9 @@ See the main app in the \`app/\` directory for development instructions.
 
     // Create the main app in the app/ subdirectory
     if (preset === 'astro-wrangler') {
-        await initAstro(mainAppDir, true) // Pass true for wrangler integration
+        await initAstro(appDir, true) // Pass true for wrangler integration
     } else if (preset === 'api') {
-        await initHonoWrangler(mainAppDir)
+        await initHonoWrangler(appDir)
     }
 
     console.log(`🎉 App '${name}' created with structure:`)

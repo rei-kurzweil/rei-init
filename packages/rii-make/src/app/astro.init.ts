@@ -8,24 +8,27 @@ export async function initAstro(targetDir: string, withWrangler: boolean = false
     console.log(`✨ Creating Astro project at ${targetDir}`)
 
     if (withWrangler) {
+        console.log("initAstro(...){ (withWrangler) {.. 🎯 targetDir", targetDir);
         // pnpm create cloudflare@latest my-astro-app --framework=astro
         await execa('pnpm', ['create', 'cloudflare@latest', targetDir, '--framework=astro'], {
             stdio: 'inherit'
         })
 
+        // Also install react and mdx in the app directory
+        await execa('pnpm', ['add', '-D', '@astrojs/react', '@astrojs/mdx'], { cwd: targetDir });
+
+
     } else {
 
         // Use react template
         await execa('pnpm', ['create', 'astro@latest', targetDir, '--', '--template', 'with-react'], { stdio: 'inherit' })
-    }
 
-    // Install React + MDX support
-    await execa('pnpm', ['add', '-D', '@astrojs/react', '@astrojs/mdx'], { cwd: targetDir })
+        // Install React + MDX support
+        await execa('pnpm', ['add', '-D', '@astrojs/react', '@astrojs/mdx'], { cwd: targetDir })
 
-    const configPath = path.join(targetDir, 'astro.config.mjs')
-    let configText = await fs.readFile(configPath, 'utf-8')
+        const configPath = path.join(targetDir, 'astro.config.mjs')
+        let configText = await fs.readFile(configPath, 'utf-8')
 
-    if (!withWrangler) {
         // For non-wrangler setups, just add React + MDX
         configText = configText.replace(
             'defineConfig({',
@@ -40,25 +43,10 @@ export async function initAstro(targetDir: string, withWrangler: boolean = false
         configText = `import react from '@astrojs/react'
 import mdx from '@astrojs/mdx'
 ` + configText
-    } else {
-        // For Wrangler setups, enhance the existing config
-        if (!configText.includes('@astrojs/react')) {
-            configText = configText.replace(
-                'import { defineConfig } from \'astro/config\';',
-                `import { defineConfig } from 'astro/config';
-import react from '@astrojs/react';
-import mdx from '@astrojs/mdx';`
-            )
-            
-            // Add React and MDX to integrations array
-            configText = configText.replace(
-                /integrations:\s*\[([^\]]*)\]/,
-                'integrations: [$1, react(), mdx()]'
-            )
-        }
+
+        await fs.writeFile(configPath, configText)
     }
 
-    await fs.writeFile(configPath, configText)
 
     console.log(`✅ Astro initialized with React + MDX support${withWrangler ? ' + Wrangler/Cloudflare' : ''}!`)
 }
