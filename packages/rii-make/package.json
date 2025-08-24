@@ -16,6 +16,7 @@
   "dependencies": {
     "@inquirer/prompts": "^7.6.0",
     "@types/node": "^24.0.12",
+    "chalk": "^5.6.0",
     "drizzle-orm": "^0.44.3"
   },
   "devDependencies": {

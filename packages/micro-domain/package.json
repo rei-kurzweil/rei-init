@@ -1,0 +1,11 @@
+{
+  "name": "@rii-init/micro-domain",
+  "version": "1.0.0",
+  "description": "types and classes for domain model",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "rii evans",
+  "license": "MIT"
+}

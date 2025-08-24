@@ -1,0 +1,17 @@
+{
+  "name": "@rii-init/micro-bus",
+  "version": "1.0.0",
+  "description": "in-memory pub/sub and request/response message bus",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "message",
+    "bus",
+    "pub/sub",
+    "request/response"
+  ],
+  "author": "rii evans",
+  "license": "MIT"
+}
