@@ -5,7 +5,8 @@ import { input, select } from '@inquirer/prompts'
 import { initAstro } from './astro.init.js'
 import { initHonoWrangler } from './hono-wrangler.init.js'
 import { findMonorepoRoot } from '../util.js'
-import fs from 'fs-extra'
+import { AppPresetType } from './model.js'
+
 
 export async function initAppProject(): Promise<string> {
     const root = await findMonorepoRoot()
@@ -22,35 +23,13 @@ export async function initAppProject(): Promise<string> {
     const preset = await select({
         message: 'Which type of app framework?',
         choices: [
-            { name: 'Astro + Wrangler (full-stack)', value: 'astro-wrangler' },
-            { name: 'Hono + Wrangler (API only)', value: 'api' }
+            { name: 'Astro + Wrangler (full-stack)', value: AppPresetType.AstroWrangler },
+            { name: 'Hono + Wrangler (API only)', value: AppPresetType.HonoWrangler }
         ]
     })
 
-    // Apps always go in apps/ and have app/ + packages/ structure
-    const appDir      = path.join(root,   'apps',     name)
-    const packagesDir = path.join(appDir, 'packages')
-
-    // Create the directory structure
-    await fs.ensureDir(appDir)
-    await fs.ensureDir(packagesDir)
-
-    // Create a README for the app
-    const readmeContent = `# ${name}
-
-This is the ${name} application.
-
-## Structure
-
-- \`app/\` - Main application (${preset})
-- \`packages/\` - Sub-packages for this app
-
-## Development
-
-See the main app in the \`app/\` directory for development instructions.
-`
-    await fs.writeFile(path.join(appDir, 'README.md'), readmeContent)
-
+    const appDir = path.join(root, 'apps', name);
+        
     // Create the main app in the app/ subdirectory
     if (preset === 'astro-wrangler') {
         await initAstro(appDir, true) // Pass true for wrangler integration

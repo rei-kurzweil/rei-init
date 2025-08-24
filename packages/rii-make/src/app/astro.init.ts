@@ -5,6 +5,18 @@ import path from 'path'
 import fs from 'fs-extra'
 
 export async function initAstro(targetDir: string, withWrangler: boolean = false) {
+    // test to make sure the target directory is valid
+    const isValidDir = /^[a-z0-9-]+$/.test(path.basename(targetDir))
+    if (!isValidDir) {
+        // renaming target to have only valid characters on last element
+        const newName = path.basename(targetDir).replace(/[^a-z0-9-]/g, '-');
+        const newTargetDir = path.join(path.dirname(targetDir), newName);
+
+        console.log(`⚠️  Renaming target directory to valid name (from: ${targetDir} to: ${newTargetDir})`);
+
+        targetDir = newTargetDir;
+    }
+
     console.log(`✨ Creating Astro project at ${targetDir}`)
 
     if (withWrangler) {
