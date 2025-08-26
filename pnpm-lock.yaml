@@ -85,7 +85,7 @@ importers:
         specifier: ^4.32.0
         version: 4.32.0(@cloudflare/workers-types@4.20250725.0)
 
-  apps/sim-sim-city-2024:
+  apps/sim-sim-city-2025:
     devDependencies:
       '@types/node':
         specifier: ^22.8.1
@@ -6115,7 +6115,7 @@ snapshots:
   '@types/fs-extra@11.0.4':
     dependencies:
       '@types/jsonfile': 6.1.4
-      '@types/node': 24.1.0
+      '@types/node': 24.3.0
 
   '@types/hast@3.0.4':
     dependencies:
@@ -6125,7 +6125,7 @@ snapshots:
 
   '@types/jsonfile@6.1.4':
     dependencies:
-      '@types/node': 24.1.0
+      '@types/node': 24.3.0
 
   '@types/mdast@4.0.4':
     dependencies:

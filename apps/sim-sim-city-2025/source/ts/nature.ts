@@ -13,6 +13,14 @@ export function sdf_tree(x: number, z: number, size_x: number, size_z: number): 
     return perlinSDF(x, z, size_x / 2, size_z / 2);
 }
 
+export function sdf_water(x: number, z: number, size_x: number, size_z: number): number {
+    return Math.min(
+        perlinSDF(x+5, z+5, size_x, size_z),
+        perlinSDF(x, z,     size_x, size_z)
+    ) + 0.25;
+}
+
+
 export function game_map_earth(size_x: number, size_z: number): Cell[][] {
     const cells: Cell[][] = [];
 
@@ -33,6 +41,11 @@ export function game_map_earth(size_x: number, size_z: number): Cell[][] {
             if (sdf_tree(x, z, size_x, size_z) < -0.2) {
                 cell.type = 'tree';
             }            
+
+            // water
+            if (sdf_water(x, z, size_x, size_z) < -0.2) {
+                cell.type = 'water';
+            }
 
             row.push(cell);
         }
