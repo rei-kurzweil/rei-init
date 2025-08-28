@@ -1,35 +1,8 @@
 ---
-const cards = [
-  { title: "rii-init.net", content: "" },
-  { title: "federated micro blogging framework", content: "" },
-  { title: "dream within a dream within a dream", content: "" }
-];
+import UICard from './UICard.jsx';
 ---
-<div class="card-grid">
-  {cards.map((card, i) => (
-    <div class="glass-card" draggable="true" on:dragstart={(e) => dragStart(e, i)} on:dragend={dragEnd}>
-      <div class="window-bar">
-        <span class="window-title">{card.title}</span>
-        <div class="window-controls">
-          <button aria-label="Minimize" tabindex="-1">─</button>
-          <button aria-label="Maximize" tabindex="-1">□</button>
-          <button aria-label="Close" tabindex="-1">✕</button>
-        </div>
-      </div>
-      <div class="window-content">{card.content}</div>
-    </div>
-  ))}
-</div>
+<UICard client:load />
 
-<script type="module">
-let dragging = null;
-function dragStart(e, idx) {
-  dragging = e.target;
-  e.dataTransfer.effectAllowed = "move";
-  setTimeout(() => dragging.classList.add("dragging"), 0);
-}
-function dragEnd(e) {
-  if (dragging) dragging.classList.remove("dragging");
-  dragging = null;
-}
-</script>
+<style>
+/* Place your card-grid, glass-card, etc. styles here */
+</style>
