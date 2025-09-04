@@ -15,5 +15,16 @@ export default defineConfig({
     imageService: "cloudflare"
   }),
 
-  integrations: [react()]
+  integrations: [react()],
+
+  vite: {
+    build: {
+      rollupOptions: {
+        output: {
+          // Make sure assets are always fingerprinted
+          assetFileNames: 'assets/[name].[hash][extname]',
+        },
+      },
+    },
+  },
 });

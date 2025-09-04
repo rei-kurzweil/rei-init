@@ -1,27 +1,67 @@
-import React, { useRef } from "react";
 
-const cards = [
-  { title: "rii-init.net", content: "" },
-  { title: "federated micro blogging framework", content: "" },
-  { title: "dream within a dream within a dream", content: "" }
+import React, { useRef, useState } from "react";
+
+const initialCards = [
+  { title: "rii-init.net", content: "", x: 0, y: 0 },
+  { title: "this", content: "optionally distributed edge microblog framework", x: 360, y: 0 },
+  { title: "github", content: "github.com/rii-init/rii-init", x: 0, y: 280 },
+  { title: "coming soon", content: "", x: 360, y: 280 }
 ];
 
 export default function WelcomeCards() {
+  const [cards, setCards] = useState(initialCards);
   const dragging = useRef(null);
+  const dragIndex = useRef(null);
+  const dragOffset = useRef({ x: 0, y: 0 });
 
   function handleDragStart(e, idx) {
     dragging.current = e.target;
+    dragIndex.current = idx;
+    const rect = e.target.getBoundingClientRect();
+    dragOffset.current = {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    };
     e.dataTransfer.effectAllowed = "move";
     setTimeout(() => dragging.current.classList.add("dragging"), 0);
   }
+
   function handleDragEnd(e) {
+    if (dragging.current) dragging.current.classList.remove("dragging");
+    dragging.current = null;
+    dragIndex.current = null;
+  }
+
+  function handleDragOver(e) {
+    e.preventDefault();
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    if (dragIndex.current === null) return;
+    
+    const containerRect = e.currentTarget.getBoundingClientRect();
+    const newX = e.clientX - containerRect.left - dragOffset.current.x;
+    const newY = e.clientY - containerRect.top - dragOffset.current.y;
+    
+    setCards(prev => prev.map((card, idx) => 
+      idx === dragIndex.current 
+        ? { ...card, x: Math.max(0, newX), y: Math.max(0, newY) }
+        : card
+    ));
+    
+    dragIndex.current = null;
     if (dragging.current) dragging.current.classList.remove("dragging");
     dragging.current = null;
   }
 
   return (
     <>
-      <div className="card-grid">
+      <div 
+        className="card-grid"
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+      >
         {cards.map((card, i) => (
           <div
             className="glass-card"
@@ -29,6 +69,11 @@ export default function WelcomeCards() {
             key={i}
             onDragStart={e => handleDragStart(e, i)}
             onDragEnd={handleDragEnd}
+            style={{
+              position: 'absolute',
+              left: card.x,
+              top: card.y
+            }}
           >
             <div className="window-bar">
               <span className="window-title">{card.title}</span>
@@ -38,19 +83,18 @@ export default function WelcomeCards() {
                 <button aria-label="Close" tabIndex={-1}>✕</button>
               </div>
             </div>
-            <div className="window-content-glass-reflection">{card.content}</div>
+            <div>{card.content}</div>
+            <div className="window-content-glass-reflection"></div>
           </div>
         ))}
       </div>
       <style>{`
         .card-grid {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 2rem;
-          justify-content: center;
-          align-items: center;
+          position: relative;
           width: 100%;
+          height: 600px;
           max-width: 900px;
+          margin: 0 auto;
         }
         .glass-card {
           min-width: 320px;
@@ -126,7 +170,7 @@ export default function WelcomeCards() {
         .window-content-glass-reflection {
           transform: rotate(60deg);
           position: relative;
-          right: 10em;
+          right: 12em;
 
           padding: 1.5em 1em 8em 1em;
           color: inherit;
