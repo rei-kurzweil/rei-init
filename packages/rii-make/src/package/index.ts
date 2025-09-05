@@ -8,6 +8,8 @@ import { initTSLibrary } from './util'
 
 import { initReactSPA } from '../app/react-spa.init'
 import { init_DrizzleORM_D1_schema_and_migration_runner_package } from './migration-runner-package'
+import { initPythonBlenderPluginPackage } from './blender'
+import { initReactLibrary } from './react'
 
 
 export async function initPackageProject(): Promise<string> {
@@ -22,6 +24,7 @@ export async function initPackageProject(): Promise<string> {
             { name: 'React SPA with Three.js + XR', value: 'react-spa-r3f-xr' },
             { name: 'Utility Package', value: 'util' },
             { name: 'Drizzle D1 Schema + Migration Runner CLI', value: 'database-schema-and-migration-runner-cli-drizzle-d1-package' },
+            { name: 'Blender Python Plugin', value: 'python-blender-plugin' }, // added
         ]
     })
 
@@ -68,44 +71,11 @@ export async function createPackageByType(targetDir: string, name: string, type:
 
     } else if (type === 'util') {
         await initUtilPackage(targetDir, name)
+    } else if (type === 'python-blender-plugin') {
+        await initPythonBlenderPluginPackage(targetDir, name)
     }
 }
 
-
-async function initReactLibrary(targetDir: string, name: string) {
-    await initTSLibrary(targetDir, name)
-    
-    // Add React dependencies
-    await execa('pnpm', ['add', 'react', '@types/react'], { cwd: targetDir })
-
-    // Update tsconfig.json for JSX support
-    const tsconfigPath = path.join(targetDir, 'tsconfig.json');
-    if (await fs.pathExists(tsconfigPath)) {
-        const tsconfig = await fs.readJSON(tsconfigPath);
-        tsconfig.compilerOptions.jsx = 'react-jsx';
-        await fs.writeJSON(tsconfigPath, tsconfig, { spaces: 2 });
-    }
-    
-    // Update the entry point
-    await fs.writeFile(
-        path.join(targetDir, 'src/index.ts'), `export { default as Example } from './Example'`);
-
-    
-    const component = `import React from 'react'
-
-interface ExampleProps {
-  message?: string
-}
-
-const Example: React.FC<ExampleProps> = ({ message = 'Hello from ${name}!' }) => {
-  return <div>{message}</div>
-}
-
-export default Example
-`
-    
-    await fs.writeFile(path.join(targetDir, 'src/Example.tsx'), component)
-}
 
 async function initUtilPackage(targetDir: string, name: string) {
     await initTSLibrary(targetDir, name)
@@ -122,3 +92,4 @@ export const capitalize = (str: string): string => {
     
     await fs.writeFile(path.join(targetDir, 'src/index.ts'), utilCode)
 }
+
