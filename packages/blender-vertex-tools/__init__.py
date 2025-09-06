@@ -1,19 +1,13 @@
-bl_info = {
-    "name": "blender-vertex-tools",
-    "author": "rii evans",
-    "version": (0, 1, 0),
-    "blender": (2, 80, 0),
-    "location": "View3D > UI > VertexTools",
-    "description": "tools for pinning vertices in place (extra hands to hold stuff w/o relying on undo stack) et al",
-    "warning": "",
-    "doc_url": "",
-    "category": "Mesh",
-}
+# For Blender 4.4+, you also need a blender_manifest.toml file alongside this .py file
 
 import bpy
+from bpy.props import StringProperty
+
+import json
+from mathutils import Vector
 
 # -----------------------------
-# Save operator (your original)
+# Save operator 
 # -----------------------------
 class VERTEX_OT_save_positions(bpy.types.Operator):
     bl_idname = "vertex.save_positions"
@@ -28,13 +22,17 @@ class VERTEX_OT_save_positions(bpy.types.Operator):
         obj = context.object
         bpy.ops.object.mode_set(mode='OBJECT')
         selected_indices = [v.index for v in obj.data.vertices if v.select]
-        context.scene._saved_vertex_positions = {i: obj.data.vertices[i].co.copy() for i in selected_indices}
+        
+        # Store as JSON string in the scene property
+        positions_data = {str(i): list(obj.data.vertices[i].co) for i in selected_indices}
+        context.scene.vertex_tools_saved_positions = json.dumps(positions_data)
+        
         self.report({'INFO'}, f"Saved {len(selected_indices)} vertex positions.")
         bpy.ops.object.mode_set(mode='EDIT')
         return {'FINISHED'}
 
 # -----------------------------
-# Restore operator (your original)
+# Restore operator 
 # -----------------------------
 class VERTEX_OT_restore_positions(bpy.types.Operator):
     bl_idname = "vertex.restore_positions"
@@ -47,17 +45,62 @@ class VERTEX_OT_restore_positions(bpy.types.Operator):
 
     def execute(self, context):
         obj = context.object
-        saved_positions = getattr(context.scene, "_saved_vertex_positions", None)
-        if not saved_positions:
+        
+        # Get saved positions from JSON string
+        saved_data = context.scene.vertex_tools_saved_positions
+        if not saved_data:
             self.report({'WARNING'}, "No saved vertex positions found!")
             return {'CANCELLED'}
+        
+        try:
+            positions_data = json.loads(saved_data)
+        except json.JSONDecodeError:
+            self.report({'WARNING'}, "Saved data is corrupted!")
+            return {'CANCELLED'}
+            
+        # Switch to object mode before creating a bmesh object
+        # Bmesh needs the object to be in a known state
         bpy.ops.object.mode_set(mode='OBJECT')
-        for i, pos in saved_positions.items():
-            obj.data.vertices[i].co = pos
+        
+        # Create a new BMesh instance from the object's mesh data
+        import bmesh
+        bm = bmesh.new()
+        bm.from_mesh(obj.data)
+        
+        # Prepare to restore positions
+        restored_count = 0
+        
+        # Use a dictionary to quickly map vertex index to the bmesh vertex
+        # This is more robust than relying on the list order
+        verts_by_index = {v.index: v for v in bm.verts}
+        
+        # Restore positions
+        for i_str, pos_list in positions_data.items():
+            i = int(i_str)
+            if i in verts_by_index:
+                verts_by_index[i].co = Vector(pos_list)
+                restored_count += 1
+        
+        # Write the modified BMesh data back to the mesh
+        bm.to_mesh(obj.data)
+        
+        # Free the BMesh data
+        bm.free()
+        
+        # Update the object's dependency graph to ensure visual refresh
         obj.data.update()
+        
+        # This is a bit redundant if you're already updating the mesh,
+        # but it can help in some situations to ensure the viewport updates.
+        bpy.context.view_layer.objects.active = obj
+        obj.select_set(True)
+        
+        # Return to edit mode
         bpy.ops.object.mode_set(mode='EDIT')
-        self.report({'INFO'}, f"Restored {len(saved_positions)} vertex positions.")
+        
+        self.report({'INFO'}, f"Restored {restored_count}/{len(positions_data)} vertex positions.")
         return {'FINISHED'}
+
 
 # -----------------------------
 # Clear operator
@@ -68,11 +111,8 @@ class VERTEX_OT_clear_positions(bpy.types.Operator):
     bl_description = "Clear any saved vertex positions"
 
     def execute(self, context):
-        if hasattr(context.scene, "_saved_vertex_positions"):
-            context.scene._saved_vertex_positions.clear()
-            self.report({'INFO'}, "Cleared saved vertex positions.")
-        else:
-            self.report({'WARNING'}, "No saved positions to clear.")
+        context.scene.vertex_tools_saved_positions = ""
+        self.report({'INFO'}, "Cleared saved vertex positions.")
         return {'FINISHED'}
 
 # -----------------------------
@@ -92,17 +132,28 @@ class VERTEX_PT_positions_panel(bpy.types.Panel):
         # Get selection info
         first_index = "N/A"
         count = 0
+        saved_count = 0
+        
         if obj and obj.type == 'MESH':
             bm = obj.data
             selected = [v for v in bm.vertices if v.select]
             count = len(selected)
             if selected:
                 first_index = selected[0].index
+        
+        # Check if we have saved positions
+        if context.scene.vertex_tools_saved_positions:
+            try:
+                saved_data = json.loads(context.scene.vertex_tools_saved_positions)
+                saved_count = len(saved_data)
+            except:
+                saved_count = 0
 
         # Buttons + info
         layout.operator("vertex.save_positions", text="💾 Save Vertex Positions")
         layout.label(text=f"Selected From Index: {first_index}")
-        layout.label(text=f"Vertex Count: {count}")
+        layout.label(text=f"Current Selection: {count}")
+        layout.label(text=f"Saved Positions: {saved_count}")
         layout.operator("vertex.restore_positions", text="↩ Restore Vertex Positions")
         layout.operator("vertex.clear_positions", text="🗑 Clear Saved Positions")
 
@@ -117,12 +168,22 @@ classes = (
 )
 
 def register():
+    # Register the scene property
+    bpy.types.Scene.vertex_tools_saved_positions = StringProperty(
+        name="Vertex Tools Saved Positions",
+        description="JSON string storing saved vertex positions",
+        default=""
+    )
+    
     for cls in classes:
         bpy.utils.register_class(cls)
 
 def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
+    
+    # Unregister the scene property
+    del bpy.types.Scene.vertex_tools_saved_positions
 
 if __name__ == "__main__":
     register()

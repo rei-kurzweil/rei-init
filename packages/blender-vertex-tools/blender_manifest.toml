@@ -1,0 +1,21 @@
+schema_version = "1.0.0"
+
+id = "blender-vertex-tools"
+name = "Vertex Tools"
+tagline = "Tools for pinning vertices in place"
+version = "0.1.0"
+type = "add-on"
+
+maintainer = "rii evans"
+author = "rii evans"
+
+tags = ["Mesh", "Modeling", "3D View"]
+
+blender_version_min = "4.2.0"
+
+license = [
+  "GPL-3.0-or-later",
+]
+
+[permissions]
+files = "Access blend file data"
