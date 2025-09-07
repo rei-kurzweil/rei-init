@@ -1,189 +1,273 @@
-# For Blender 4.4+, you also need a blender_manifest.toml file alongside this .py file
-
 import bpy
-from bpy.props import StringProperty
-
+from bpy.props import StringProperty, IntProperty
 import json
 from mathutils import Vector
 
+# --- Helpers ---------------------------------------------------
+def _default_group():
+    return {"first_index": None, "positions": {}}
+
+# New: constant default JSON so there is always one visible empty group on first load
+DEFAULT_GROUPS_JSON = json.dumps([_default_group()])
+
+def _load_groups(scene):
+    raw = scene.vertex_tools_saved_positions
+    if not raw:
+        return [_default_group()]
+    try:
+        data = json.loads(raw)
+    except Exception:
+        return [_default_group()]
+    # Backward compatibility: old format was a dict of positions
+    if isinstance(data, dict):
+        return [{"first_index": None, "positions": data}]
+    if isinstance(data, list):
+        cleaned = []
+        for g in data:
+            if not isinstance(g, dict):
+                continue
+            first_index = g.get("first_index", None)
+            positions = g.get("positions", {})
+            if not isinstance(positions, dict):
+                positions = {}
+            cleaned.append({"first_index": first_index, "positions": positions})
+        if not cleaned:
+            cleaned = [_default_group()]
+        return cleaned
+    return [_default_group()]
+
+def _set_groups(scene, groups):
+    if not groups:
+        groups = [_default_group()]
+    scene.vertex_tools_group_count = len(groups)
+    scene.vertex_tools_saved_positions = json.dumps(groups)
+
+def _ensure_groups(scene):
+    groups = _load_groups(scene)
+    # Strengthen: if parsed list ended up empty, restore default
+    if not groups:
+        groups = [_default_group()]
+    _set_groups(scene, groups)
+    return groups
+
 # -----------------------------
-# Save operator 
+# Save operator (per group)
 # -----------------------------
 class VERTEX_OT_save_positions(bpy.types.Operator):
     bl_idname = "vertex.save_positions"
-    bl_label = "Save Vertex Positions"
-    bl_description = "Save the positions of currently selected vertices"
+    bl_label = "Save Vertex Positions (Group)"
+    bl_description = "Save current selection into a pinned set"
+    group_index: IntProperty()
 
     @classmethod
     def poll(cls, context):
         return context.object is not None and context.object.type == 'MESH'
 
     def execute(self, context):
+        groups = _ensure_groups(context.scene)
+        if self.group_index < 0 or self.group_index >= len(groups):
+            self.report({'WARNING'}, "Invalid group index")
+            return {'CANCELLED'}
         obj = context.object
         bpy.ops.object.mode_set(mode='OBJECT')
-        selected_indices = [v.index for v in obj.data.vertices if v.select]
-        
-        # Store as JSON string in the scene property
-        positions_data = {str(i): list(obj.data.vertices[i].co) for i in selected_indices}
-        context.scene.vertex_tools_saved_positions = json.dumps(positions_data)
-        
-        self.report({'INFO'}, f"Saved {len(selected_indices)} vertex positions.")
+        selected = [v for v in obj.data.vertices if v.select]
+        positions = {str(v.index): list(v.co) for v in selected}
+        first_index = selected[0].index if selected else None
+        groups[self.group_index]["positions"] = positions
+        groups[self.group_index]["first_index"] = first_index
+        _set_groups(context.scene, groups)
+        self.report({'INFO'}, f"Group {self.group_index+1}: saved {len(positions)} vertices.")
         bpy.ops.object.mode_set(mode='EDIT')
         return {'FINISHED'}
 
 # -----------------------------
-# Restore operator 
+# Restore operator (per group)
 # -----------------------------
 class VERTEX_OT_restore_positions(bpy.types.Operator):
     bl_idname = "vertex.restore_positions"
-    bl_label = "Restore Vertex Positions"
-    bl_description = "Restore saved vertex positions"
+    bl_label = "Restore Vertex Positions (Group)"
+    bl_description = "Restore positions from a pinned set"
+    group_index: IntProperty()
 
     @classmethod
     def poll(cls, context):
         return context.object is not None and context.object.type == 'MESH'
 
     def execute(self, context):
+        groups = _ensure_groups(context.scene)
+        if self.group_index < 0 or self.group_index >= len(groups):
+            self.report({'WARNING'}, "Invalid group index")
+            return {'CANCELLED'}
+        data_map = groups[self.group_index]["positions"]
+        if not data_map:
+            self.report({'WARNING'}, "Group is empty.")
+            return {'CANCELLED'}
         obj = context.object
-        
-        # Get saved positions from JSON string
-        saved_data = context.scene.vertex_tools_saved_positions
-        if not saved_data:
-            self.report({'WARNING'}, "No saved vertex positions found!")
-            return {'CANCELLED'}
-        
-        try:
-            positions_data = json.loads(saved_data)
-        except json.JSONDecodeError:
-            self.report({'WARNING'}, "Saved data is corrupted!")
-            return {'CANCELLED'}
-            
-        # Switch to object mode before creating a bmesh object
-        # Bmesh needs the object to be in a known state
         bpy.ops.object.mode_set(mode='OBJECT')
-        
-        # Create a new BMesh instance from the object's mesh data
         import bmesh
         bm = bmesh.new()
         bm.from_mesh(obj.data)
-        
-        # Prepare to restore positions
-        restored_count = 0
-        
-        # Use a dictionary to quickly map vertex index to the bmesh vertex
-        # This is more robust than relying on the list order
         verts_by_index = {v.index: v for v in bm.verts}
-        
-        # Restore positions
-        for i_str, pos_list in positions_data.items():
-            i = int(i_str)
-            if i in verts_by_index:
-                verts_by_index[i].co = Vector(pos_list)
-                restored_count += 1
-        
-        # Write the modified BMesh data back to the mesh
+        restored = 0
+        for i_str, pos in data_map.items():
+            try:
+                i = int(i_str)
+            except:
+                continue
+            v = verts_by_index.get(i)
+            if v:
+                v.co = Vector(pos)
+                restored += 1
         bm.to_mesh(obj.data)
-        
-        # Free the BMesh data
         bm.free()
-        
-        # Update the object's dependency graph to ensure visual refresh
         obj.data.update()
-        
-        # This is a bit redundant if you're already updating the mesh,
-        # but it can help in some situations to ensure the viewport updates.
         bpy.context.view_layer.objects.active = obj
         obj.select_set(True)
-        
-        # Return to edit mode
         bpy.ops.object.mode_set(mode='EDIT')
-        
-        self.report({'INFO'}, f"Restored {restored_count}/{len(positions_data)} vertex positions.")
+        self.report({'INFO'}, f"Group {self.group_index+1}: restored {restored}/{len(data_map)}.")
         return {'FINISHED'}
 
-
 # -----------------------------
-# Clear operator
+# Clear operator (per group)
 # -----------------------------
 class VERTEX_OT_clear_positions(bpy.types.Operator):
     bl_idname = "vertex.clear_positions"
-    bl_label = "Clear Saved Positions"
-    bl_description = "Clear any saved vertex positions"
+    bl_label = "Clear Saved Positions (Group)"
+    bl_description = "Clear saved positions in this pinned set"
+    group_index: IntProperty()
 
     def execute(self, context):
-        context.scene.vertex_tools_saved_positions = ""
-        self.report({'INFO'}, "Cleared saved vertex positions.")
+        groups = _ensure_groups(context.scene)
+        if self.group_index < 0 or self.group_index >= len(groups):
+            self.report({'WARNING'}, "Invalid group index")
+            return {'CANCELLED'}
+        groups[self.group_index]["positions"] = {}
+        groups[self.group_index]["first_index"] = None
+        _set_groups(context.scene, groups)
+        self.report({'INFO'}, f"Group {self.group_index+1}: cleared.")
         return {'FINISHED'}
 
 # -----------------------------
-# Panel in the N-Panel
+# Add group
+# -----------------------------
+class VERTEX_OT_add_group(bpy.types.Operator):
+    bl_idname = "vertex.add_group"
+    bl_label = "Add Pinned Set"
+    bl_description = "Create a new empty pinned set"
+
+    def execute(self, context):
+        groups = _ensure_groups(context.scene)
+        groups.append(_default_group())
+        _set_groups(context.scene, groups)
+        # Force UI redraw so the new group shows immediately
+        if context.area:
+            context.area.tag_redraw()
+        self.report({'INFO'}, "Added pinned set.")
+        return {'FINISHED'}
+
+# -----------------------------
+# Remove group
+# -----------------------------
+class VERTEX_OT_remove_group(bpy.types.Operator):
+    bl_idname = "vertex.remove_group"
+    bl_label = "Remove Pinned Set"
+    bl_description = "Remove this pinned set"
+    group_index: IntProperty()
+
+    def execute(self, context):
+        groups = _ensure_groups(context.scene)
+        if len(groups) <= 1:
+            self.report({'WARNING'}, "Cannot remove the last pinned set.")
+            return {'CANCELLED'}
+        if self.group_index < 0 or self.group_index >= len(groups):
+            self.report({'WARNING'}, "Invalid group index")
+            return {'CANCELLED'}
+        del groups[self.group_index]
+        _set_groups(context.scene, groups)
+        self.report({'INFO'}, "Removed pinned set.")
+        return {'FINISHED'}
+
+# -----------------------------
+# Panel
 # -----------------------------
 class VERTEX_PT_positions_panel(bpy.types.Panel):
     bl_label = "Vertex Tools"
     bl_idname = "VERTEX_PT_positions_panel"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = 'Vertex Tools'  # Tab name
+    bl_category = 'Vertex Tools'
 
     def draw(self, context):
         layout = self.layout
         obj = context.object
 
-        # Get selection info
-        first_index = "N/A"
-        count = 0
-        saved_count = 0
-        
-        if obj and obj.type == 'MESH':
-            bm = obj.data
-            selected = [v for v in bm.vertices if v.select]
-            count = len(selected)
-            if selected:
-                first_index = selected[0].index
-        
-        # Check if we have saved positions
-        if context.scene.vertex_tools_saved_positions:
-            try:
-                saved_data = json.loads(context.scene.vertex_tools_saved_positions)
-                saved_count = len(saved_data)
-            except:
-                saved_count = 0
+        # IMPORTANT: do not write to scene properties during draw
+        groups = _load_groups(context.scene)
+        if not groups:
+            groups = [_default_group()]
 
-        # Buttons + info
-        layout.operator("vertex.save_positions", text="💾 Save Vertex Positions")
-        layout.label(text=f"Selected From Index: {first_index}")
+        # Current selection (shared)
+        count = 0
+        if obj and obj.type == 'MESH':
+            count = sum(1 for v in obj.data.vertices if v.select)
         layout.label(text=f"Current Selection: {count}")
-        layout.label(text=f"Saved Positions: {saved_count}")
-        layout.operator("vertex.restore_positions", text="↩ Restore Vertex Positions")
-        layout.operator("vertex.clear_positions", text="🗑 Clear Saved Positions")
+
+        # Each group
+        for idx, g in enumerate(groups):
+            box = layout.box()
+            header = box.row()
+            header.label(text=f"Pinned Set {idx+1}")
+            if len(groups) > 1:
+                op_rem = header.operator("vertex.remove_group", text="− Remove", emboss=True)
+                op_rem.group_index = idx
+            first_index = g.get("first_index")
+            first_text = first_index if first_index is not None else "N/A"
+            saved_count = len(g.get("positions", {}))
+            box.label(text=f"Selected From Index: {first_text}")
+            box.label(text=f"Saved Positions: {saved_count}")
+
+            row = box.row()
+            op_save = row.operator("vertex.save_positions", text="💾 Save")
+            op_save.group_index = idx
+            op_restore = row.operator("vertex.restore_positions", text="↩ Restore")
+            op_restore.group_index = idx
+            op_clear = row.operator("vertex.clear_positions", text="🗑 Clear")
+            op_clear.group_index = idx
+
+        layout.separator()
+        layout.operator("vertex.add_group", text="+ New Pinned Set")
 
 # -----------------------------
-# Register all
+# Register
 # -----------------------------
 classes = (
     VERTEX_OT_save_positions,
     VERTEX_OT_restore_positions,
     VERTEX_OT_clear_positions,
+    VERTEX_OT_add_group,
+    VERTEX_OT_remove_group,
     VERTEX_PT_positions_panel,
 )
 
 def register():
-    # Register the scene property
     bpy.types.Scene.vertex_tools_saved_positions = StringProperty(
         name="Vertex Tools Saved Positions",
-        description="JSON string storing saved vertex positions",
-        default=""
+        description="JSON list of pinned sets",
+        default=DEFAULT_GROUPS_JSON  # Ensure a default empty group exists immediately
     )
-    
-    for cls in classes:
-        bpy.utils.register_class(cls)
+    bpy.types.Scene.vertex_tools_group_count = IntProperty(
+        name="Vertex Tools Group Count",
+        description="Number of pinned sets",
+        default=1
+    )
+    for c in classes:
+        bpy.utils.register_class(c)
 
 def unregister():
-    for cls in reversed(classes):
-        bpy.utils.unregister_class(cls)
-    
-    # Unregister the scene property
+    for c in reversed(classes):
+        bpy.utils.unregister_class(c)
     del bpy.types.Scene.vertex_tools_saved_positions
+    del bpy.types.Scene.vertex_tools_group_count
 
 if __name__ == "__main__":
     register()
