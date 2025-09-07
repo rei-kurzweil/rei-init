@@ -188,6 +188,51 @@ class VERTEX_OT_remove_group(bpy.types.Operator):
         return {'FINISHED'}
 
 # -----------------------------
+# Select operator (per group)
+# -----------------------------
+class VERTEX_OT_select_group(bpy.types.Operator):
+    bl_idname = "vertex.select_group"
+    bl_label = "Select Saved Vertices (Group)"
+    bl_description = "Select all vertices stored in this pinned set"
+    group_index: IntProperty()
+
+    @classmethod
+    def poll(cls, context):
+        return context.object is not None and context.object.type == 'MESH'
+
+    def execute(self, context):
+        groups = _ensure_groups(context.scene)
+        if self.group_index < 0 or self.group_index >= len(groups):
+            self.report({'WARNING'}, "Invalid group index")
+            return {'CANCELLED'}
+        data_map = groups[self.group_index]["positions"]
+        if not data_map:
+            self.report({'WARNING'}, "Group is empty.")
+            return {'CANCELLED'}
+        obj = context.object
+        bpy.ops.object.mode_set(mode='OBJECT')
+        mesh = obj.data
+        # Clear current selection
+        for v in mesh.vertices:
+            v.select = False
+        selected = 0
+        max_index = len(mesh.vertices) - 1
+        for i_str in data_map.keys():
+            try:
+                i = int(i_str)
+            except:
+                continue
+            if 0 <= i <= max_index:
+                mesh.vertices[i].select = True
+                selected += 1
+        mesh.update()
+        bpy.context.view_layer.objects.active = obj
+        obj.select_set(True)
+        bpy.ops.object.mode_set(mode='EDIT')
+        self.report({'INFO'}, f"Group {self.group_index+1}: selected {selected} vertices.")
+        return {'FINISHED'}
+
+# -----------------------------
 # Panel
 # -----------------------------
 class VERTEX_PT_positions_panel(bpy.types.Panel):
@@ -216,7 +261,9 @@ class VERTEX_PT_positions_panel(bpy.types.Panel):
         for idx, g in enumerate(groups):
             box = layout.box()
             header = box.row()
-            header.label(text=f"Pinned Set {idx+1}")
+            # Replaced label with the select operator in header
+            op_select = header.operator("vertex.select_group", text=f"select set {idx}")
+            op_select.group_index = idx
             if len(groups) > 1:
                 op_rem = header.operator("vertex.remove_group", text="− Remove", emboss=True)
                 op_rem.group_index = idx
@@ -234,6 +281,8 @@ class VERTEX_PT_positions_panel(bpy.types.Panel):
             op_clear = row.operator("vertex.clear_positions", text="🗑 Clear")
             op_clear.group_index = idx
 
+            # Removed previous separate Select row
+
         layout.separator()
         layout.operator("vertex.add_group", text="+ New Pinned Set")
 
@@ -246,6 +295,7 @@ classes = (
     VERTEX_OT_clear_positions,
     VERTEX_OT_add_group,
     VERTEX_OT_remove_group,
+    VERTEX_OT_select_group,
     VERTEX_PT_positions_panel,
 )
 
