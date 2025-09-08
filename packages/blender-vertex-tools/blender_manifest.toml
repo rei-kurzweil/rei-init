@@ -1,9 +1,9 @@
-schema_version = "1.1.2"
+schema_version = "1.0.0"
 
 id = "blender-vertex-tools"
 name = "Vertex Tools"
 tagline = "Tools for pinning vertices in place"
-version = "0.1.0"
+version = "1.1.2"
 type = "add-on"
 
 maintainer = "rii evans"

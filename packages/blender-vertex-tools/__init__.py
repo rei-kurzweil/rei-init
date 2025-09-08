@@ -11,7 +11,7 @@ from gpu_extras.batch import batch_for_shader
 ## Group helpers 
 ##
 def _default_group():
-    return {"first_index": None, "positions": {}, "heart": "red"}  # added heart
+    return {"first_index": None, "positions": {}, "heart": "circle"}  # 
 
 # New: constant default JSON so there is always one visible empty group on first load
 DEFAULT_GROUPS_JSON = json.dumps([_default_group()])
@@ -36,7 +36,7 @@ def _load_groups(scene):
             positions = g.get("positions", {})
             if not isinstance(positions, dict):
                 positions = {}
-            cleaned.append({"first_index": first_index, "positions": positions, "heart": g.get("heart", "red")})
+            cleaned.append({"first_index": first_index, "positions": positions, "heart": g.get("heart", "circle")})
         if not cleaned:
             cleaned = [_default_group()]
         return cleaned
