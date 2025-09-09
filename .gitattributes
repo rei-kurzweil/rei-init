@@ -1,0 +1,2 @@
+# Treat C# files as text and normalize line endings
+*.cs text eol=crlf
