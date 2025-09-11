@@ -12,7 +12,6 @@ class DiskLogger
     {
         string timestamp = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
         string fileName = $"SerializeAndPrint.cs.{timestamp}.txt";
-        
         this.logFilePath = Path.Combine(Application.dataPath, fileName);
     }
 
@@ -94,14 +93,51 @@ class SkinnedMeshRendererInspector
     }
 }
 
+class MiddlewareCompressSubsequentPaths
+{
+    private string[] previousParts = Array.Empty<string>();
+    private const string PlaceholderToken = "↑";
+
+    public string Next(string currentPath)
+    {
+        // Split into parts
+        string[] currentParts = currentPath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        List<string> outputParts = new List<string>();
+
+        // Compare element by element
+        for (int i = 0; i < currentParts.Length; i++)
+        {
+            if (i < previousParts.Length && currentParts[i] == previousParts[i])
+            {
+                outputParts.Add(PlaceholderToken);
+            }
+            else
+            {
+                outputParts.Add(currentParts[i]);
+            }
+        }
+
+        // Save for next comparison
+        previousParts = currentParts;
+
+        // Reassemble into path-like string
+        return "/" + string.Join("/", outputParts);
+    }
+}
+
 
 public class SerializeAndPrint : MonoBehaviour
 {
     [Tooltip("List of keywords to search for in child object names")]
     public string[] keywords = { "" };
 
+    [Tooltip("Compress subsequent paths starting with the same elements")]
+    public bool compressPaths = true;
+
     private BatchedLogger logger;
     private SkinnedMeshRendererInspector skinnedMeshRendererInspector;
+
+    private MiddlewareCompressSubsequentPaths pathCompressor = new MiddlewareCompressSubsequentPaths();
 
     void Start()
     {
@@ -124,7 +160,14 @@ public class SerializeAndPrint : MonoBehaviour
                 if (t.name.ToLower().Contains(keyword.ToLower()))
                 {
                     // write name path of gameobject
-                    logger.Log(GetFullPath(t));
+                    if (compressPaths)
+                    {
+                        logger.Log(pathCompressor.Next(GetFullPath(t)));
+                    }
+                    else
+                    {
+                        logger.Log(GetFullPath(t));
+                    }
                     // inspect
                     skinnedMeshRendererInspector.Inspect(t);
                 }
