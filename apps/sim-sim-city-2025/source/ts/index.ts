@@ -1,6 +1,6 @@
 // Sim Sim City 2024 yo
 // A game about a game about building a city
-// - by Jaden Evans (ultr7a@gmail.com)
+// - by Jaden evans (ultr7a@gmail.com)
 
 
 // import objects
