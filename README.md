@@ -1,6 +1,6 @@
 # Post-human init system ^-^
 
-## _system_index_: "rii-init"
+## _system_index_: "rei-init"
 
 ## layout:
 
