@@ -33,6 +33,6 @@ export async function initReactThreeFiberLibrary(targetDir: string, name: string
     });
 
     // call init functions for selected features 
-    // (simplest case = copying files from templates)
+    // + (simplest case = copying files from templates)
 
 }
