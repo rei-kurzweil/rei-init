@@ -1,5 +1,5 @@
 {
-  "name": "rii-make",
+  "name": "@rei-make/mono-repo-tool",
   "version": "1.0.0",
   "type": "module",
   "private": true,

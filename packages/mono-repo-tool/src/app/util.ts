@@ -1,6 +1,6 @@
 import fs from 'fs-extra'
 import path from 'path'
-import { AppPresetType } from './model';
+import { AppPresetType } from './app-type';
 
 export async function ensurePackagesDirectory(appDirPath: string): Promise<void> {
     // Apps always go in apps/ and have app/ + packages/ structure

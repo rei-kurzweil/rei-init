@@ -5,7 +5,7 @@ import { input, select } from '@inquirer/prompts'
 import { initAstro } from './astro.init.js'
 import { initHonoWrangler } from './hono-wrangler.init.js'
 import { findMonorepoRoot } from '../util.js'
-import { AppPresetType } from './model.js'
+import { AppPresetType } from './app-type.js'
 
 
 export async function initAppProject(): Promise<string> {

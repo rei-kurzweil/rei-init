@@ -6,7 +6,7 @@ export async function initTSLibrary(targetDir: string, name: string, tsup = true
     await fs.ensureDir(targetDir)
     
     const pkg = {
-        name: `@rii-init/${name}`,
+        name: `@rei-init/${name}`,
         version: '0.0.1',
         private: true,
         type: 'module',

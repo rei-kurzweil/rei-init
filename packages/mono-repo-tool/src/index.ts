@@ -2,20 +2,21 @@
 
 import { select, confirm, input } from '@inquirer/prompts'
 import { initAppProject } from './app/index.js'
-import { initPackageProject, createPackageByType } from './package/index.js'
+import { initPackageProject, createPackageByType, PackageType } from './package/index.js'
 import chalk from 'chalk'
 import path from 'path'
 import fs from 'fs'
 import { findMonorepoRoot } from './util.js'
+import { AppType } from './app/app-type.js'
 
 
 const mono_repo_root = await findMonorepoRoot();
 
 console.log(chalk.magentaBright(`
-╭────────────────────────────╮ ✿
-│  rii-make  monorepo tool   │
-│                            │
-╰────────────────────────────╯
+╭───────────────────────────╮✿
+│ rei-init :: monorepo tool │
+│                           │
+╰───────────────────────────╯
 `))
 
 const kind = await select({
@@ -57,14 +58,7 @@ if (kind === 'app') {
   
   if (wantDemoApps) {
     const packageDir = path.resolve(mono_repo_root, 'packages', packageName)
-    // Package directory
-    // /home/plush/dev/rii-init/apps/packages/rii-design-3d not found. Skipping demo apps.
-    // /home/plush/dev/rii-init/apps/  apparently is cwd()
-    // but the directory that's used should be the mono repo root
-    // `${monoRepoRoot}/packages/${packageName}`
-    // and then
-    // `${monoRepoRoot}/packages/${packageName}/apps` is the package_apps_dir which we should pass to createDemoAppsForPackage
-    // 
+    
 
     if (!fs.existsSync(packageDir)) {
       console.log(chalk.red(`Package directory ${packageDir} not found. Skipping demo apps.`))
@@ -81,7 +75,19 @@ async function createSubPackagesForApp(appDir: string, appName: string) {
   if (!fs.existsSync(packagesDir)) {
     fs.mkdirSync(packagesDir, { recursive: true })
   }
+
+  const subPackageChoices: { name: string; value: PackageType }[] = [
+    { name: 'TypeScript Library', value: 'ts-lib' },
+    { name: 'TypeScript Library (react)', value: 'react-lib' },
+    { name: 'TypeScript Library (react-three/fiber peer dep)', value: 'react-three/fiber-lib' },
+    { name: 'TypeScript Library (react-three/drei peer dep)', value: 'react-three/drei-lib' },
+    { name: 'TypeScript Library (react-three/drei + XR peer dep)', value: 'react-three/drei-and-xr-lib' },
+    { name: 'Utility Package', value: 'util' },
+    { name: 'Drizzle D1 Schema + Migration Runner CLI', value: 'database-schema-and-migration-runner-cli-drizzle-d1-package' },
+    { name: 'Blender Python Plugin', value: 'python-blender-plugin' }
+  ];
   
+
   let createAnother = true
   while (createAnother) {
     console.log(chalk.blueBright(`\nCreating sub-package for app ${appName}`))
@@ -93,17 +99,12 @@ async function createSubPackagesForApp(appDir: string, appName: string) {
     
     const subPackageType = await select({
       message: 'What type of sub-package?',
-      choices: [
-        { name: 'React SPA', value: 'react-spa' },
-        { name: 'React SPA with Three.js (R3F)', value: 'react-spa-r3f' },
-        { name: 'React SPA with Three.js + XR', value: 'react-spa-r3f-xr' },
-        { name: 'TypeScript Library', value: 'ts-lib' }
-      ]
+      choices: subPackageChoices
     })
     
     // Create sub-package in app's packages directory
     const targetDir = path.join(packagesDir, subPackageName)
-    await createPackageByType(targetDir, subPackageName, subPackageType, true)
+    await createPackageByType(targetDir, subPackageName, subPackageType)
     
     createAnother = await confirm({
       message: 'Would you like to create another sub-package?',
@@ -123,6 +124,12 @@ async function createDemoAppsForPackage(
   if (!fs.existsSync(appsDir)) {
     fs.mkdirSync(appsDir, { recursive: true })
   }
+
+  const demoTypeChoices: { name: string; value: AppType }[] = [
+    { name: 'React SPA',                    value: AppType.ReactSPA      },
+    { name: 'React SPA with Three.js (R3F)',value: AppType.ReactSPAR3F   },
+    { name: 'React SPA with Three.js + XR', value: AppType.ReactSPAR3FXR }
+  ];
   
   let createAnother = true
   while (createAnother) {
@@ -136,16 +143,12 @@ async function createDemoAppsForPackage(
     
     const demoType = await select({
       message: 'What type of demo app?',
-      choices: [
-        { name: 'React SPA', value: 'react-spa' },
-        { name: 'React SPA with Three.js (R3F)', value: 'react-spa-r3f' },
-        { name: 'React SPA with Three.js + XR', value: 'react-spa-r3f-xr' }
-      ]
+      choices: demoTypeChoices
     })
     
     // Create demo app in package's apps directory
     const targetDir = path.join(appsDir, demoName)
-    await createPackageByType(targetDir, demoName, demoType, false)
+    await createPackageByType(targetDir, demoName, demoType)
     
     createAnother = await confirm({
       message: 'Would you like to create another demo app?',
@@ -155,6 +158,6 @@ async function createDemoAppsForPackage(
 }
 
 console.log(chalk.greenBright(`
-🌸 すべてうまくいきました！
+  🌸
 ✨ great success >w<
-`))
+`));

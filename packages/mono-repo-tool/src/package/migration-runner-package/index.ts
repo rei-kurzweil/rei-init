@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import path, { dirname } from 'path';
 import { execa } from 'execa';
-import { initTSLibrary } from '../util';
+import { initTSLibrary } from '../util.ts';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);

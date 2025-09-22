@@ -4,24 +4,32 @@ import fs from 'fs-extra'
 import { input, select } from '@inquirer/prompts'
 
 import { findMonorepoRoot } from '../util'
-import { initTSLibrary } from './util'
+import { initTSLibrary } from './util.ts'
 
-import { initReactSPA } from '../app/react-spa.init'
 import { init_DrizzleORM_D1_schema_and_migration_runner_package } from './migration-runner-package'
 import { initPythonBlenderPluginPackage } from './blender'
-import { initReactLibrary } from './react'
+import { initReactLibrary } from './react/react'
+import { initReactThreeFiberLibrary }       from './react/react-three-fiber/react-three-fiber'
+import { initReactThreeFiberDreiLibrary }   from './react/react-three-fiber/drei/drei'
+import { initReactThreeFiberDreiXRLibrary } from './react/react-three-fiber/react-three-xr/react-three-xr'
+import { PackageType } from '../app/app-type'
+
 
 
 export async function initPackageProject(): Promise<string> {
     const mono_repo_root = await findMonorepoRoot();
 
     const name = await input({ message: 'Package name?' })
-    const type = await select({
+    const type: PackageType = await select({
         message: 'What type of package?',
         choices: [
-            { name: 'TypeScript Library (publishable)', value: 'ts-lib' },
-            { name: 'React Component Library', value: 'react-lib' },
-            { name: 'React SPA with Three.js + XR', value: 'react-spa-r3f-xr' },
+            { name: 'TypeScript Library', value: 'ts-lib' },
+            
+            { name: 'TypeScript Library (react)', value: 'react-lib' },
+            { name: 'TypeScript Library (react-three/fiber peer dep)', value: 'react-three/fiber-lib' },
+            { name: 'TypeScript Library (react-three/drei peer dep)', value: 'react-three/drei-lib' },
+            { name: 'TypeScript Library (react-three/drei + XR peer dep)', value: 'react-three/drei-and-xr-lib' },
+            
             { name: 'Utility Package', value: 'util' },
             { name: 'Drizzle D1 Schema + Migration Runner CLI', value: 'database-schema-and-migration-runner-cli-drizzle-d1-package' },
             { name: 'Blender Python Plugin', value: 'python-blender-plugin' }, // added
@@ -30,47 +38,37 @@ export async function initPackageProject(): Promise<string> {
 
     const targetDir = path.join(mono_repo_root, 'packages', name)
 
-    await createPackageByType(targetDir, name, type, false)
+    await createPackageByType(targetDir, name, type)
 
     console.log(`🎉 Package '${name}' created as ${type} in packages/`)
     return name;
 }
 
-export async function createPackageByType(targetDir: string, name: string, type: string, isSubPackage: boolean) {
+export async function createPackageByType(targetDir: string, name: string, type: string) {
     await fs.ensureDir(targetDir)
 
-    // Update package.json for sub-packages vs demo apps
-    const pkgPath = path.join(targetDir, 'package.json')
-    if (await fs.pathExists(pkgPath)) {
-        const pkg = await fs.readJSON(pkgPath)
-            
-        pkg.name = `@rii-init/${name}`
-
-        await fs.writeJSON(pkgPath, pkg, { spaces: 2 })
-    }
-
-    if (type === 'react-spa' || type === 'react-spa-r3f' || type === 'react-spa-r3f-xr') {
-        await initReactSPA(targetDir, type)
-        
-    } else if (type === 'ts-lib') {
+    if (type === 'ts-lib') {
         await initTSLibrary(targetDir, name)
+
     } else if (type === 'react-lib') {
         // TODO: make sure that react is a peer dependency and not a dependency
-        await initReactLibrary(targetDir, name)
+        await initReactLibrary(targetDir, name);
 
     } else if (type === 'react-three/fiber-lib') {
-        // TODO: implement react-three/fiber-lib initialization
+        await initReactThreeFiberLibrary(targetDir, name);
 
     } else if (type === 'react-three/drei-lib') {
-        // TODO: implement react-three/drei-lib initialization
+        await initReactThreeFiberDreiLibrary(targetDir, name);
 
     } else if (type === 'react-three/drei-and-xr-lib') {
-        // TODO: implement react-three/drei-and-xr-lib initialization
+        await initReactThreeFiberDreiXRLibrary(targetDir, name);
+
     } else if (type === 'database-schema-and-migration-runner-cli-drizzle-d1-package') {
         await init_DrizzleORM_D1_schema_and_migration_runner_package(targetDir, name);
 
     } else if (type === 'util') {
         await initUtilPackage(targetDir, name)
+
     } else if (type === 'python-blender-plugin') {
         await initPythonBlenderPluginPackage(targetDir, name)
     }
