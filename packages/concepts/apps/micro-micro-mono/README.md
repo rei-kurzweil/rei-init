@@ -1,6 +1,6 @@
-# 🏗️ rii-init Microservices Architecture (Monolith-first)
+# 🏗️ rei-init Microservices Architecture (Monolith-first)
 
-This doc summarizes the current **service structure**, **routing priorities**, and **initial APIs** for the rii-init platform.  
+This doc summarizes the current **service structure**, **routing priorities**, and **initial APIs** for the rei-init platform.  
 The goal: **start monolithic**, **keep API boundaries explicit**, and **design for eventual distribution** (Durable Objects, WS, etc).
 
 ---

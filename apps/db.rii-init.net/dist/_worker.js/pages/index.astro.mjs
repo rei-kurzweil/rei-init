@@ -8,7 +8,7 @@ const $$Layout = createComponent(($$result, $$props, $$slots) => {
   const Astro2 = $$result.createAstro($$Astro$1, $$props, $$slots);
   Astro2.self = $$Layout;
   return renderTemplate`<html lang="en" data-astro-cid-sckkx6r4> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator"${addAttribute(Astro2.generator, "content")}><title>Astro Basics</title>${renderHead()}</head> <body data-astro-cid-sckkx6r4> ${renderSlot($$result, $$slots["default"])} </body></html>`;
-}, "/home/plush/dev/rii-init/apps/db.rii-init.net/app/src/layouts/Layout.astro", void 0);
+}, "/home/plush/dev/rei-init/apps/db.rei-init.net/app/src/layouts/Layout.astro", void 0);
 
 var jsxRuntime = {exports: {}};
 
@@ -205,10 +205,10 @@ const $$Index = createComponent(async ($$result, $$props, $$slots) => {
     error = `Database connection error: ${e instanceof Error ? e.message : "Unknown error"}`;
     console.error("D1 Database Error:", e);
   }
-  return renderTemplate`${renderComponent($$result, "Layout", $$Layout, {}, { "default": async ($$result2) => renderTemplate` ${maybeRenderHead()}<main class="container mx-auto px-4 py-8"> <h1 class="text-3xl font-bold text-gray-900 mb-8">Database Browser 🖬🥞᠁🦖🌎</h1> ${renderComponent($$result2, "DatabaseBrowser", DatabaseBrowser, { "tables": tables, "tableData": tableData, "error": error, "client:load": true, "client:component-hydration": "load", "client:component-path": "/home/plush/dev/rii-init/apps/db.rii-init.net/app/src/components/DatabaseBrowser.tsx", "client:component-export": "default" })} </main> ` })}`;
-}, "/home/plush/dev/rii-init/apps/db.rii-init.net/app/src/pages/index.astro", void 0);
+  return renderTemplate`${renderComponent($$result, "Layout", $$Layout, {}, { "default": async ($$result2) => renderTemplate` ${maybeRenderHead()}<main class="container mx-auto px-4 py-8"> <h1 class="text-3xl font-bold text-gray-900 mb-8">Database Browser 🖬🥞᠁🦖🌎</h1> ${renderComponent($$result2, "DatabaseBrowser", DatabaseBrowser, { "tables": tables, "tableData": tableData, "error": error, "client:load": true, "client:component-hydration": "load", "client:component-path": "/home/plush/dev/rei-init/apps/db.rei-init.net/app/src/components/DatabaseBrowser.tsx", "client:component-export": "default" })} </main> ` })}`;
+}, "/home/plush/dev/rei-init/apps/db.rei-init.net/app/src/pages/index.astro", void 0);
 
-const $$file = "/home/plush/dev/rii-init/apps/db.rii-init.net/app/src/pages/index.astro";
+const $$file = "/home/plush/dev/rei-init/apps/db.rei-init.net/app/src/pages/index.astro";
 const $$url = "";
 
 const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({

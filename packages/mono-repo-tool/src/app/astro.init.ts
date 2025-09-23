@@ -1,4 +1,4 @@
-// File: rii-make/app/astro.init.ts
+// File: rei-make/app/astro.init.ts
 
 import { execa } from 'execa'
 import path from 'path'

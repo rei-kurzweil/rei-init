@@ -1,4 +1,4 @@
-// File: rii-make/src/index.ts
+// File: rei-make/src/index.ts
 
 import { select, confirm, input } from '@inquirer/prompts'
 import { initAppProject } from './app/index.js'

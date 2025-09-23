@@ -1,4 +1,4 @@
-// File: rii-make/app/react-spa.init.ts
+// File: rei-make/app/react-spa.init.ts
 
 import { execa } from 'execa'
 import path from 'path'
@@ -121,6 +121,6 @@ body {
                     ? 'Standard (+ drei)' 
                     : 'Full (+ drei + xr)'}`);
 
-    console.log(`✅ rii-make built package at ${absoluteTargetDir}`)
+    console.log(`✅ rei-make built package at ${absoluteTargetDir}`)
 
 }

@@ -32,8 +32,8 @@ export async function findMonorepoRoot(start = process.cwd()): Promise<string> {
 
 /**
  * Build the React app and copy its output into the associated Wrangler public folder.
- * @param reactPath Path to the React app (e.g., 'apps/rii-init.net/react')
- * @param wranglerPath Path to the Wrangler folder (e.g., 'apps/rii-init.net/wrangler')
+ * @param reactPath Path to the React app (e.g., 'apps/rei-init.net/react')
+ * @param wranglerPath Path to the Wrangler folder (e.g., 'apps/rei-init.net/wrangler')
  */
 export async function buildReactAndCopy(reactPath: string, wranglerPath: string) {
     const distPath = path.resolve(reactPath, 'dist')

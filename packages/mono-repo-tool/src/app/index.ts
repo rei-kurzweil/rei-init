@@ -1,4 +1,4 @@
-// File: rii-make/src/app/index.ts
+// File: rei-make/src/app/index.ts
 
 import path from 'path'
 import { input, select } from '@inquirer/prompts'

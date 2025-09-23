@@ -1,4 +1,4 @@
-// File: rii-make/app/hono-wrangler.init.ts
+// File: rei-make/app/hono-wrangler.init.ts
 
 import prompts from 'prompts'
 import path from 'path'

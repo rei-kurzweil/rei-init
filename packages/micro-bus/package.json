@@ -1,5 +1,5 @@
 {
-  "name": "@rii-init/micro-bus",
+  "name": "@rei-init/micro-bus",
   "version": "1.0.0",
   "description": "in-memory pub/sub and request/response message bus",
   "main": "index.ts",
@@ -12,6 +12,6 @@
     "pub/sub",
     "request/response"
   ],
-  "author": "rii evans",
+  "author": "rei evans",
   "license": "MIT"
 }

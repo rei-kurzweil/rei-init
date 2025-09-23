@@ -6,11 +6,11 @@ Every potential package gets its own folder here.
 
 Example:
 ```
-rii-init
+rei-init
 |_ concepts
     |_ README.md       # this file
     |_ packages
-        |_ rii-make # for example
+        |_ rei-make # for example
             |_ README.md   # ideally just this per 
     |_ apps
         |_ micro-mono

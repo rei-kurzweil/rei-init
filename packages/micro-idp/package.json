@@ -1,11 +1,11 @@
 {
-  "name": "@rii-init/micro-idp",
+  "name": "@rei-init/micro-idp",
   "version": "1.0.0",
   "description": "simple idp server that accepts token created by supabase",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "rii evans",
+  "author": "rei evans",
   "license": "MIT"
 }

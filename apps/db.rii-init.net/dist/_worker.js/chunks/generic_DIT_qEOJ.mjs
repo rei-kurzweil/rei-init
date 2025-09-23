@@ -1416,7 +1416,7 @@ const $$Image = createComponent(async ($$result, $$props, $$slots) => {
   }
   const { class: className, ...attributes } = { ...additionalAttributes, ...image.attributes };
   return renderTemplate`${maybeRenderHead()}<img${addAttribute(image.src, "src")}${spreadAttributes(attributes)}${addAttribute(className, "class")}>`;
-}, "/home/plush/dev/rii-init/node_modules/.pnpm/astro@5.12.3_@types+node@24.1.0_jiti@1.21.7_rollup@4.45.1_tsx@4.20.3_typescript@5.8.3_yaml@2.8.0/node_modules/astro/components/Image.astro", void 0);
+}, "/home/plush/dev/rei-init/node_modules/.pnpm/astro@5.12.3_@types+node@24.1.0_jiti@1.21.7_rollup@4.45.1_tsx@4.20.3_typescript@5.8.3_yaml@2.8.0/node_modules/astro/components/Image.astro", void 0);
 
 const mimes = {
   "3g2": "video/3gpp2",
@@ -1934,7 +1934,7 @@ const $$Picture = createComponent(async ($$result, $$props, $$slots) => {
     const srcsetAttribute = props.densities || !props.densities && !props.widths && !useResponsive ? `${image.src}${image.srcSet.values.length > 0 ? ", " + image.srcSet.attribute : ""}` : image.srcSet.attribute;
     return renderTemplate`<source${addAttribute(srcsetAttribute, "srcset")}${addAttribute(lookup(image.options.format ?? image.src) ?? `image/${image.options.format}`, "type")}${spreadAttributes(sourceAdditionalAttributes)}>`;
   })}  <img${addAttribute(fallbackImage.src, "src")}${spreadAttributes(attributes)}${addAttribute(className, "class")}> </picture>`;
-}, "/home/plush/dev/rii-init/node_modules/.pnpm/astro@5.12.3_@types+node@24.1.0_jiti@1.21.7_rollup@4.45.1_tsx@4.20.3_typescript@5.8.3_yaml@2.8.0/node_modules/astro/components/Picture.astro", void 0);
+}, "/home/plush/dev/rei-init/node_modules/.pnpm/astro@5.12.3_@types+node@24.1.0_jiti@1.21.7_rollup@4.45.1_tsx@4.20.3_typescript@5.8.3_yaml@2.8.0/node_modules/astro/components/Picture.astro", void 0);
 
 const mod = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
   __proto__: null
@@ -1957,7 +1957,7 @@ const $$Font = createComponent(($$result, $$props, $$slots) => {
     });
   }
   return renderTemplate`${preload && data.preloadData.map(({ url, type }) => renderTemplate`<link rel="preload"${addAttribute(url, "href")} as="font"${addAttribute(`font/${type}`, "type")} crossorigin>`)}<style>${unescapeHTML(data.css)}</style>`;
-}, "/home/plush/dev/rii-init/node_modules/.pnpm/astro@5.12.3_@types+node@24.1.0_jiti@1.21.7_rollup@4.45.1_tsx@4.20.3_typescript@5.8.3_yaml@2.8.0/node_modules/astro/components/Font.astro", void 0);
+}, "/home/plush/dev/rei-init/node_modules/.pnpm/astro@5.12.3_@types+node@24.1.0_jiti@1.21.7_rollup@4.45.1_tsx@4.20.3_typescript@5.8.3_yaml@2.8.0/node_modules/astro/components/Font.astro", void 0);
 
 const imageConfig = {"endpoint":{"route":"/_image"},"service":{"entrypoint":"@astrojs/cloudflare/image-service","config":{}},"domains":[],"remotePatterns":[],"responsiveStyles":false};
 							const getImage = async (options) => await getImage$1(options, imageConfig);

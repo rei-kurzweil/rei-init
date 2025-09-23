@@ -13422,6 +13422,6 @@ const renderer = {
 };
 var server_default = renderer;
 
-const renderers = [Object.assign({"name":"@astrojs/react","clientEntrypoint":"@astrojs/react/client.js","serverEntrypoint":"@astrojs/react/server.js"}, { ssr: server_default$1 }),Object.assign({"name":"astro:jsx","serverEntrypoint":"file:///home/plush/dev/rii-init/node_modules/.pnpm/@astrojs+mdx@4.3.1_astro@5.12.3_@types+node@24.1.0_jiti@1.21.7_rollup@4.45.1_tsx@4.20.3_typescript@5.8.3_yaml@2.8.0_/node_modules/@astrojs/mdx/dist/server.js"}, { ssr: server_default }),];
+const renderers = [Object.assign({"name":"@astrojs/react","clientEntrypoint":"@astrojs/react/client.js","serverEntrypoint":"@astrojs/react/server.js"}, { ssr: server_default$1 }),Object.assign({"name":"astro:jsx","serverEntrypoint":"file:///home/plush/dev/rei-init/node_modules/.pnpm/@astrojs+mdx@4.3.1_astro@5.12.3_@types+node@24.1.0_jiti@1.21.7_rollup@4.45.1_tsx@4.20.3_typescript@5.8.3_yaml@2.8.0_/node_modules/@astrojs/mdx/dist/server.js"}, { ssr: server_default }),];
 
 export { renderers };

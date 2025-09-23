@@ -1,1 +1,1 @@
-export const hello = () => 'Hello from migrations-rii-init!'
+export const hello = () => 'Hello from migrations-rei-init!'

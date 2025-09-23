@@ -4,9 +4,9 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "db-rii-init-net",
+	"name": "db-rei-init-net",
 	// "routes": [
-	// 	"db.rii-init.net/*"
+	// 	"db.rei-init.net/*"
 	// ],
 
 	"main": "./dist/_worker.js/index.js",
@@ -31,7 +31,7 @@
 	"d1_databases": [
 		{
 			"binding": "DB",
-			"database_name": "rii-init-db",
+			"database_name": "rei-init-db",
 			"database_id": "8da260b0-4b17-4c6f-85a4-8a6e78e8eb09"
 		}
 	]

@@ -1,5 +1,5 @@
 // packages/micro-web/routers/user.ts
-import { bus } from "@rii-init/micro-bus";
+import { bus } from "@rei-init/micro-bus";
 
 export const userRouter = (app) => {
   app.get("/:slug", async (c) => {
