@@ -17,4 +17,7 @@ export async function initReactThreeFiberReactThreeXRLibrary(targetDir: string, 
         message: 'Select features to include:',
         choices: options,
     });
+
+    // call init functions for selected features 
+    // + (simplest case = copying files from templates)
 }
