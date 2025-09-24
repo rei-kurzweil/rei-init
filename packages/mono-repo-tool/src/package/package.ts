@@ -1,19 +1,22 @@
 import { execa } from 'execa'
 import path from 'path'
 import fs from 'fs-extra'
-import { input, select } from '@inquirer/prompts'
+import { input, select, Separator } from '@inquirer/prompts'
 
 import { findMonorepoRoot } from '../util'
+
+import { PackageType } from './package-type';
+
 import { initTSLibrary } from './util.ts'
 
 import { init_DrizzleORM_D1_schema_and_migration_runner_package } from './migration-runner-package'
 import { initPythonBlenderPluginPackage } from './blender'
+
 import { initReactLibrary } from './react/react'
 import { initReactThreeFiberLibrary }       from './react/react-three-fiber/react-three-fiber'
-import { initReactThreeFiberDreiLibrary }   from './react/react-three-fiber/drei/drei'
-import { initReactThreeFiberDreiXRLibrary } from './react/react-three-fiber/react-three-xr/react-three-xr'
-import { PackageType } from '../app/app-type'
-
+import { initReactThreeFiberDreiLibrary }   from './react/react-three-fiber/react-three-drei/react-three-drei'
+import { initReactThreeFiberReactThreeDreiReactThreeXRLibrary } from './react/react-three-fiber/react-three-drei_react-three-xr/react-three-drei_react-three-xr'
+import { initReactThreeFiberReactThreeXRLibrary } from './react/react-three-fiber/react-three-xr/react-three-xr'
 
 
 export async function initPackageProject(): Promise<string> {
@@ -24,12 +27,12 @@ export async function initPackageProject(): Promise<string> {
         message: 'What type of package?',
         choices: [
             { name: 'TypeScript Library', value: 'ts-lib' },
-            
+            new Separator(),
             { name: 'TypeScript Library (react)', value: 'react-lib' },
-            { name: 'TypeScript Library (react-three/fiber peer dep)', value: 'react-three/fiber-lib' },
-            { name: 'TypeScript Library (react-three/drei peer dep)', value: 'react-three/drei-lib' },
-            { name: 'TypeScript Library (react-three/drei + XR peer dep)', value: 'react-three/drei-and-xr-lib' },
-            
+            { name: 'TypeScript Library (react-three/fiber peer dep)',     value: 'react-three/fiber-lib' },
+            { name: 'TypeScript Library (react-three/drei peer dep)',      value: 'react-three/fiber-drei-lib' },
+            { name: 'TypeScript Library (react-three/drei + XR peer dep)', value: 'react-three/fiber-drei-xr-lib' },
+            new Separator(),
             { name: 'Utility Package', value: 'util' },
             { name: 'Drizzle D1 Schema + Migration Runner CLI', value: 'database-schema-and-migration-runner-cli-drizzle-d1-package' },
             { name: 'Blender Python Plugin', value: 'python-blender-plugin' }, // added
@@ -60,8 +63,11 @@ export async function createPackageByType(targetDir: string, name: string, type:
     } else if (type === 'react-three/drei-lib') {
         await initReactThreeFiberDreiLibrary(targetDir, name);
 
+    } else if (type === 'react-three/xr-lib') {
+        await initReactThreeFiberReactThreeXRLibrary(targetDir, name);
+
     } else if (type === 'react-three/drei-and-xr-lib') {
-        await initReactThreeFiberDreiXRLibrary(targetDir, name);
+        await initReactThreeFiberReactThreeDreiReactThreeXRLibrary(targetDir, name);
 
     } else if (type === 'database-schema-and-migration-runner-cli-drizzle-d1-package') {
         await init_DrizzleORM_D1_schema_and_migration_runner_package(targetDir, name);

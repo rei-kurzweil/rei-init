@@ -1,11 +1,11 @@
 // File: rei-make/src/app/index.ts
 
 import path from 'path'
-import { input, select } from '@inquirer/prompts'
+import { input, select, Separator } from '@inquirer/prompts'
 import { initAstro } from './astro.init.js'
 import { initHonoWrangler } from './hono-wrangler.init.js'
 import { findMonorepoRoot } from '../util.js'
-import { AppPresetType } from './app-type.js'
+import { AppType } from './app-type.js'
 
 
 export async function initAppProject(): Promise<string> {
@@ -23,8 +23,12 @@ export async function initAppProject(): Promise<string> {
     const preset = await select({
         message: 'Which type of app framework?',
         choices: [
-            { name: 'Astro + Wrangler (full-stack)', value: AppPresetType.AstroWrangler },
-            { name: 'Hono + Wrangler (API only)', value: AppPresetType.HonoWrangler }
+            { name: 'Astro + Wrangler (full-stack)', value: AppType.AstroWrangler },
+            { name: 'Hono + Wrangler (API only)',    value: AppType.HonoWrangler },
+            new Separator(),
+            { name: 'React SPA', value: AppType.ReactSPA },
+            { name: 'react-three/fiber SPA', value: AppType.ReactSPAR3F   },
+            { name: 'react-three/fiber /xr', value: AppType.ReactSPAR3FXR }
         ]
     })
 

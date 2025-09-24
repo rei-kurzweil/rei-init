@@ -1,13 +1,14 @@
 // File: rei-make/src/index.ts
 
-import { select, confirm, input } from '@inquirer/prompts'
-import { initAppProject } from './app/index.js'
-import { initPackageProject, createPackageByType, PackageType } from './package/index.js'
+import { select, confirm, input, Separator } from '@inquirer/prompts'
+import { initAppProject } from './app/app.js'
+import { initPackageProject, createPackageByType } from './package/package.js'
 import chalk from 'chalk'
 import path from 'path'
 import fs from 'fs'
 import { findMonorepoRoot } from './util.js'
 import { AppType } from './app/app-type.js'
+import { PackageType } from './package/package-type.js'
 
 
 const mono_repo_root = await findMonorepoRoot();
@@ -76,12 +77,14 @@ async function createSubPackagesForApp(appDir: string, appName: string) {
     fs.mkdirSync(packagesDir, { recursive: true })
   }
 
-  const subPackageChoices: { name: string; value: PackageType }[] = [
+  const subPackageChoices: ({ name: string; value: PackageType } | Separator) [] = [
     { name: 'TypeScript Library', value: 'ts-lib' },
+    new Separator(),
     { name: 'TypeScript Library (react)', value: 'react-lib' },
     { name: 'TypeScript Library (react-three/fiber peer dep)', value: 'react-three/fiber-lib' },
-    { name: 'TypeScript Library (react-three/drei peer dep)', value: 'react-three/drei-lib' },
-    { name: 'TypeScript Library (react-three/drei + XR peer dep)', value: 'react-three/drei-and-xr-lib' },
+    { name: 'TypeScript Library (react-three/drei peer dep)',  value: 'react-three/fiber-drei-lib' },
+    { name: 'TypeScript Library (react-three/drei + XR peer dep)', value: 'react-three/fiber-drei-xr-lib' },
+    new Separator(),
     { name: 'Utility Package', value: 'util' },
     { name: 'Drizzle D1 Schema + Migration Runner CLI', value: 'database-schema-and-migration-runner-cli-drizzle-d1-package' },
     { name: 'Blender Python Plugin', value: 'python-blender-plugin' }
