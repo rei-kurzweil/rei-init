@@ -2,7 +2,7 @@
 
 import { eq } from "drizzle-orm";
 
-import { bus } from "micro-bus";
+import { bus } from "@rei-init/micro-bus";
 import { db, users } from "micro-db";
 
 // Respond to user lookups
