@@ -18,7 +18,10 @@ export async function initReactThreeFiberLibrary(
     );
 
     // Add react-three-fiber dependencies
-    await addPeerDeps(['@react-three/fiber', 'three', '@types/three']);
+    await addPeerDeps(
+        ['@react-three/fiber', 'three', '@types/three'],
+        { targetDir }
+    );
 
     console.info('✅ Added react-three-fiber dependencies');
 

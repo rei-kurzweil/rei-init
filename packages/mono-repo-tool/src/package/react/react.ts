@@ -3,17 +3,25 @@ import { initTSLibrary } from "../util.ts";
 import path from "path";
 import fs from "fs-extra";
 import { addPeerDeps } from "../util.peer-dep.js";
+import _reactLibBaseTemplate from "./react-✜/_react-lib-base-template.js";
 
 const defaultLib = `
-  export default const lib = () => {
+  export default function lib() {
+  
     return (
       <></>
     )
 }
 `;
 
-export async function initReactLibrary(targetDir: string, name: string, libComponent = '') {
-    await initTSLibrary(targetDir, name)
+export async function initReactLibrary(
+  targetDir: string, name: string, 
+  libComponent = ''
+) {
+
+    await initTSLibrary(targetDir, name);
+
+    const base_library_code = libComponent || _reactLibBaseTemplate(name);
 
     await addPeerDeps(
       ['react', '@types/react'], {
@@ -36,6 +44,6 @@ export async function initReactLibrary(targetDir: string, name: string, libCompo
     
     // Update the entry point
     await fs.writeFile(
-        path.join(targetDir, 'src/index.ts'), libComponent || defaultLib);
+        path.join(targetDir, 'src/index.ts'), base_library_code);
 }
 
