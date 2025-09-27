@@ -42,14 +42,14 @@ export async function initTSLibrary(targetDir: string, name: string, tsup = true
     await fs.writeJSON(path.join(targetDir, 'tsconfig.json'), tsconfig, { spaces: 2 })
     
     if (tsup){
-        const tsupConfig =  `import { defineConfig } from 'tsup'` +
+        const tsupConfig = `import { defineConfig } from 'tsup'
 
-                            `export default defineConfig({`+
-                                `entry: ['src/index.ts'],`+
-                                `format: ['esm'],`        +
-                                `dts: true,`              +
-                                `clean: true,`            +
-                            `})`
+export default defineConfig({
+  entry: ['src/index.ts'],
+  format: ['esm'],
+  dts: true,
+  clean: true,
+})`
 
     
         await fs.writeFile(path.join(targetDir, 'tsup.config.ts'), tsupConfig)

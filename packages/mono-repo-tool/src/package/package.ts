@@ -22,26 +22,29 @@ import { initReactThreeFiberReactThreeXRLibrary } from './react/react-three-fibe
 export async function initPackageProject(): Promise<string> {
     const mono_repo_root = await findMonorepoRoot();
 
+    const options: ({name: string, value: PackageType } | Separator)[] =  [
+        { name: 'TypeScript Library', value: 'ts-lib' },
+        new Separator(),
+        { name: 'TypeScript Library (react)', value: 'react-lib' },
+        { name: 'TypeScript Library (react-three/fiber peer dep)',     value: 'react-three/fiber-lib' },
+        { name: 'TypeScript Library (react-three/drei peer dep)',      value: 'react-three/fiber-drei-lib' },
+        { name: 'TypeScript Library (react-three/drei + XR peer dep)', value: 'react-three/fiber-drei-xr-lib' },
+        new Separator(),
+        { name: 'Utility Package', value: 'util' },
+        { name: 'Drizzle D1 Schema + Migration Runner CLI', value: 'database-schema-and-migration-runner-cli-drizzle-d1-package' },
+        { name: 'Blender Python Plugin', value: 'python-blender-plugin' }, // added
+    ]
+
     const name = await input({ message: 'Package name?' })
     const type: PackageType = await select({
         message: 'What type of package?',
-        choices: [
-            { name: 'TypeScript Library', value: 'ts-lib' },
-            new Separator(),
-            { name: 'TypeScript Library (react)', value: 'react-lib' },
-            { name: 'TypeScript Library (react-three/fiber peer dep)',     value: 'react-three/fiber-lib' },
-            { name: 'TypeScript Library (react-three/drei peer dep)',      value: 'react-three/fiber-drei-lib' },
-            { name: 'TypeScript Library (react-three/drei + XR peer dep)', value: 'react-three/fiber-drei-xr-lib' },
-            new Separator(),
-            { name: 'Utility Package', value: 'util' },
-            { name: 'Drizzle D1 Schema + Migration Runner CLI', value: 'database-schema-and-migration-runner-cli-drizzle-d1-package' },
-            { name: 'Blender Python Plugin', value: 'python-blender-plugin' }, // added
-        ]
+        choices: options
     })
 
     const targetDir = path.join(mono_repo_root, 'packages', name)
 
-    await createPackageByType(targetDir, name, type)
+    console.log("⚡ creating package in", targetDir);
+    await createPackageByType(targetDir, name, type);
 
     console.log(`🎉 Package '${name}' created as ${type} in packages/`)
     return name;

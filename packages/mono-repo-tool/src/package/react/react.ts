@@ -5,7 +5,7 @@ import fs from "fs-extra";
 import { addPeerDeps } from "../util.peer-dep.js";
 
 const defaultLib = `
-  export default lib = () => {
+  export default const lib = () => {
     return (
       <></>
     )
@@ -15,10 +15,12 @@ const defaultLib = `
 export async function initReactLibrary(targetDir: string, name: string, libComponent = '') {
     await initTSLibrary(targetDir, name)
 
-    addPeerDeps(
+    await addPeerDeps(
       ['react', '@types/react'], {
       targetDir
     });
+
+    console.log("✅ added react peer deps");
 
     // Update tsconfig.json for JSX support
     const tsconfigPath = path.join(targetDir, 'tsconfig.json');

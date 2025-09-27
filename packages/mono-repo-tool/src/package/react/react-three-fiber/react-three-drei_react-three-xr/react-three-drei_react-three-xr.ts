@@ -4,11 +4,14 @@ import { initReactThreeFiberLibrary } from "../react-three-fiber";
 import { ReactThreeXRFeatureType } from "../react-three-xr/react-three-xr-feature-type";
 
 export async function initReactThreeFiberReactThreeDreiReactThreeXRLibrary(targetDir: string, name: string) {
+    console.log("🐈 initReactThreeFiberReactThreeDreiReactThreeXRLibrary", targetDir, name);
     await initReactThreeFiberLibrary(targetDir, name);
 
-    addPeerDeps(['@react-three/drei', '@react-three/xr'],{
+    await addPeerDeps(['@react-three/drei', '@react-three/xr'],{
         targetDir
     });
+
+    console.log("✅ added peer deps for drei and react-three/xr")
 
     const options: { name: string, value: ReactThreeXRFeatureType }[] = [
         { name: 'VR Climbing Controls', value: ReactThreeXRFeatureType.REACT_THREE_XR_CLIMBING_CONTROLS },

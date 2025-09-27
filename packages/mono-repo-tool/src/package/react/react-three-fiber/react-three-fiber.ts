@@ -3,13 +3,24 @@ import { initReactLibrary } from "../react";
 import { R3FPackageFeatureType } from "./react-three-fiber-feature-type";
 
 import { checkbox } from "@inquirer/prompts";
+import _r3fLibBaseTemplate from "./react-three-fiber-✜/_r3f-lib-base-template";
 
 
-export async function initReactThreeFiberLibrary(targetDir: string, name: string) {
-    await initReactLibrary(targetDir, name);
+export async function initReactThreeFiberLibrary(
+    targetDir: string, name: string,
+    reactThreeFiberLibTemplate?: string
+) {
+
+    const base_library_code = reactThreeFiberLibTemplate || _r3fLibBaseTemplate(name);
+
+    await initReactLibrary(targetDir, name,
+        base_library_code
+    );
 
     // Add react-three-fiber dependencies
-    addPeerDeps(['@react-three/fiber', 'three', '@types/three']);
+    await addPeerDeps(['@react-three/fiber', 'three', '@types/three']);
+
+    console.info('✅ Added react-three-fiber dependencies');
 
     // promp to ask if user wants to add drop-in features from this repo's meta programming framework   
 
@@ -30,7 +41,7 @@ export async function initReactThreeFiberLibrary(targetDir: string, name: string
     const answers = await checkbox({
         message: 'Select features to include:',
         choices: options,
-    });
+    }); 
 
     // call init functions for selected features 
     // + (simplest case = copying files from templates)

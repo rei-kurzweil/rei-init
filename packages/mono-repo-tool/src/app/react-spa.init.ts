@@ -5,8 +5,9 @@ import path from 'path'
 import fs from 'fs-extra'
 import prompts from 'prompts'
 import { $ } from 'execa'
+import { AppType } from './app-type'
 
-export async function initReactSPA(targetDir: string, presetType?: string) {
+export async function initReactSPA(targetDir: string, presetType?: AppType) {
     console.log(`✨ Creating React SPA at ${targetDir}`)
 
     let r3f = 'none';
