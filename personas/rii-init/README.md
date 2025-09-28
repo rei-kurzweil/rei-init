@@ -1,6 +1,5 @@
 # rii_init 🌸🍰🐈
 
-![rii-init](./rii-init.webp)
 
 
 ```
@@ -26,3 +25,5 @@
 ```
 
 ```
+
+![rii-init](./rii-init.webp)

@@ -25,3 +25,4 @@
 ## Backstory:
 
 
+![Toresu Rei](./Screenshot 2025-09-20 002719.png)

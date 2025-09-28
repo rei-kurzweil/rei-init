@@ -1,8 +1,8 @@
 # ⚡ Rei ⌥Kurzwei _
 
-![Rei Kurzweil](./rei-kurzweil.png)
 
-```json{
+```json
+{
     "name": "⚡ Rei⌥Kurzweil",
     "nickname": "rei chan :3",
     "role": "deranged tech influencer idol"
@@ -39,4 +39,6 @@
 
 
 ```
+
+![Rei Kurzweil](./rei-kurzweil.png)
 
