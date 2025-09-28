@@ -1,5 +1,7 @@
 ---
+import type { Fragment } from 'astro/jsx-runtime'
 import Content from '../components/Content'
+import { MobileTopBar } from '../components/MobileTopBar'
 import { ProfileTitle } from '../components/ProfileTitle'
 import { SideBar } from '../components/SideBar'
 import { DarkModeToggle } from '../components/ToggleDarkMode'
@@ -17,6 +19,7 @@ import '../styles/global.css'
 		<title>⚡Rei Evans_</title>
 	</head>
 	<body>
+		<MobileTopBar title="⚡ Rei Evans_" />
 		<SideBar>
 			<ProfileTitle>⚡ Rei Evans_</ProfileTitle>
 			

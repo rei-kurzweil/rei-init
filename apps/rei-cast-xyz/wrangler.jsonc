@@ -20,6 +20,18 @@
 	},
 	"routes": [
 		"rei-cast.xyz/*"
+	],
+	"d1_databases": [
+		{
+			"binding": "REI_CAST_XYZ_D1",
+			"database_name": "rei-cast-xyz-d1"
+		}
+	],
+	"kv_namespaces": [
+		{
+			"binding": "REI_CAST_XYZ_KV",
+			"id": "REI_CAST_XYZ_KV"
+		}
 	]
 	/**
 	 * Smart Placement
