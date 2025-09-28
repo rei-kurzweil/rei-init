@@ -1,11 +1,16 @@
 {
   "name": "@rei-init/micro-domain",
-  "version": "1.0.0",
-  "description": "types and classes for domain model",
-  "main": "index.ts",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsup",
+    "dev": "tsup --watch"
   },
-  "author": "rei evans",
-  "license": "MIT"
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  }
 }

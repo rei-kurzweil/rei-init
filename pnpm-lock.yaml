@@ -68,6 +68,9 @@ importers:
       '@astrojs/cloudflare':
         specifier: ^12.6.9
         version: 12.6.9(@types/node@24.5.2)(astro@5.14.0(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.1)(rollup@4.45.1)(tsx@4.20.3)(typescript@5.8.3)(yaml@2.8.0))(jiti@2.6.0)(lightningcss@1.30.1)(tsx@4.20.3)(yaml@2.8.0)
+      '@rei-init/micro-bus':
+        specifier: workspace:^
+        version: link:../../packages/micro-bus
       '@tailwindcss/vite':
         specifier: ^4.1.13
         version: 4.1.13(vite@6.3.6(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.1)(tsx@4.20.3)(yaml@2.8.0))
@@ -152,21 +155,6 @@ importers:
         specifier: ^0.10.0
         version: 0.10.0
 
-  packages/hyper-r3f:
-    devDependencies:
-      '@types/react':
-        specifier: ^19.1.14
-        version: 19.1.14
-      react:
-        specifier: ^19.1.1
-        version: 19.1.1
-      tsup:
-        specifier: ^8.0.0
-        version: 8.5.0(@swc/core@1.13.2(@swc/helpers@0.5.17))(jiti@1.21.7)(postcss@8.5.6)(tsx@4.20.3)(typescript@5.6.3)(yaml@2.8.0)
-      typescript:
-        specifier: ^5.0.0
-        version: 5.6.3
-
   packages/input-gamepad-libs:
     devDependencies:
       tsup:
@@ -176,16 +164,17 @@ importers:
         specifier: ^5.0.0
         version: 5.6.3
 
-  packages/micro-bus: {}
+  packages/micro-bus:
+    dependencies:
+      '@rei-init/micro-domain':
+        specifier: workspace:*
+        version: link:../micro-domain
+    devDependencies:
+      tsup:
+        specifier: ^8.5.0
+        version: 8.5.0(@swc/core@1.13.2(@swc/helpers@0.5.17))(jiti@2.6.0)(postcss@8.5.6)(tsx@4.20.3)(typescript@5.8.3)(yaml@2.8.0)
 
   packages/micro-db:
-    dependencies:
-      drizzle-kit:
-        specifier: ^0.31.4
-        version: 0.31.4
-      drizzle-orm:
-        specifier: ^0.44.3
-        version: 0.44.3(@cloudflare/workers-types@4.20250924.0)
     devDependencies:
       tsup:
         specifier: ^8.0.0
@@ -194,15 +183,23 @@ importers:
         specifier: ^5.0.0
         version: 5.8.3
 
-  packages/micro-domain: {}
+  packages/micro-domain:
+    devDependencies:
+      tsup:
+        specifier: ^8.0.0
+        version: 8.5.0(@swc/core@1.13.2(@swc/helpers@0.5.17))(jiti@2.6.0)(postcss@8.5.6)(tsx@4.20.3)(typescript@5.6.3)(yaml@2.8.0)
+      typescript:
+        specifier: ^5.0.0
+        version: 5.6.3
 
-  packages/micro-idp: {}
-
-  packages/micro-item: {}
-
-  packages/micro-moderation: {}
-
-  packages/micro-web: {}
+  packages/micro-web:
+    dependencies:
+      '@rei-init/micro-bus':
+        specifier: workspace:^
+        version: link:../micro-bus
+      hono:
+        specifier: ^3.1.4
+        version: 3.12.12
 
   packages/mono-repo-tool:
     dependencies:
@@ -2064,9 +2061,6 @@ packages:
   '@types/react@19.1.13':
     resolution: {integrity: sha512-hHkbU/eoO3EG5/MZkuFSKmYqPbSVk5byPFa3e7y/8TybHiLMACgI8seVYlicwk7H5K/rI2px9xrQp/C+AUDTiQ==}
 
-  '@types/react@19.1.14':
-    resolution: {integrity: sha512-ukd93VGzaNPMAUPy0gRDSC57UuQbnH9Kussp7HBjM06YFi9uZTFhOvMSO2OKqXm1rSgzOE+pVx1k1PYHGwlc8Q==}
-
   '@types/unist@2.0.11':
     resolution: {integrity: sha512-CmBKiL6NNo/OqgmMn95Fk9Whlp2mtvIv+KNpQKN2F4SjvrEesubTRWGYSg+BnWZOnlCaSTU1sMpsBOzgbYhnsA==}
 
@@ -3030,6 +3024,10 @@ packages:
 
   hastscript@9.0.1:
     resolution: {integrity: sha512-g7df9rMFX/SPi34tyGCyUBREQoKkapwdY/T04Qn9TDWfHhAYt4/I0gMVirzK5wEzeUqIjEB+LXC/ypb7Aqno5w==}
+
+  hono@3.12.12:
+    resolution: {integrity: sha512-5IAMJOXfpA5nT+K0MNjClchzz0IhBHs2Szl7WFAhrFOsbtQsYmNynFyJRg/a3IPsmCfxcrf8txUGiNShXpK5Rg==}
+    engines: {node: '>=16.0.0'}
 
   html-escaper@3.0.3:
     resolution: {integrity: sha512-RuMffC89BOWQoY0WKGpIhn5gX3iI54O6nRA0yC124NYVtzjmFWBIiFd8M0x+ZdX0P9R4lADg1mgP8C7PxGOWuQ==}
@@ -6779,10 +6777,6 @@ snapshots:
     dependencies:
       csstype: 3.1.3
 
-  '@types/react@19.1.14':
-    dependencies:
-      csstype: 3.1.3
-
   '@types/unist@2.0.11': {}
 
   '@types/unist@3.0.3': {}
@@ -8083,6 +8077,8 @@ snapshots:
       property-information: 7.1.0
       space-separated-tokens: 2.0.2
 
+  hono@3.12.12: {}
+
   html-escaper@3.0.3: {}
 
   html-void-elements@3.0.0: {}
@@ -9194,15 +9190,6 @@ snapshots:
     optionalDependencies:
       postcss: 8.5.6
 
-  postcss-load-config@6.0.1(jiti@1.21.7)(postcss@8.5.6)(tsx@4.20.3)(yaml@2.8.0):
-    dependencies:
-      lilconfig: 3.1.3
-    optionalDependencies:
-      jiti: 1.21.7
-      postcss: 8.5.6
-      tsx: 4.20.3
-      yaml: 2.8.0
-
   postcss-load-config@6.0.1(jiti@2.6.0)(postcss@8.5.6)(tsx@4.20.3)(yaml@2.8.0):
     dependencies:
       lilconfig: 3.1.3
@@ -9852,35 +9839,6 @@ snapshots:
       typescript: 5.8.3
 
   tslib@2.8.1: {}
-
-  tsup@8.5.0(@swc/core@1.13.2(@swc/helpers@0.5.17))(jiti@1.21.7)(postcss@8.5.6)(tsx@4.20.3)(typescript@5.6.3)(yaml@2.8.0):
-    dependencies:
-      bundle-require: 5.1.0(esbuild@0.25.8)
-      cac: 6.7.14
-      chokidar: 4.0.3
-      consola: 3.4.2
-      debug: 4.4.1
-      esbuild: 0.25.8
-      fix-dts-default-cjs-exports: 1.0.1
-      joycon: 3.1.1
-      picocolors: 1.1.1
-      postcss-load-config: 6.0.1(jiti@1.21.7)(postcss@8.5.6)(tsx@4.20.3)(yaml@2.8.0)
-      resolve-from: 5.0.0
-      rollup: 4.45.1
-      source-map: 0.8.0-beta.0
-      sucrase: 3.35.0
-      tinyexec: 0.3.2
-      tinyglobby: 0.2.15
-      tree-kill: 1.2.2
-    optionalDependencies:
-      '@swc/core': 1.13.2(@swc/helpers@0.5.17)
-      postcss: 8.5.6
-      typescript: 5.6.3
-    transitivePeerDependencies:
-      - jiti
-      - supports-color
-      - tsx
-      - yaml
 
   tsup@8.5.0(@swc/core@1.13.2(@swc/helpers@0.5.17))(jiti@2.6.0)(postcss@8.5.6)(tsx@4.20.3)(typescript@5.6.3)(yaml@2.8.0):
     dependencies:

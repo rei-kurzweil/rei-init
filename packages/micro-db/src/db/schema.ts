@@ -5,16 +5,15 @@ import { sql } from "drizzle-orm";
 export const users = sqliteTable('users', {
     id: integer().primaryKey(),
 
-    email:    text().notNull().unique(),
-    username: text().notNull().unique(),
-    
-    name:     text().notNull(),
-    password: text().notNull(),
+    email:         text().notNull().unique(),
+    username:      text().notNull().unique(),
+    password_hash: text().notNull(),
 
-    config:   text().notNull().default('{}'),
+    name:          text().notNull(),
+    config:        text().notNull().default('{}'),
 
-    created_at: integer().notNull().default(sql`(strftime('%s','now'))`),
-    updated_at: integer().notNull().default(sql`(strftime('%s','now'))`),
+    createdAt: integer().notNull().default(sql`(strftime('%s','now'))`),
+    updatedAt: integer().notNull().default(sql`(strftime('%s','now'))`),
 });
 
 let itemsRef: any;
@@ -25,8 +24,8 @@ export const items = sqliteTable('items', {
     from_user_id: integer().notNull()
         .references(() => users.id, { onDelete: 'cascade' }),
 
-    to_user_id: integer().references(() => users.id),
-    to_item_id: integer().references(() => itemsRef.id),
+    to_user_ids: text().notNull().default("[]"), // JSON array of user IDs
+    to_item_ids: text().notNull().default("[]"), // JSON array of item IDs
 
     content: text().notNull().default("{}"),
     content_type: text().notNull().default("application/json"),
@@ -39,8 +38,7 @@ export const items = sqliteTable('items', {
     y: real().notNull().default(0),
     z: real().notNull().default(0),
 
-    created_at: integer().notNull().default(sql`(strftime('%s','now'))`),
-    updated_at: integer().notNull().default(sql`(strftime('%s','now'))`),
+    createdAt: text().notNull().default(sql`(strftime('%s','now'))`),
 });
 
 itemsRef = items;

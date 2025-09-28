@@ -19,16 +19,8 @@
 		"react": "^19.1.1",
 		"react-dom": "^19.1.1",
 		"tailwindcss": "^4.1.13",
-
-		"@rei-init/hyper-r3f": "workspace:^",
 	
-		"@rei-init/micro-bus": "workspace:^",
-		"@rei-init/micro-db": "workspace:^",
-		"@rei-init/micro-user": "workspace:^",
-		"@rei-init/micro-item": "workspace:^",
-	
-		"@rei-init/micro-admin-user": "workspace:^",
-		"@rei-init/micro-admin-item": "workspace:^"
+		"@rei-init/micro-bus": "workspace:^"
 	},
 	"devDependencies": {
 		"@astrojs/mdx": "^4.3.1",

@@ -11,7 +11,7 @@
   },
   "include": [
     "src/**/*"
-, "../micro-model/src/item-admin-moderation.ts", "../micro-model/src/item.ts", "../micro-model/src/user-admin-approval.ts"  ],
+  ],
   "exclude": [
     "dist",
     "node_modules"

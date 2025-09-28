@@ -1,5 +1,5 @@
 {
-  "name": "@rei-init/migrations-rei-init",
+  "name": "@rei-init/micro-db",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -12,9 +12,5 @@
   "devDependencies": {
     "tsup": "^8.0.0",
     "typescript": "^5.0.0"
-  },
-  "dependencies": {
-    "drizzle-kit": "^0.31.4",
-    "drizzle-orm": "^0.44.3"
   }
 }

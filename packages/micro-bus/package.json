@@ -2,8 +2,11 @@
   "name": "@rei-init/micro-bus",
   "version": "1.0.0",
   "description": "in-memory pub/sub and request/response message bus",
-  "main": "index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
+    "build": "tsup src/index.ts --dts --format esm,cjs --out-dir dist",
+    "dev": "tsup src/index.ts --watch --dts --format esm,cjs --out-dir dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -13,5 +16,14 @@
     "request/response"
   ],
   "author": "rei evans",
-  "license": "MIT"
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@rei-init/micro-domain": "workspace:*"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.0"
+  }
 }

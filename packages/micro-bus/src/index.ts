@@ -1,14 +1,14 @@
+import { User, Item } from "@rei-init/micro-domain";
+
 type PubSubTopics = {
   "user.logged_in": { id: string };
   "item.created": { id: string; title: string };
 };
 
 type RequestReplyTopics = {
-  "micro-item.get": { id: string } & { response: IItem };
-  "micro-user.get": { id: string } & { response: IUser };
+  "micro-item.get": { id: string } & { response: Item };
+  "micro-user.get": { id: string } & { response: User };
 };
-
-type AnyTopic = keyof PubSubTopics | keyof RequestReplyTopics;
 
 export class MicroBus {
   private subscriptions = new Map<string, Set<(data: any) => void>>();
