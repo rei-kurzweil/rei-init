@@ -1,5 +1,6 @@
 ---
 import Content from '../components/Content'
+import { ProfileTitle } from '../components/ProfileTitle'
 import { SideBar } from '../components/SideBar'
 import { DarkModeToggle } from '../components/ToggleDarkMode'
 import '../styles/global.css'
@@ -17,8 +18,11 @@ import '../styles/global.css'
 	</head>
 	<body>
 		<SideBar>
-			⚡ Rei Evans_
-			<DarkModeToggle client:load />
+			<ProfileTitle>⚡ Rei Evans_</ProfileTitle>
+			
+			<div class="mt-auto">
+				<DarkModeToggle client:load />
+			</div>
 		</SideBar>
 		<Content>
 			<slot />

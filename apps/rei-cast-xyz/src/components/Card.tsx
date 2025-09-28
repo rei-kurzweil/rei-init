@@ -1,13 +1,30 @@
-export function Card({ title, content }: { title: string; content: string }) {
+export function Card(
+    { title, content, pinned }: { 
+        title: string; 
+        content: string; 
+        pinned?: boolean 
+    }) 
+{
+
+    // convert newlines to <br /> for display
+    const formattedContent = content.split('\n').map((line, index) => (
+        <span key={index}>
+            {line}
+            <br />
+        </span>
+    ));
+
     return (
         <div className="
-            border
-            border-gray-300
             rounded-lg
             p-4
+            mb-4
+
+            Card
         ">
+            {pinned && <div className="text-sm text-yellow-500 font-bold mb-2">📌</div>}
             <h2 className="text-lg font-semibold">{title}</h2>
-            <p className="mt-2 text-gray-600">{content}</p>
+            <p className="mt-2">{formattedContent}</p>
         </div>
     );
 }

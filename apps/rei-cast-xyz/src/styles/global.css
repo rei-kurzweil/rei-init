@@ -25,27 +25,78 @@ body {
     background-color: #fff;
 }
 
+.Content p {
+    color: #333;
+}
+
+.Card {
+    box-shadow: 0em 1em 2em 1em rgba(0,0,0, 0.05);
+}
+
+
+@media (prefers-color-scheme: light) {
+    body {
+        background-color: #ffffff;
+        color: black;
+    }
+
+    .SideBar {
+        color: #333;
+        background-color: #eaeaea;
+        box-shadow: inset -1em 1em 2em 1em rgba(0,0,0, 0.05);
+    }
+
+    .Content {
+        color: #333;
+        background-color: #fff;
+    }
+
+    .Content p {
+        color: #333;
+    }
+}
+
+
 /** Dark Mode **/
 @media (prefers-color-scheme: dark) {
+    body {
+        background-color: #383838;
+        color: white;
+    }
+
     .SideBar {
         color: #fff;
-        background-color: #333;
+        background-color: #484848;
         box-shadow: inset -1em 1em 2em 1em rgba(0,0,0, 0.2);
     }
 
     .Content {
         color: #fff;
-        background-color: #111;
+        background-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .Content p {
+        color: #fff;
     }
 }
 
+
+.dark body {
+    background-color: #383838;
+    color: white;
+}
+
 .dark .SideBar {
-    color: #fff;
-    background-color: #333;
-    box-shadow: inset -1em 1em 2em 1em rgba(0,0,0, 0.2);
+    color: #ffffff;
+    background-color: #484848;
+    box-shadow: inset -1em 1em 2em 1em rgba(255, 255, 255, 0.1);
 }
 
 .dark .Content {
     color: #fff;
-    background-color: #111;
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+.dark .Content p {
+    color: #fff;
 }
