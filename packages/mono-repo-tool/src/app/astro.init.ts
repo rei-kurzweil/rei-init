@@ -29,7 +29,6 @@ export async function initAstro(targetDir: string, withWrangler: boolean = false
         // Also install react and mdx in the app directory
         await execa('pnpm', ['add', '-D', '@astrojs/react', '@astrojs/mdx'], { cwd: targetDir });
 
-
     } else {
 
         // Use react template
@@ -59,6 +58,10 @@ import mdx from '@astrojs/mdx'
         await fs.writeFile(configPath, configText)
     }
 
+
+    // add react and tailwind to astro
+    await execa('pnpm', ['dlx', 'astro', 'add', 'react'], { cwd: targetDir, stdio: 'inherit' })
+    await execa('pnpm', ['dlx', 'astro', 'add', 'tailwind'], { cwd: targetDir, stdio: 'inherit' })
 
     console.log(`✅ Astro initialized with React + MDX support${withWrangler ? ' + Wrangler/Cloudflare' : ''}!`)
 }
