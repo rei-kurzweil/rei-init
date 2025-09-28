@@ -1,102 +1,39 @@
+/* css frameworks */
 @import "tailwindcss";
+
+/* app styles */
+@import "./themes";
 
 
 body {
     font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     
     display: flex;
-    
-    
     min-height: 100vh;
     margin: 0;
     padding: 0;
+    
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
 }
 
-/** Theming **/
+/** apply theme **/
 
 .SideBar {
-    color: #333;
-    background-color: #eaeaea;
-    box-shadow: inset -1em 1em 2em 1em rgba(0,0,0, 0.05);
+    color: var(--color-sidebar-text);
+    background-color: var(--color-sidebar-bg);
+    box-shadow: var(--shadow-sidebar);
 }
 
 .Content {
-    color: #333;
-    background-color: #fff;
+    color: var(--color-content-text);
+    background-color: var(--color-content-bg);
 }
 
 .Content p {
-    color: #333;
+    color: var(--color-content-text);
 }
 
 .Card {
-    box-shadow: 0em 1em 2em 1em rgba(0,0,0, 0.05);
-}
-
-
-@media (prefers-color-scheme: light) {
-    body {
-        background-color: #ffffff;
-        color: black;
-    }
-
-    .SideBar {
-        color: #333;
-        background-color: #eaeaea;
-        box-shadow: inset -1em 1em 2em 1em rgba(0,0,0, 0.05);
-    }
-
-    .Content {
-        color: #333;
-        background-color: #fff;
-    }
-
-    .Content p {
-        color: #333;
-    }
-}
-
-
-/** Dark Mode **/
-@media (prefers-color-scheme: dark) {
-    body {
-        background-color: #383838;
-        color: white;
-    }
-
-    .SideBar {
-        color: #fff;
-        background-color: #484848;
-        box-shadow: inset -1em 1em 2em 1em rgba(0,0,0, 0.2);
-    }
-
-    .Content {
-        color: #fff;
-        background-color: rgba(255, 255, 255, 0.25);
-    }
-
-    .Content p {
-        color: #fff;
-    }
-}
-
-
-.dark body {
-    background-color: #383838;
-    color: white;
-}
-
-.dark .SideBar {
-    color: #ffffff;
-    background-color: #484848;
-    box-shadow: inset -1em 1em 2em 1em rgba(255, 255, 255, 0.1);
-}
-
-.dark .Content {
-    color: #fff;
-    background-color: rgba(255, 255, 255, 0.25);
-}
-
-.dark .Content p {
-    color: #fff;
+    box-shadow: var(--shadow-card);
 }
