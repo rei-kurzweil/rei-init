@@ -6,9 +6,14 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./dist/index.js",
-    "./schema": "./dist/schema.js",
-    "./d1-utils": "./dist/d1-utils.js"
+    ".": {
+      "import": "./src/index.ts",
+      "types": "./src/index.ts"
+    },
+    "./db/schema": {
+      "import": "./src/db/schema.ts",
+      "types": "./src/db/schema.ts"
+    }
   },
   "scripts": {
     "build": "tsup",
@@ -28,7 +33,7 @@
     "tsup": "^8.0.0",
     "typescript": "^5.0.0"
   },
-  "dependencies": {
+  "peerDependencies": {
     "drizzle-orm": "^0.44.3"
   }
 }

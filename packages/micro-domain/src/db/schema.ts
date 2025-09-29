@@ -16,13 +16,11 @@ export const usersTable = sqliteTable('users', {
     updatedAt: integer().notNull().default(sql`(strftime('%s','now'))`),
 });
 
-let itemsRef: any;
 
 export const itemsTable = sqliteTable('items', {
     id: integer().primaryKey(),
 
-    from_user_id: integer().notNull()
-        .references(() => usersTable.id, { onDelete: 'cascade' }),
+    from_user_id: integer().notNull(),
 
     to_user_ids: text().notNull().default("[]"), // JSON array of user IDs
     to_item_ids: text().notNull().default("[]"), // JSON array of item IDs
@@ -41,4 +39,3 @@ export const itemsTable = sqliteTable('items', {
     createdAt: text().notNull().default(sql`(strftime('%s','now'))`),
 });
 
-itemsRef = itemsTable;

@@ -1,0 +1,16 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+
+
+const user_id = Astro.params.user_id;
+
+
+---
+
+<Layout>
+    <h1>User ID: {user_id}</h1>
+
+</Layout>
+    
