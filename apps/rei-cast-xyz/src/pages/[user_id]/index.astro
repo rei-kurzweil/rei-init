@@ -1,16 +1,80 @@
 ---
 export const prerender = false;
 
+import type { Item } from '../../../../../packages/micro-domain/src/item';
+import type { User } from '../../../../../packages/micro-domain/src/user';
+
 import Layout from '../../layouts/Layout.astro';
+import { Items } from '../../components/Items';
 
-
+// parameters
 const user_id = Astro.params.user_id;
+const { env } = (Astro.locals  as any).runtime;
 
+// Raw D1 access (no drizzle)
+const d1: D1Database = env.REI_CAST_XYZ_D1;
 
+let user: User | undefined;
+let items: Item[] = [];
+
+if (user_id) {
+    // Fetch the user
+    const userStmt = await d1.prepare(`SELECT * FROM users WHERE id = ?`).bind(Number(user_id)).first<any>();
+    if (userStmt) {
+        user = {
+            id: userStmt.id,
+            email: userStmt.email,
+            username: userStmt.username,
+            password_hash: "",
+            name: userStmt.name,
+            config: safeJson(userStmt.config, {}),
+            createdAt: userStmt.createdAt,
+        };
+
+    }
+
+    
+    // Fetch items authored by this user
+    const itemsResult = await d1.prepare(`SELECT * FROM items WHERE from_user_id = ? ORDER BY createdAt DESC LIMIT 50`).bind(Number(user_id)).all<any>();
+    if (itemsResult.results) {
+        items = itemsResult.results.map((row: any) => ({
+            id: row.id,
+            from_user_id: row.from_user_id,
+            to_user_ids: safeJson(row.to_user_ids, []),
+            to_item_ids: safeJson(row.to_item_ids, []),
+            content: row.content ?? '',
+            content_type: row.content_type ?? 'text/plain',
+            content_kv_key: row.content_kv_key ?? undefined,
+            matrix: safeJson(row.matrix, undefined),
+            x: row.x,
+            y: row.y,
+            z: row.z,
+            createdAt: Number(row.createdAt),
+        }));
+    }
+}
+
+function safeJson<T>(value: any, fallback: T): T {
+    if (typeof value !== 'string') return fallback;
+    try { return JSON.parse(value); } catch { return fallback; }
+}
 ---
 
 <Layout>
     <h1>User ID: {user_id}</h1>
-
+    {user && (
+        <section>
+            <h2>User</h2>
+            <pre>{JSON.stringify(user, null, 2)}</pre>
+        </section>
+    )}
+    <section>
+        <h2>Items ({items.length})</h2>
+        <Items items={items} user={user} />
+        <details>
+            <summary>Raw items JSON</summary>
+            <pre>{JSON.stringify(items, null, 2)}</pre>
+        </details>
+    </section>
 </Layout>
     

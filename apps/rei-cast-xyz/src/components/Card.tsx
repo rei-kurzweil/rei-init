@@ -1,10 +1,18 @@
+import type { User } from "@rei-init/micro-domain";
+
 export function Card(
-    { title, content, pinned }: { 
-        title: string; 
+    { title, content, pinned, user }: { 
         content: string; 
-        pinned?: boolean 
+        pinned?: boolean;
+        
+        title?: string; 
+        user?: User;
     }) 
 {
+
+    if (user){
+        title = "@"+user.name;
+    }
 
     // convert newlines to <br /> for display
     const formattedContent = content.split('\n').map((line, index) => (

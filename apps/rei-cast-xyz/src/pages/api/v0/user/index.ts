@@ -5,7 +5,7 @@ import { drizzle } from 'drizzle-orm/d1';
 // import { usersTable } from '@rei-init/micro-domain/db/schema';
 
 // local package imports
-import type { ENV } from '../env';
+import type { ENV } from '../../../../env';
 
 // monorepo package imports
 import { usersTable } from '@rei-init/micro-domain/db/schema';
