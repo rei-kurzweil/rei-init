@@ -6,6 +6,7 @@ import { ProfileTitle } from '../components/ProfileTitle'
 import { SideBar } from '../components/SideBar'
 import { DarkModeToggle } from '../components/ToggleDarkMode'
 import '../styles/global.css'
+import { SideBarItem } from '../components/SideBarItem'
 ---
 
 
@@ -19,7 +20,9 @@ import '../styles/global.css'
 		<title>⚡Rei Evans_</title>
 	</head>
 	<body>
-		<MobileTopBar title="⚡ Rei Evans_" />
+		<MobileTopBar title="⚡ Rei Evans_" client:load>
+			<SideBarItem value="hi :3" />
+		</MobileTopBar>
 		<SideBar>
 			<ProfileTitle>⚡ Rei Evans_</ProfileTitle>
 			

@@ -8,8 +8,10 @@ export function MobileTopBar(props: {
     const [menuOpen, setMenuOpen] = useState(false);
     
     return (
-        <aside className="hidden md:flex flex-col justify-between w-64 h-screen p-4 SideBar">
-            
+        <aside className="  fixed top-0 left-0 w-full h-16
+                            flex md:hidden items-center justify-between
+                            px-4 py-2 bg-white dark:bg-gray-800 SideBar">
+
             <span>
                 {props.title}
             </span>

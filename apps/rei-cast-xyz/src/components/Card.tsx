@@ -18,7 +18,7 @@ export function Card(
         <div className="
             rounded-lg
             p-4
-            mb-4
+            mt-4
 
             Card
         ">

@@ -2,7 +2,7 @@ import { sqliteTable, integer, text, real } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 
 
-export const users = sqliteTable('users', {
+export const usersTable = sqliteTable('users', {
     id: integer().primaryKey(),
 
     email:         text().notNull().unique(),
@@ -18,11 +18,11 @@ export const users = sqliteTable('users', {
 
 let itemsRef: any;
 
-export const items = sqliteTable('items', {
+export const itemsTable = sqliteTable('items', {
     id: integer().primaryKey(),
 
     from_user_id: integer().notNull()
-        .references(() => users.id, { onDelete: 'cascade' }),
+        .references(() => usersTable.id, { onDelete: 'cascade' }),
 
     to_user_ids: text().notNull().default("[]"), // JSON array of user IDs
     to_item_ids: text().notNull().default("[]"), // JSON array of item IDs
@@ -41,4 +41,4 @@ export const items = sqliteTable('items', {
     createdAt: text().notNull().default(sql`(strftime('%s','now'))`),
 });
 
-itemsRef = items;
+itemsRef = itemsTable;

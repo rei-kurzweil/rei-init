@@ -5,12 +5,30 @@
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./schema": "./dist/schema.js",
+    "./d1-utils": "./dist/d1-utils.js"
+  },
   "scripts": {
     "build": "tsup",
-    "dev": "tsup --watch"
+    "dev": "tsup --watch",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate:local": "node scripts/migrate-local.js",
+    "db:migrate:d1:local": "node scripts/migrate-d1.js --local",
+    "db:migrate:d1:remote": "node scripts/migrate-d1.js",
+    "db:seed:local": "node scripts/seed.js",
+    "db:seed:d1:local": "node scripts/seed.js --d1-local",
+    "db:seed:d1:remote": "node scripts/seed.js --d1-remote"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "better-sqlite3": "^12.4.1",
+    "drizzle-kit": "^0.31.4",
     "tsup": "^8.0.0",
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.44.3"
   }
 }

@@ -2,20 +2,20 @@
 
 interface SideBarItemProps {
     value: string;
-    icon: React.ReactNode;
-    href: string;
+    icon?: React.ReactNode;
+    href?: string;
 }
 
-export const SideBarItem: React.FC<SideBarItemProps> = (
+export const SideBarItem: React.FC<SideBarItemProps> = (props: 
     { 
-        value = 'item', 
-        icon  = <span>🔗</span>, 
-        href = '#' 
-    }
-) => {
+        value: string; 
+        icon?: React.ReactNode; 
+        href?: string
+    }) => {
+    
     return (
         <a
-            href={href}
+            href={props.href}
             className="
         flex items-center gap-2
         p-2 rounded
@@ -23,8 +23,8 @@ export const SideBarItem: React.FC<SideBarItemProps> = (
         transition-colors
 "
         >
-            {icon}
-            <span>{value}</span>
+            {props.icon}
+            <span>{props.value}</span>
         </a>
     );
 };

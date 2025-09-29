@@ -1,0 +1,10 @@
+# Local development database
+local.db
+local.db-*
+
+# D1 configuration (contains database IDs)
+d1.config.json
+
+# Build output
+dist/
+node_modules/

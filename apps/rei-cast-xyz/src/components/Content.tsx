@@ -5,8 +5,10 @@ interface ContentProps {
 }
 
 const Content: React.FC<ContentProps> = ({ children }) => (
-    <div className="flex flex-col items-start justify-start mx-auto w-full max-w-[1024px] 
-                    px-4 pt-8
+    <div className="flex flex-col items-start justify-start 
+                    mx-auto w-full max-w-[1024px] 
+                    px-4 pt-4
+                    md:ml-64
                     Content">
         {children}
     </div>
