@@ -12,7 +12,7 @@ export function Card(
 {
 
     if (user){
-        title = "@"+user.name;
+        title = "@"+user.username;
     }
 
     // convert newlines to <br /> for display
