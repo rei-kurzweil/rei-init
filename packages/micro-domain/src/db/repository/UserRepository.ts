@@ -8,20 +8,26 @@ export class UserRepository implements Repository<User> {
         this.db = db;
     }
 
-    async getById(id: string): Promise<User | null> {
+    async findById(id: number): Promise<User | null> {
         const stmt = this.db.prepare("SELECT * FROM users WHERE id = ?");
         const result = await stmt.bind(id).first<User>();
         return result || null;
     }
 
-    async getAll(pageSize: number = 10, page: number = 1): Promise<User[]> {
+    async findByName(name: string): Promise<User | null> {
+            const stmt = this.db.prepare("SELECT * FROM users WHERE name = ?");
+            const result = await stmt.bind(name).first<User>();
+            return result || null;
+    }
+
+    async findAll(pageSize: number = 10, page: number = 1): Promise<User[]> {
         const offset = (page - 1) * pageSize;
         const stmt = this.db.prepare("SELECT * FROM users LIMIT ? OFFSET ?");
         const results = await stmt.bind(pageSize, offset).all<User>();
         return results.results;
     }
 
-    async getAllWhereNameLike(name: string, pageSize: number = 16, page: number = 1): Promise<User[]> {
+    async findAllWhereNameLike(name: string, pageSize: number = 16, page: number = 1): Promise<User[]> {
         const offset = (page - 1) * pageSize;
         const stmt = this.db.prepare("SELECT * FROM users WHERE name LIKE ? LIMIT ? OFFSET ?");
         const results = await stmt.bind(`%${name}%`, pageSize, offset).all<User>();

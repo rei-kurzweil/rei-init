@@ -1,12 +1,13 @@
 import type { User } from "@rei-init/micro-domain";
 
 export function Card(
-    { title, content, pinned, user }: { 
+    { title, content, pinned, user, onClick }: { 
         content: string; 
         pinned?: boolean;
         
         title?: string; 
         user?: User;
+        onClick?: () => void;
     }) 
 {
 
@@ -23,7 +24,10 @@ export function Card(
     ));
 
     return (
-        <div className="
+        <div onClick={() => {
+            onClick ? onClick() : null
+        }} 
+            className="
             rounded-lg
             p-4
             mt-4

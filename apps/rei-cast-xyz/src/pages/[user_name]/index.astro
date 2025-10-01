@@ -1,0 +1,56 @@
+---
+export const prerender = false;
+
+import type { Item } from '../../../../../packages/micro-domain/src/item';
+import type { User } from '../../../../../packages/micro-domain/src/user';
+import { UserRepository } from '../../../../../packages/micro-domain/src/db/repository/UserRepository';
+import { ItemRepository } from '../../../../../packages/micro-domain/src/db/repository/ItemRepository';
+
+import Layout from '../../layouts/Layout.astro';
+import { Items } from '../../components/Items';
+
+// parameters
+const user_name = Astro.params.user_name;
+const { env } = (Astro.locals  as any).runtime;
+
+// Raw D1 access (no drizzle)
+const d1: IDBDatabase = env.REI_CAST_XYZ_D1;
+
+let user: User | null = null;
+let items: Item[] = [];
+
+if (user_name) {
+    // Fetch the user
+    
+    const userRepo = new UserRepository(d1);
+    user = await userRepo.findByName(user_name);
+
+    const user_id = user?.id ?? 0;
+
+    // Fetch items authored by this user
+    const itemRepo = new ItemRepository(d1);
+    items = await itemRepo.findAllByFromUserId(user_id, 50);
+
+}
+
+
+---
+
+<Layout>
+    <h1>User Name: {user_name}</h1>
+    {user_name && user && (
+        <section>
+            <h2>User</h2>
+            <pre>{JSON.stringify(user, null, 2)}</pre>
+        </section>
+    )}
+    <section>
+        <h2>Items ({items.length})</h2>
+        <Items items={items} user={user} />
+        <details>
+            <summary>Raw items JSON</summary>
+            <pre>{JSON.stringify(items, null, 2)}</pre>
+        </details>
+    </section>
+</Layout>
+    

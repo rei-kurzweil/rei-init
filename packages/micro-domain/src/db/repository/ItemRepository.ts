@@ -8,20 +8,27 @@ export class ItemRepository implements Repository<Item> {
         this.db = db;
     }
 
-    async getById(id: string): Promise<Item | null> {
+    async findById(id: number): Promise<Item | null> {
         const stmt = this.db.prepare("SELECT * FROM items WHERE id = ?");
         const result = await stmt.bind(id).first<Item>();
         return result || null;
     }
 
-    async getAll(pageSize: number = 10, page: number = 1): Promise<Item[]> {
+    async findAll(pageSize: number = 10, page: number = 1): Promise<Item[]> {
         const offset = (page - 1) * pageSize;
         const stmt = this.db.prepare("SELECT * FROM items LIMIT ? OFFSET ?");
         const results = await stmt.bind(pageSize, offset).all<Item>();
         return results.results;
     }
 
-    async getAllWhereNameLike(name: string, pageSize: number = 16, page: number = 1): Promise<Item[]> {
+    async findAllByFromUserId(from_user_id: number, pageSize: number = 10, page: number = 1): Promise<Item[]> {
+        const offset = (page - 1) * pageSize;
+        const stmt = this.db.prepare("SELECT * FROM items WHERE from_user_id = ? LIMIT ? OFFSET ?");
+        const results = await stmt.bind(from_user_id, pageSize, offset).all<Item>();
+        return results.results;
+    }
+
+    async findAllWhereNameLike(name: string, pageSize: number = 16, page: number = 1): Promise<Item[]> {
         const offset = (page - 1) * pageSize;
         const stmt = this.db.prepare("SELECT * FROM items WHERE name LIKE ? LIMIT ? OFFSET ?");
         const results = await stmt.bind(`%${name}%`, pageSize, offset).all<Item>();
