@@ -14,8 +14,8 @@ export class UserRepository implements Repository<User> {
         return result || null;
     }
 
-    async findByName(name: string): Promise<User | null> {
-            const stmt = this.db.prepare("SELECT * FROM users WHERE name = ?");
+    async findByUserName(name: string): Promise<User | null> {
+            const stmt = this.db.prepare("SELECT * FROM users WHERE username = ?");
             const result = await stmt.bind(name).first<User>();
             return result || null;
     }

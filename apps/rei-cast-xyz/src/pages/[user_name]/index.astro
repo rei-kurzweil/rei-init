@@ -14,7 +14,7 @@ const user_name = Astro.params.user_name;
 const { env } = (Astro.locals  as any).runtime;
 
 // Raw D1 access (no drizzle)
-const d1: IDBDatabase = env.REI_CAST_XYZ_D1;
+const d1: D1Database = env.REI_CAST_XYZ_D1;
 
 let user: User | null = null;
 let items: Item[] = [];
@@ -23,7 +23,7 @@ if (user_name) {
     // Fetch the user
     
     const userRepo = new UserRepository(d1);
-    user = await userRepo.findByName(user_name);
+    user = await userRepo.findByUserName(user_name);
 
     const user_id = user?.id ?? 0;
 
@@ -46,7 +46,8 @@ if (user_name) {
     )}
     <section>
         <h2>Items ({items.length})</h2>
-        <Items items={items} user={user} />
+        {user && <Items items={items} user={user} />}
+        {!user && <p>User not found.</p>}
         <details>
             <summary>Raw items JSON</summary>
             <pre>{JSON.stringify(items, null, 2)}</pre>
