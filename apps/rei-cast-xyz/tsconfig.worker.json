@@ -5,7 +5,9 @@
     "types": [
         "vite/client", 
         "./worker-configuration.d.ts"
-    ]
+    ],
+    // Allow .tsx / .jsx files inside src/worker
+    "jsx": "react-jsx"
   },
   "include": ["src/worker"]
 }
