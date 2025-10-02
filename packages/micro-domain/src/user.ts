@@ -8,5 +8,8 @@ export interface User {
     name: string;
     config: Record<string, any>;
 
+    // W3C date time string
     createdAt: string;
+    // W3C date time string
+    updatedAt: string;
 }

@@ -10,7 +10,7 @@ CREATE TABLE `items` (
 	`x` real DEFAULT 0 NOT NULL,
 	`y` real DEFAULT 0 NOT NULL,
 	`z` real DEFAULT 0 NOT NULL,
-	`createdAt` text DEFAULT (strftime('%s','now')) NOT NULL,
+	`createdAt` text DEFAULT (datetime('now','utc') || 'Z') NOT NULL,
 	FOREIGN KEY (`from_user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
@@ -22,8 +22,8 @@ CREATE TABLE `users` (
 	`password_hash` text NOT NULL,
 	`name` text NOT NULL,
 	`config` text DEFAULT '{}' NOT NULL,
-	`createdAt` integer DEFAULT (strftime('%s','now')) NOT NULL,
-	`updatedAt` integer DEFAULT (strftime('%s','now')) NOT NULL
+	`createdAt` text DEFAULT (datetime('now','utc') || 'Z') NOT NULL,
+	`updatedAt` text DEFAULT (datetime('now','utc') || 'Z') NOT NULL
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `users_email_unique` ON `users` (`email`);--> statement-breakpoint

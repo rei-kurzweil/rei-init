@@ -12,8 +12,8 @@ export const usersTable = sqliteTable('users', {
     name:          text().notNull(),
     config:        text().notNull().default('{}'),
 
-    createdAt: integer().notNull().default(sql`(strftime('%s','now'))`),
-    updatedAt: integer().notNull().default(sql`(strftime('%s','now'))`),
+    createdAt: text().notNull().default(sql`(datetime('now','utc') || 'Z')`),
+    updatedAt: text().notNull().default(sql`(datetime('now','utc') || 'Z')`),
 });
 
 
@@ -36,6 +36,6 @@ export const itemsTable = sqliteTable('items', {
     y: real().notNull().default(0),
     z: real().notNull().default(0),
 
-    createdAt: text().notNull().default(sql`(strftime('%s','now'))`),
+    createdAt: text().notNull().default(sql`(datetime('now','utc') || 'Z')`),
 });
 

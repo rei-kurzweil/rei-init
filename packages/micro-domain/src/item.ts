@@ -21,5 +21,6 @@ export interface Item {
     y?: number;
     z?: number;
 
-    createdAt: number;
+    // W3C date time string
+    createdAt: string;
 }
