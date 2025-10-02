@@ -8,6 +8,7 @@ import { ItemRepository } from '../../../../../packages/micro-domain/src/db/repo
 
 import Layout from '../../layouts/Layout.astro';
 import { Items } from '../../components/Items';
+import { Card } from '../../components/Card';
 
 // parameters
 const user_name = Astro.params.user_name;
@@ -27,10 +28,13 @@ if (user_name) {
 
     const user_id = user?.id ?? 0;
 
+    console.log("user id ", user_id);
+
     // Fetch items authored by this user
     const itemRepo = new ItemRepository(d1);
     items = await itemRepo.findAllByFromUserId(user_id, 50);
 
+    console.log("items ", JSON.stringify(items));
 }
 
 
@@ -41,7 +45,7 @@ if (user_name) {
     {user_name && user && (
         <section>
             <h2>User</h2>
-            <pre>{JSON.stringify(user, null, 2)}</pre>
+            <Card content={JSON.stringify(user, null, 2)} title={user.name} />
         </section>
     )}
     <section>

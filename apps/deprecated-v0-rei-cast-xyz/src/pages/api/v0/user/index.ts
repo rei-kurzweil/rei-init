@@ -10,9 +10,6 @@ import type { ENV } from '../../../../env';
 // monorepo package imports
 import { usersTable } from '@rei-init/micro-domain/db/schema';
 
-//
-
-
 // Create Hono app with generic type for environment bindings
 const app = new Hono<{ Bindings: ENV }>();
 

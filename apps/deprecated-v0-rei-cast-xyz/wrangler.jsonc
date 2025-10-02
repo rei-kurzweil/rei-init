@@ -5,20 +5,19 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "rei-cast-xyz",
-	"main": "./src/worker/index.ts",
-	"compatibility_date": "2025-04-01",
+	"main": "./dist/_worker.js/index.js",
+	"compatibility_date": "2025-09-27",
 	"compatibility_flags": [
-		"nodejs_compat"
+		"nodejs_compat",
+		"global_fetch_strictly_public"
 	],
+	"assets": {
+		"binding": "ASSETS",
+		"directory": "./dist"
+	},
 	"observability": {
 		"enabled": true
 	},
-
-	"assets": {
-		"binding": "ASSETS",
-		"directory": "./static_content"
-	},
-	
 	"routes": [
 		"rei-cast.xyz/*"
 	],
@@ -34,7 +33,7 @@
 			"binding": "REI_CAST_XYZ_KV",
 			"id": "5acf4eb6a2f64cac84d9df52e9b046b6"
 		}
-	],
+	]
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
@@ -65,5 +64,4 @@
 	 * https://developers.cloudflare.com/workers/wrangler/configuration/#service-bindings
 	 */
 	// "services": [{ "binding": "MY_SERVICE", "service": "my-service" }]
-	"upload_source_maps": true,
 }
