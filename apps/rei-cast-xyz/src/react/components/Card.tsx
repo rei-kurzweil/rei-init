@@ -1,3 +1,4 @@
+import React from 'react';
 import type { User } from "@rei-init/micro-domain";
 
 export function Card(

@@ -1,5 +1,7 @@
 /* css frameworks */
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* app styles */
 @import "./themes";

@@ -1,3 +1,4 @@
+import React from 'react';
 import { Context } from "hono";
 import { renderToString } from "react-dom/server";
 
@@ -28,10 +29,12 @@ export async function HandleUserItem(c: Context<Env & { Bindings: ENV }>) {
         item = await itemRepo.findById(Number(item_id));
     }
 
-    const html = renderToString(
+    const html = "<!DOCTYPE html>" +
+    renderToString(
         <html>
             <head>
                 <title>{user_name} - {item_id}</title>
+                <link rel="stylesheet" href="/styles.css" />
             </head>
             <body>
                 <SideBar>

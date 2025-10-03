@@ -166,6 +166,9 @@ importers:
       globals:
         specifier: 16.2.0
         version: 16.2.0
+      tailwindcss:
+        specifier: ^3.4.17
+        version: 3.4.17
       typescript:
         specifier: 5.8.3
         version: 5.8.3

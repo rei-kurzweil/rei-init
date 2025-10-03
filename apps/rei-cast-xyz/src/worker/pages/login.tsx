@@ -1,3 +1,4 @@
+import React from 'react';
 import type { Context } from 'hono';
 import type { Env } from 'hono';
 import { renderToString } from 'react-dom/server';
@@ -17,6 +18,7 @@ export async function HandleAuthPage(c: Context<Env & { Bindings: ENV }>) {
         <html>
             <head>
                 <title>⚡ Login</title>
+                <link rel="stylesheet" href="/styles.css" />
             </head>
             <body>
                 <SideBar>
