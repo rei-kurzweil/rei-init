@@ -9,24 +9,22 @@ import { SideBar } from      '../../react/components/SideBar';
 import { ProfileTitle } from '../../react/components/ProfileTitle';
 
 
-export async function HandleSearchPage(c: Context<Env & { Bindings: ENV }>) {
+export async function HandleAuthPage(c: Context<Env & { Bindings: ENV }>) {
     
     
-    
-
     const html = "<!DOCTYPE html>" + 
     renderToString(
         <html>
             <head>
-                <title>⚡ rei-cast.xyz</title>
+                <title>⚡ Login</title>
             </head>
             <body>
                 <SideBar>
-                    <ProfileTitle>⚡ SEARCH 🔍</ProfileTitle>
+                    <ProfileTitle>⚡ LOGIN 🔑</ProfileTitle>
                 </SideBar>
                 <Content>
                     {
-                        "no items found." 
+                        "invite only rn. hmu on bsky @rei-cast.xyz" 
                     }
                 </Content>
             </body>

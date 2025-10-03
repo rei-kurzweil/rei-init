@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { ENV } from "../../env";
-import { ItemRepository } from "@rei-init/micro-domain";
+import { Item, ItemRepository } from "@rei-init/micro-domain";
 
 const ItemRouter = new Hono<{ Bindings: ENV }>();
 
@@ -18,14 +18,10 @@ ItemRouter.get("/:item_id", async (c) => {
 
 // handle adding item
 ItemRouter.post("/", async (c) => {
-    const { from_user_id, content } = await c.req.json();
+    const itemRecord: Item = await c.req.json();
 
     const itemRepo = new ItemRepository(c.env.REI_CAST_XYZ_D1);
-    const newItem = await itemRepo.save({
-        from_user_id, 
-        content,
-        createdAt: new Date().toISOString(),
-    });
+    const newItem = await itemRepo.save(itemRecord);
 
     return c.json({
         item: newItem

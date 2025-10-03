@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { HandleUserProfile } from "./user-profile";
-import { HandleUserItem } from "./[item_id]";
+import { HandleUserItem } from "./user-item";
 
 export const UserRouter = new Hono();
 
