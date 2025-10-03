@@ -1,10 +1,10 @@
+/* app styles */
+@import "./themes.css";
+
 /* css frameworks */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* app styles */
-@import "./themes";
 
 
 body {
