@@ -66,4 +66,12 @@
 	 */
 	// "services": [{ "binding": "MY_SERVICE", "service": "my-service" }]
 	"upload_source_maps": true,
+	"minify": false,
+	"rules": [
+		{
+			"type": "ESModule",
+			"globs": ["**/*.js", "**/*.mjs", "**/*.ts", "**/*.tsx"],
+			"fallthrough": true
+		}
+	]
 }

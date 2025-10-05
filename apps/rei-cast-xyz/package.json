@@ -13,8 +13,10 @@
     "publish": true
   },
   "dependencies": {
+    "@rei-init/meow": "workspace:*",
     "@rei-init/micro-bus": "workspace:*",
     "@rei-init/micro-domain": "workspace:*",
+    "@rei-init/ui": "workspace:*",
     "hono": "4.8.2",
     "react": "19.0.0",
     "react-dom": "19.0.0"
@@ -41,8 +43,9 @@
     "wrangler": "4.40.3"
   },
   "scripts": {
-    "build": "tsc -b && vite build",
+    "build": "npm run build:meow && tsc -b && vite build",
     "build:css": "postcss ./src/css/global.css -o ./static_content/styles.css --minify",
+    "build:meow": "./build-and-copy-meow.sh",
     "cf-typegen": "wrangler types",
     "check": "tsc && vite build && wrangler deploy --dry-run",
     "deploy": "wrangler deploy",

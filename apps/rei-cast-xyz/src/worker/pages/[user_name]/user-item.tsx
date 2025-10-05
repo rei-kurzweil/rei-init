@@ -1,15 +1,10 @@
-import React from 'react';
 import { Context } from "hono";
 import { renderToString } from "react-dom/server";
 
-import { ItemRepository, User, Item } from "@rei-init/micro-domain";
+import { ItemRepository, User, Item, UserRepository } from "@rei-init/micro-domain";
 import { ENV } from "../../env";
 
-import { UserRepository } from "../../../../../../packages/micro-domain/src/db/repository/UserRepository";
-import { Card } from "../../../react/components/Card";
-import Content from "../../../react/components/Content";
-import { SideBar } from "../../../react/components/SideBar";
-
+import { Content, SideBar, Card, MobileTopBar } from '@rei-init/ui';
 
 
 export async function HandleUserItem(c: Context<Env & { Bindings: ENV }>) {
@@ -37,6 +32,7 @@ export async function HandleUserItem(c: Context<Env & { Bindings: ENV }>) {
                 <link rel="stylesheet" href="/styles.css" />
             </head>
             <body>
+                <MobileTopBar title={user_name} />
                 <SideBar>
                     <div>{user_name}</div>
                 </SideBar>

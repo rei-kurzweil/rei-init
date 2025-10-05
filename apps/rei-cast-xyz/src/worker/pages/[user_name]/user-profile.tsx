@@ -1,14 +1,11 @@
-import React from 'react';
 import type { Context } from 'hono';
 import type { Env } from 'hono';
 import { renderToString } from 'react-dom/server';
 
 import { ENV } from '../../env';
-import Content from '../../../react/components/Content';
-import { SideBar } from '../../../react/components/SideBar';
-import { Card } from '../../../react/components/Card';
 
 import { Item, ItemRepository, User, UserRepository } from "@rei-init/micro-domain";
+import { Content, SideBar, Card, MobileTopBar } from '@rei-init/ui';
 
 export async function HandleUserProfile(c: Context<Env & { Bindings: ENV }>) {
     const user_name = c.req.param("user_name");
@@ -34,8 +31,9 @@ export async function HandleUserProfile(c: Context<Env & { Bindings: ENV }>) {
                 <link rel="stylesheet" href="/styles.css" />
             </head>
             <body>
+                <MobileTopBar title={user_name} />
                 <SideBar>
-                    <div>User Profile: {user_name}</div>
+                    <div>@{user_name}</div>
                 </SideBar>
                 <Content>
                     {

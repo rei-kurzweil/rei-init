@@ -1,45 +1,53 @@
-import React from 'react';
+// Clean example - just one script tag needed!
+
 import type { Context } from 'hono';
 import type { Env } from 'hono';
-import { renderToString } from 'react-dom/server';
+import { renderToString } from '../react-ssr';
 
 import { ENV } from '../env';
-
-import Content from          '../../react/components/Content';
-import { SideBar } from      '../../react/components/SideBar';
-import { Card } from         '../../react/components/Card';
-import { ProfileTitle } from '../../react/components/ProfileTitle';
-
+import { Content, MobileTopBar, SideBar, Card, ProfileTitle } from '@rei-init/ui';
 import { Item, ItemRepository } from "@rei-init/micro-domain";
 
 export async function HandleHomePage(c: Context<Env & { Bindings: ENV }>) {
     
     const itemRepo = new ItemRepository(c.env.REI_CAST_XYZ_D1);
 
-    
-    let items: Item[] = [];
-
-    items = await itemRepo.findAll(50, 0);
-    
+    let items: Item[] = await itemRepo.findAll(50, 0);
 
     const html = "<!DOCTYPE html>" + 
     renderToString(
         <html>
             <head>
-                <title>⚡ rei-cast.xyz</title>
+                <title>⚡ rei-cast.xyz with Meow (Simple)</title>
                 <link rel="stylesheet" href="/styles.css" />
+                <link rel="stylesheet" href="/apps/meow/meow-spa.css" />
             </head>
             <body>
+                <MobileTopBar title={"⚡ REI-CAST.XYZ"}/>
                 <SideBar>
                     <ProfileTitle>⚡ REI-CAST.XYZ</ProfileTitle>
                 </SideBar>
                 <Content>
-                    {
-                        items.map(item => (<Card key={item.id} content={item.content} />))
-                    }
-                </Content>
-            </body>
+                    <div 
+                        data-app-meow
+                        data-meow-title="Mrrow :3"
+                        className="meow-spa-container"
+                        style={{ border: '1px solid #ccc', padding: '1rem', margin: '1rem 0' }}
+                    >
+                        <p>Loading nyEditor... :3</p>
+                    </div>
 
+                    {
+                        items.map(item => (
+                            <Card key={item.id} content={item.content} />
+                        ))
+                    }
+                    
+                </Content>
+                
+                {/* One script tag - that's it! */}
+                <script type="module" src="/apps/meow/meow-spa-auto.js"></script>
+            </body>
         </html>
     );
 

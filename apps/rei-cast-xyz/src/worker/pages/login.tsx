@@ -5,9 +5,8 @@ import { renderToString } from 'react-dom/server';
 
 import { ENV } from '../env';
 
-import Content from          '../../react/components/Content';
-import { SideBar } from      '../../react/components/SideBar';
-import { ProfileTitle } from '../../react/components/ProfileTitle';
+
+import { Content, SideBar, ProfileTitle, MobileTopBar } from '@rei-init/ui';
 
 
 export async function HandleAuthPage(c: Context<Env & { Bindings: ENV }>) {
@@ -21,8 +20,9 @@ export async function HandleAuthPage(c: Context<Env & { Bindings: ENV }>) {
                 <link rel="stylesheet" href="/styles.css" />
             </head>
             <body>
+                <MobileTopBar title={"🔑 LOGIN"} />
                 <SideBar>
-                    <ProfileTitle>⚡ LOGIN 🔑</ProfileTitle>
+                    <ProfileTitle>🔑 LOGIN</ProfileTitle>
                 </SideBar>
                 <Content>
                     {
