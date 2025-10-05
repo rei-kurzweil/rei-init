@@ -13,19 +13,19 @@ function et() {
   if (D) return x;
   D = 1;
   var _ = Symbol.for("react.transitional.element"), E = Symbol.for("react.fragment");
-  function d(y, p, a) {
-    var R = null;
-    if (a !== void 0 && (R = "" + a), p.key !== void 0 && (R = "" + p.key), "key" in p) {
-      a = {};
-      for (var m in p)
-        m !== "key" && (a[m] = p[m]);
-    } else a = p;
-    return p = a.ref, {
+  function d(m, p, l) {
+    var y = null;
+    if (l !== void 0 && (y = "" + l), p.key !== void 0 && (y = "" + p.key), "key" in p) {
+      l = {};
+      for (var R in p)
+        R !== "key" && (l[R] = p[R]);
+    } else l = p;
+    return p = l.ref, {
       $$typeof: _,
-      type: y,
-      key: R,
+      type: m,
+      key: y,
       ref: p !== void 0 ? p : null,
-      props: a
+      props: l
     };
   }
   return x.Fragment = E, x.jsx = d, x.jsxs = d, x;
@@ -34,7 +34,7 @@ var J;
 function nt() {
   return J || (J = 1, O.exports = et()), O.exports;
 }
-var l = nt(), H = { exports: {} }, u = {};
+var a = nt(), H = { exports: {} }, u = {};
 /**
  * @license React
  * react.production.js
@@ -48,7 +48,7 @@ var z;
 function rt() {
   if (z) return u;
   z = 1;
-  var _ = Symbol.for("react.transitional.element"), E = Symbol.for("react.portal"), d = Symbol.for("react.fragment"), y = Symbol.for("react.strict_mode"), p = Symbol.for("react.profiler"), a = Symbol.for("react.consumer"), R = Symbol.for("react.context"), m = Symbol.for("react.forward_ref"), B = Symbol.for("react.suspense"), W = Symbol.for("react.memo"), $ = Symbol.for("react.lazy"), g = Symbol.iterator;
+  var _ = Symbol.for("react.transitional.element"), E = Symbol.for("react.portal"), d = Symbol.for("react.fragment"), m = Symbol.for("react.strict_mode"), p = Symbol.for("react.profiler"), l = Symbol.for("react.consumer"), y = Symbol.for("react.context"), R = Symbol.for("react.forward_ref"), B = Symbol.for("react.suspense"), W = Symbol.for("react.memo"), $ = Symbol.for("react.lazy"), g = Symbol.iterator;
   function Q(t) {
     return t === null || typeof t != "object" ? null : (t = g && t[g] || t["@@iterator"], typeof t == "function" ? t : null);
   }
@@ -282,7 +282,7 @@ function rt() {
         );
       return t;
     }
-  }, u.Component = T, u.Fragment = d, u.Profiler = p, u.PureComponent = j, u.StrictMode = y, u.Suspense = B, u.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE = i, u.act = function() {
+  }, u.Component = T, u.Fragment = d, u.Profiler = p, u.PureComponent = j, u.StrictMode = m, u.Suspense = B, u.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE = i, u.act = function() {
     throw Error("act(...) is not supported in production builds of React.");
   }, u.cache = function(t) {
     return function() {
@@ -307,14 +307,14 @@ function rt() {
     return A(t.type, s, void 0, void 0, f, r);
   }, u.createContext = function(t) {
     return t = {
-      $$typeof: R,
+      $$typeof: y,
       _currentValue: t,
       _currentValue2: t,
       _threadCount: 0,
       Provider: null,
       Consumer: null
     }, t.Provider = t, t.Consumer = {
-      $$typeof: a,
+      $$typeof: l,
       _context: t
     }, t;
   }, u.createElement = function(t, e, n) {
@@ -336,7 +336,7 @@ function rt() {
   }, u.createRef = function() {
     return { current: null };
   }, u.forwardRef = function(t) {
-    return { $$typeof: m, render: t };
+    return { $$typeof: R, render: t };
   }, u.isValidElement = S, u.lazy = function(t) {
     return {
       $$typeof: $,
@@ -407,15 +407,15 @@ var G;
 function ut() {
   return G || (G = 1, H.exports = rt()), H.exports;
 }
-var ot = ut();
-function st({ title: _, content: E, pinned: d, user: y, onClick: p }) {
-  y && (_ = "@" + y.username);
-  const a = E.split(`
-`).map((R, m) => /* @__PURE__ */ l.jsxs("span", { children: [
-    R,
-    /* @__PURE__ */ l.jsx("br", {})
-  ] }, m));
-  return /* @__PURE__ */ l.jsxs(
+var st = ut();
+function ot({ title: _, content: E, pinned: d, user: m, onClick: p }) {
+  m && (_ = "@" + m.username);
+  const l = E.split(`
+`).map((y, R) => /* @__PURE__ */ a.jsxs("span", { children: [
+    y,
+    /* @__PURE__ */ a.jsx("br", {})
+  ] }, R));
+  return /* @__PURE__ */ a.jsxs(
     "div",
     {
       onClick: () => {
@@ -429,32 +429,32 @@ function st({ title: _, content: E, pinned: d, user: y, onClick: p }) {
             Card
         `,
       children: [
-        d && /* @__PURE__ */ l.jsx("div", { className: "text-sm text-yellow-500 font-bold mb-2", children: "📌" }),
-        /* @__PURE__ */ l.jsx("h2", { className: "text-lg font-semibold", children: _ }),
-        /* @__PURE__ */ l.jsx("p", { className: "mt-2", children: a })
+        d && /* @__PURE__ */ a.jsx("div", { className: "text-sm text-yellow-500 font-bold mb-2", children: "📌" }),
+        /* @__PURE__ */ a.jsx("h2", { className: "text-lg font-semibold", children: _ }),
+        /* @__PURE__ */ a.jsx("p", { className: "mt-2", children: l })
       ]
     }
   );
 }
-function it({ title: _ = "🛠 full send item", initialCount: E = 0, className: d }) {
-  const [y, p] = ot.useState(E);
-  function a() {
+function it({ title: _ = "🛠 full send item", className: E }) {
+  function d() {
     alert("Item sent! 🚀");
   }
-  return /* @__PURE__ */ l.jsxs("div", { className: d, children: [
-    /* @__PURE__ */ l.jsx("div", { children: /* @__PURE__ */ l.jsx("h1", { children: _ }) }),
-    /* @__PURE__ */ l.jsx(
-      st,
+  return /* @__PURE__ */ a.jsxs("div", { className: E, children: [
+    /* @__PURE__ */ a.jsx("div", { children: /* @__PURE__ */ a.jsx("h1", { children: _ }) }),
+    /* @__PURE__ */ a.jsx(
+      ot,
       {
         title: "📞 what's up, nya? ;3",
         content: "⚠ owo. we need to make dis editabwu"
       }
     ),
-    /* @__PURE__ */ l.jsx("div", { className: "card", children: /* @__PURE__ */ l.jsx("button", { onClick: () => a(), children: "🚀 Send" }) })
+    /* @__PURE__ */ a.jsx("div", { className: "card", children: /* @__PURE__ */ a.jsx("button", { onClick: () => d(), children: "🚀 Send" }) })
   ] });
 }
 export {
   it as A,
-  l as j,
-  ut as r
+  ut as a,
+  a as j,
+  st as r
 };

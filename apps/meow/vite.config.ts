@@ -17,9 +17,9 @@ export default defineConfig({
   build: {
     lib: {
       entry: {
-        meow: path.resolve(__dirname, 'src/lib/index.ts'),
-        spa: path.resolve(__dirname, 'src/spa/index.tsx'),
-        'spa-auto': path.resolve(__dirname, 'src/spa/auto-mount.tsx')
+        'meow-spa': path.resolve(__dirname, 'src/spa/index.tsx'),
+        'meow-spa-auto': path.resolve(__dirname, 'src/spa/auto-mount.tsx'),
+        meow: path.resolve(__dirname, 'src/lib/index.ts')
       },
       name: 'MeowApp',
       formats: ['es']

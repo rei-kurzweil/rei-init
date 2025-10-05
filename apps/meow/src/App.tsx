@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Card } from '@rei-init/ui'
 import './App.css'
 
@@ -8,9 +7,8 @@ export interface MeowAppProps {
     className?: string
 }
 
-function App({ title = "🛠 full send item", initialCount = 0, className }: MeowAppProps) {
-    const [count, setCount] = useState(initialCount)
-
+function App({ title = "🛠 full send item", className }: MeowAppProps) {
+    
     function sendItem() {
         alert("Item sent! 🚀")
     }
@@ -22,7 +20,7 @@ function App({ title = "🛠 full send item", initialCount = 0, className }: Meo
             </div>
 
             <Card
-                title="📞 what's up, nya? ;3"
+                title="📞 what's up, nya?"
                 content={`⚠ owo. we need to make dis editabwu`}
             />
 

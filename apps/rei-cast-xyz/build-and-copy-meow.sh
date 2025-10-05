@@ -25,11 +25,11 @@ pnpm run build 2>/dev/null || echo "⚠️  TypeScript errors (D1Database types)
 echo "📂 Creating static content directory..."
 mkdir -p "$SCRIPT_DIR/static_content/apps/meow"
 
-# Copy built files
+# Copy built files with their original names
 echo "📋 Copying Meow SPA files..."
-cp dist/spa.js "$SCRIPT_DIR/static_content/apps/meow/meow-spa.js"
-cp dist/spa-auto.js "$SCRIPT_DIR/static_content/apps/meow/meow-spa-auto.js" 2>/dev/null || echo "Auto-mount version not built"
-cp dist/meow.css "$SCRIPT_DIR/static_content/apps/meow/meow-spa.css"
+cp dist/meow-spa.js "$SCRIPT_DIR/static_content/apps/meow/"
+cp dist/meow-spa-auto.js "$SCRIPT_DIR/static_content/apps/meow/" 2>/dev/null || echo "Auto-mount version not built"
+cp dist/meow.css "$SCRIPT_DIR/static_content/apps/meow/"
 
 # Copy all chunk files (both App-*.js and index-*.js patterns)
 cp dist/App-*.js "$SCRIPT_DIR/static_content/apps/meow/" 2>/dev/null || echo "No App chunk files to copy"

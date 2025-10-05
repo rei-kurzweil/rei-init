@@ -29,3 +29,6 @@ dist-ssr
 !.dev.vars.example
 .env*
 !.env.example
+
+# Generated SPA assets (copied from apps/*/dist during build)
+static_content/apps/**

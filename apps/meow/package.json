@@ -24,6 +24,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@rei-init/spa-auto-mount": "workspace:*",
     "@rei-init/ui": "workspace:*",
     "react": "19.0.0",
     "react-dom": "19.0.0"

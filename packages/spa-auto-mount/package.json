@@ -1,0 +1,36 @@
+{
+  "name": "@rei-init/spa-auto-mount",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "Generalized auto-mounting utility for React SPAs in browser environments",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "keywords": [
+    "react",
+    "spa",
+    "auto-mount",
+    "browser"
+  ],
+  "author": "rei-init",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tsup": "^8.3.5",
+    "typescript": "~5.6.2"
+  }
+}

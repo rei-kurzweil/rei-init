@@ -45,7 +45,6 @@ export async function HandleHomePage(c: Context<Env & { Bindings: ENV }>) {
                     
                 </Content>
                 
-                {/* One script tag - that's it! */}
                 <script type="module" src="/apps/meow/meow-spa-auto.js"></script>
             </body>
         </html>
