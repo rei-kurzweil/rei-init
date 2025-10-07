@@ -17,6 +17,7 @@
     "@rei-init/micro-bus": "workspace:*",
     "@rei-init/micro-domain": "workspace:*",
     "@rei-init/ui": "workspace:*",
+    "@supabase/supabase-js": "^2.74.0",
     "hono": "4.8.2",
     "react": "19.0.0",
     "react-dom": "19.0.0"

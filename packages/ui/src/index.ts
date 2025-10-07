@@ -1,5 +1,6 @@
 // Export all components
 
+export * from './components/AuthUI'
 export * from './components/Card'
 export * from './components/Content'
 export * from './components/Items'

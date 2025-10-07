@@ -20,7 +20,7 @@ export async function HandleHomePage(c: Context<Env & { Bindings: ENV }>) {
             <head>
                 <title>⚡ rei-cast.xyz with Meow (Simple)</title>
                 <link rel="stylesheet" href="/styles.css" />
-                <link rel="stylesheet" href="/apps/meow/meow-spa.css" />
+                <link rel="stylesheet" href="/apps/meow/meow.css" />
             </head>
             <body>
                 <MobileTopBar title={"⚡ REI-CAST.XYZ"}/>
@@ -44,7 +44,7 @@ export async function HandleHomePage(c: Context<Env & { Bindings: ENV }>) {
                     }
                     
                 </Content>
-                
+
                 <script type="module" src="/apps/meow/meow-spa-auto.js"></script>
             </body>
         </html>

@@ -1,6 +1,14 @@
 import * as react_jsx_runtime from 'react/jsx-runtime';
+import { Session } from '@supabase/supabase-js';
 import { User, Item } from '@rei-init/micro-domain';
 import { ReactNode } from 'react';
+
+interface AuthUIProps {
+    supabaseUrl: string;
+    supabaseAnonKey: string;
+    onSessionChange?: (session: Session | null) => void;
+}
+declare function AuthUI({ supabaseUrl, supabaseAnonKey, onSessionChange }: AuthUIProps): react_jsx_runtime.JSX.Element | null;
 
 declare function Card({ title, content, pinned, user, onClick }: {
     content: string;
@@ -43,4 +51,4 @@ declare const SideBarItem: (props: SideBarItemProps) => react_jsx_runtime.JSX.El
 
 declare const DarkModeToggle: () => react_jsx_runtime.JSX.Element;
 
-export { Card, Content, DarkModeToggle, Items, MobileTopBar, ProfileTitle, SideBar, SideBarItem };
+export { AuthUI, type AuthUIProps, Card, Content, DarkModeToggle, Items, MobileTopBar, ProfileTitle, SideBar, SideBarItem };

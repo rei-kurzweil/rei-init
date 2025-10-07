@@ -8,7 +8,7 @@ export class UserRepository implements Repository<User> {
         this.db = db;
     }
 
-    private readonly PUBLIC_COLUMNS = 'id, email, username, name, config, createdAt';
+    private readonly PUBLIC_COLUMNS = 'id, email, username, name, avatar_url, config, createdAt, updatedAt';
 
     async findById(id: number): Promise<User | null> {
         const stmt = this.db.prepare("SELECT "+this.PUBLIC_COLUMNS+" FROM users WHERE id = ?");
@@ -21,6 +21,12 @@ export class UserRepository implements Repository<User> {
             const stmt = this.db.prepare("SELECT "+this.PUBLIC_COLUMNS+" FROM users WHERE username = ?");
             const result = await stmt.bind(name).first<User>();
             return result || null;
+    }
+
+    async findByUserEmail(email: string): Promise<User | null> {
+        const stmt = this.db.prepare("SELECT "+this.PUBLIC_COLUMNS+" FROM users WHERE email = ?");
+        const result = await stmt.bind(email).first<User>();
+        return result || null;
     }
 
     async findAll(pageSize: number = 10, page: number = 1): Promise<User[]> {
@@ -37,27 +43,37 @@ export class UserRepository implements Repository<User> {
         return results.results;
     }
 
-    async save(entity: User): Promise<void> {
+    async save(entity: User): Promise<User> {
+        // Set updatedAt to current time for updates
+        const now = new Date().toISOString();
+        const userToSave = { ...entity, updatedAt: now };
+        
         const stmt = this.db.prepare(`
-            INSERT INTO users (id, email, username, password_hash, name, config, createdAt)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO users (id, email, username, password_hash, name, avatar_url, config, createdAt, updatedAt)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(id) DO UPDATE SET
                 email = excluded.email,
                 username = excluded.username,
                 password_hash = excluded.password_hash,
                 name = excluded.name,
+                avatar_url = excluded.avatar_url,
                 config = excluded.config,
-                createdAt = excluded.createdAt
+                updatedAt = excluded.updatedAt
         `);
         await stmt.bind(
-            entity.id,
-            entity.email,
-            entity.username,
-            entity.password_hash,
-            entity.name,
-            JSON.stringify(entity.config || {}),
-            entity.createdAt
+            userToSave.id,
+            userToSave.email,
+            userToSave.username,
+            userToSave.password_hash,
+            userToSave.name,
+            userToSave.avatar_url,
+            JSON.stringify(userToSave.config || {}),
+            userToSave.createdAt,
+            userToSave.updatedAt
         ).run();
+        
+        // Return the saved user with updated timestamp
+        return userToSave;
     }
 
     async delete(id: string): Promise<void> {

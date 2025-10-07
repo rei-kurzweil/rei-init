@@ -28,6 +28,7 @@ export async function HandleAuthPage(c: Context<Env & { Bindings: ENV }>) {
                     {
                         "invite only rn. hmu on bsky @rei-cast.xyz" 
                     }
+                    
                 </Content>
             </body>
 

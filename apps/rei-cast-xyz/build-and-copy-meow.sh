@@ -31,9 +31,9 @@ cp dist/meow-spa.js "$SCRIPT_DIR/static_content/apps/meow/"
 cp dist/meow-spa-auto.js "$SCRIPT_DIR/static_content/apps/meow/" 2>/dev/null || echo "Auto-mount version not built"
 cp dist/meow.css "$SCRIPT_DIR/static_content/apps/meow/"
 
-# Copy all chunk files (both App-*.js and index-*.js patterns)
-cp dist/App-*.js "$SCRIPT_DIR/static_content/apps/meow/" 2>/dev/null || echo "No App chunk files to copy"
-cp dist/index-*.js "$SCRIPT_DIR/static_content/apps/meow/" 2>/dev/null || echo "No index chunk files to copy"
+# Copy ALL JS chunk files with any naming pattern (App-*.js, index-*.js, client-*.js, etc.)
+echo "📦 Copying all JS chunk files..."
+find dist/ -name "*.js" -not -name "meow-spa.js" -not -name "meow-spa-auto.js" -not -name "meow.js" -exec cp {} "$SCRIPT_DIR/static_content/apps/meow/" \; 2>/dev/null || echo "No chunk files found"
 
 # Copy any other assets
 cp dist/vite.svg "$SCRIPT_DIR/static_content/apps/meow/" 2>/dev/null || echo "No additional assets"

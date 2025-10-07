@@ -6,6 +6,7 @@ export interface User {
     password_hash: string;
 
     name: string;
+    avatar_url: string;
     config: Record<string, any>;
 
     // W3C date time string

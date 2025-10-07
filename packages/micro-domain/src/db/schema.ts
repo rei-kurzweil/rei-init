@@ -10,6 +10,7 @@ export const usersTable = sqliteTable('users', {
     password_hash: text().notNull(),
 
     name:          text().notNull(),
+    avatar_url:    text(), // Optional avatar URL
     config:        text().notNull().default('{}'),
 
     createdAt: text().notNull().default(sql`(datetime('now','utc') || 'Z')`),

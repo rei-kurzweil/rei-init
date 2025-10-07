@@ -35,7 +35,7 @@ export class ItemRepository implements Repository<Item> {
         return results.results;
     }
 
-    async save(entity: Item): Promise<void> {
+    async save(entity: Item): Promise<Item> {
         
         const stmt = this.db.prepare(`
             INSERT INTO items (id, from_user_id, to_user_ids, to_item_ids, content, content_type, content_kv_key, matrix, x, y, z, createdAt)
@@ -67,6 +67,9 @@ export class ItemRepository implements Repository<Item> {
             entity.z || null,
             entity.createdAt
         ).run();
+        
+        // Return the saved entity
+        return entity;
     }
 
     async delete(id: string): Promise<void> {
