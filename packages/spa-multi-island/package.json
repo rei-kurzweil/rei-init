@@ -1,0 +1,30 @@
+{
+  "name": "@rei-init/spa-multi-island",
+  "version": "0.0.1",
+  "description": "Mount multiple React SPA instances with different props and shared micro-bus",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "dependencies": {
+    "@rei-init/micro-bus": "workspace:*",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.0.10",
+    "@types/react-dom": "19.0.4",
+    "tsup": "^8.3.5",
+    "typescript": "5.7.3"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  }
+}

@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react'; // Not needed for JSX with new transform
 import type { Context } from 'hono';
 import type { Env } from 'hono';
 import { renderToString } from 'react-dom/server';

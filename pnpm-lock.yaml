@@ -363,6 +363,31 @@ importers:
         specifier: ~5.6.2
         version: 5.6.3
 
+  packages/spa-multi-island:
+    dependencies:
+      '@rei-init/micro-bus':
+        specifier: workspace:*
+        version: link:../micro-bus
+      react:
+        specifier: 19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
+    devDependencies:
+      '@types/react':
+        specifier: 19.0.10
+        version: 19.0.10
+      '@types/react-dom':
+        specifier: 19.0.4
+        version: 19.0.4(@types/react@19.0.10)
+      tsup:
+        specifier: ^8.3.5
+        version: 8.5.0(@swc/core@1.13.2(@swc/helpers@0.5.17))(jiti@2.6.0)(postcss@8.5.6)(tsx@4.20.3)(typescript@5.7.3)(yaml@2.8.0)
+      typescript:
+        specifier: 5.7.3
+        version: 5.7.3
+
   packages/ui:
     dependencies:
       '@supabase/auth-ui-react':
@@ -4339,6 +4364,11 @@ packages:
 
   typescript@5.6.3:
     resolution: {integrity: sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
+  typescript@5.7.3:
+    resolution: {integrity: sha512-84MVSjMEHP+FQRPy3pX9sTVV/INIex71s9TL2Gm5FG/WG1SqXeKyZ0k7/blY/4FdOzI12CBy1vGc4og/eus0fw==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -8577,6 +8607,35 @@ snapshots:
       - tsx
       - yaml
 
+  tsup@8.5.0(@swc/core@1.13.2(@swc/helpers@0.5.17))(jiti@2.6.0)(postcss@8.5.6)(tsx@4.20.3)(typescript@5.7.3)(yaml@2.8.0):
+    dependencies:
+      bundle-require: 5.1.0(esbuild@0.25.8)
+      cac: 6.7.14
+      chokidar: 4.0.3
+      consola: 3.4.2
+      debug: 4.4.1
+      esbuild: 0.25.8
+      fix-dts-default-cjs-exports: 1.0.1
+      joycon: 3.1.1
+      picocolors: 1.1.1
+      postcss-load-config: 6.0.1(jiti@2.6.0)(postcss@8.5.6)(tsx@4.20.3)(yaml@2.8.0)
+      resolve-from: 5.0.0
+      rollup: 4.45.1
+      source-map: 0.8.0-beta.0
+      sucrase: 3.35.0
+      tinyexec: 0.3.2
+      tinyglobby: 0.2.15
+      tree-kill: 1.2.2
+    optionalDependencies:
+      '@swc/core': 1.13.2(@swc/helpers@0.5.17)
+      postcss: 8.5.6
+      typescript: 5.7.3
+    transitivePeerDependencies:
+      - jiti
+      - supports-color
+      - tsx
+      - yaml
+
   tsup@8.5.0(@swc/core@1.13.2(@swc/helpers@0.5.17))(jiti@2.6.0)(postcss@8.5.6)(tsx@4.20.3)(typescript@5.8.3)(yaml@2.8.0):
     dependencies:
       bundle-require: 5.1.0(esbuild@0.25.8)
@@ -8658,6 +8717,8 @@ snapshots:
       - supports-color
 
   typescript@5.6.3: {}
+
+  typescript@5.7.3: {}
 
   typescript@5.8.3: {}
 

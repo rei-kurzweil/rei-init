@@ -4,6 +4,8 @@ import { User as SupabaseUser } from '@supabase/supabase-js';
 export interface ENV {
     // Cloudflare Bindings
     REI_CAST_XYZ_D1: D1Database;
+    REI_CAST_XYZ_KV: KVNamespace;
+    REI_CAST_XYZ_R2: R2Bucket;
     ASSETS: Fetcher;
     
     // Environment Variables / Secrets

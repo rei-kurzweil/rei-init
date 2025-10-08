@@ -46,9 +46,12 @@
     "wrangler": "4.40.3"
   },
   "scripts": {
-    "build": "npm run build:meow && tsc -b && vite build",
+    "build": "npm run build:spa-multi-island && npm run build:cats && npm run build:meow && vite build",
     "build:css": "postcss ./src/css/global.css -o ./static_content/styles.css --minify",
+    "build:cats": "./build-and-copy-cats.sh",
     "build:meow": "./build-and-copy-meow.sh",
+    "build:micro-bus": "cd ../../packages/micro-bus && pnpm run build && cp dist/index.mjs ../../apps/rei-cast-xyz/static_content/apps/micro-bus.js",
+    "build:spa-multi-island": "cd ../../packages/spa-multi-island && pnpm run build && cp dist/index.js ../../apps/rei-cast-xyz/static_content/apps/spa-multi-island.js && cd ../../apps/rei-cast-xyz && pnpm run build:micro-bus",
     "cf-typegen": "wrangler types",
     "check": "tsc && vite build && wrangler deploy --dry-run",
     "deploy": "wrangler deploy",

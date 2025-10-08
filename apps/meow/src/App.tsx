@@ -4,13 +4,20 @@ import './App.css'
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase-config'
 import { stateManager } from './state-manager'
 
-export interface MeowAppProps {
-    title?: string
-    initialCount?: number
-    className?: string
+export enum MeowAppIslandType {
+    LOGIN_SIGN_UP = "login-sign-up",
+    ADMIN_LOGIN_SIGN_UP = "admin-login-sign-up",
+    EDITOR = "editor",
+    USER_STATUS = "user-status",
 }
 
-function App({ title = "🛠 full send item", className }: MeowAppProps) {
+export interface MeowAppProps {
+    className?: string
+    islandType?: MeowAppIslandType
+    islandBus?: any
+}
+
+function App({ className, islandType }: MeowAppProps) {
     const [user, setUser] = useState(stateManager.user)
     const [isLoading, setIsLoading] = useState(false)
     
@@ -39,32 +46,57 @@ function App({ title = "🛠 full send item", className }: MeowAppProps) {
 
     return (
         <div className={className}>
-            <Card title={title} content="⚠ owo. we need to make dis editabwu" pinned />
-
-            {/* Show loading state */}
-            {isLoading && (
-                <Card title="🔄 Syncing..." content="Connecting to backend..." />
+            
+            {islandType === MeowAppIslandType.USER_STATUS && user && (
+                <>
+                    {`Signed in as ${user.username} • Email: ${user.email}`}
+                </>
             )}
 
-            {/* Show user info when logged in */}
-            {user && (
-                <Card 
-                    title={`👋 Hello, ${user.name}!`} 
-                    content={`Username: ${user.username} • Email: ${user.email}`} 
+            {islandType === MeowAppIslandType.LOGIN_SIGN_UP && (
+                <>
+                    {isLoading && (
+                        <Card title="🔄 Syncing..." content="Connecting to backend..." />
+                    )}
+                
+                    <AuthUI 
+                        supabaseUrl={SUPABASE_URL} 
+                        supabaseAnonKey={SUPABASE_ANON_KEY}
+                        onSessionChange={async (session) => {
+                            console.log("Session changed:", session);
+                            setIsLoading(true);
+                            await stateManager.handleSessionChange(session);
+                            setUser(stateManager.user);
+                            setIsLoading(false);
+                    }}
                 />
+                </>
             )}
 
-            <AuthUI 
-                supabaseUrl={SUPABASE_URL} 
-                supabaseAnonKey={SUPABASE_ANON_KEY}
-                onSessionChange={async (session) => {
-                    console.log("Session changed:", session);
-                    setIsLoading(true);
-                    await stateManager.handleSessionChange(session);
-                    setUser(stateManager.user);
-                    setIsLoading(false);
-                }}
-            />
+            {islandType === MeowAppIslandType.ADMIN_LOGIN_SIGN_UP && (
+                <>
+                    {isLoading && (
+                        <Card title="🔄 Syncing..." content="Connecting to backend..." />
+                    )}
+                
+                    <AuthUI 
+                        supabaseUrl={SUPABASE_URL} 
+                        supabaseAnonKey={SUPABASE_ANON_KEY}
+                        onSessionChange={async (session) => {
+                            console.log("Session changed:", session);
+                            setIsLoading(true);
+                            await stateManager.handleSessionChange(session);
+                            setUser(stateManager.user);
+                            setIsLoading(false);
+                    }}
+                />
+                </>
+            )}
+
+            {islandType === MeowAppIslandType.EDITOR && (
+                <>
+                </>
+            )}
 
             <div className="card">
                 <button onClick={() => sendItem()}>

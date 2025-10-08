@@ -1,12 +1,15 @@
-import { j as n, A as e } from "./index-zz-IT5wV.js";
-import { c as p } from "./index-DCoPhKyR.js";
-function u({ container: t, props: r = {} }) {
-  const o = p.createRoot(t);
-  return o.render(/* @__PURE__ */ n.jsx(e, { ...r })), {
+import { j as p, A as e } from "./App-D5IYhDvv.js";
+import { M as A } from "./App-D5IYhDvv.js";
+import { createRoot as n } from "react-dom/client";
+/* empty css               */
+function a({ container: t, props: r = {} }) {
+  const o = n(t);
+  return o.render(/* @__PURE__ */ p.jsx(e, { ...r })), {
     unmount: () => o.unmount()
   };
 }
 export {
   e as MeowApp,
-  u as mountMeowSPA
+  A as MeowAppIslandType,
+  a as mountMeowSPA
 };

@@ -1,10 +1,11 @@
-import { A as s, j as e } from "./index-DN_kNaVd.js";
-import { c as n } from "./index-BruNbWZd.js";
-function m(o, r = {}) {
-  const t = n.createRoot(o);
-  return t.render(/* @__PURE__ */ e.jsx(s, { ...r })), t;
+import { A as e, j as s } from "./App-Ci_NxUti.js";
+import { createRoot as m } from "react-dom/client";
+/* empty css               */
+function i(o, r = {}) {
+  const t = m(o);
+  return t.render(/* @__PURE__ */ s.jsx(e, { ...r })), t;
 }
 export {
-  s as default,
-  m as mountCatsSPA
+  e as default,
+  i as mountCatsSPA
 };

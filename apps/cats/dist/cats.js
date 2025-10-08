@@ -1,4 +1,4 @@
-import { A as o } from "./index-DN_kNaVd.js";
+import { A as o } from "./App-Ci_NxUti.js";
 export {
   o as CatsApp
 };

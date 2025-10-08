@@ -25,8 +25,8 @@ export default defineConfig({
       formats: ['es']
     },
     rollupOptions: {
-      // Bundle React and ReactDOM for self-contained SPA modules
-      // external: ['react', 'react-dom'], // Commented out - we want everything bundled
+      // Externalize React and ReactDOM - they're provided by import map
+      external: ['react', 'react-dom', 'react-dom/client'],
       output: {
         // Ensure proper chunking for better loading
         manualChunks: undefined

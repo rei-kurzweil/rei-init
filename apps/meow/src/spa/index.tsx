@@ -17,5 +17,5 @@ export function mountMeowSPA({ container, props = {} }: MountOptions) {
   }
 }
 
-// Export the App component as well for more flexibility
-export { default as MeowApp } from '../App'
+// Export the App component and types for more flexibility
+export { default as MeowApp, MeowAppIslandType } from '../App'

@@ -35,6 +35,12 @@
 			"id": "5acf4eb6a2f64cac84d9df52e9b046b6"
 		}
 	],
+	"r2_buckets": [
+		{
+			"binding": "REI_CAST_XYZ_R2",
+			"bucket_name": "rei-cast-xyz-r2",
+		}
+	],
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
