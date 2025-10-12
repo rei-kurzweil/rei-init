@@ -61,7 +61,7 @@ function Card({ title, content, pinned, user, onClick }) {
 
 // src/components/Content.tsx
 import { jsx as jsx3 } from "react/jsx-runtime";
-var Content = ({ children }) => /* @__PURE__ */ jsx3("div", { className: "flex flex-col items-start justify-start \n                    mx-auto w-full max-w-[1024px] \n                    px-4 pt-4\n                    md:ml-64\n                    Content", children });
+var Content = ({ children }) => /* @__PURE__ */ jsx3("div", { className: "flex flex-col justify-start \n                    w-full max-w-[800px] mx-auto\n                    px-4 py-4\n                    min-h-screen\n                    Content", children });
 
 // src/components/Items.tsx
 import { jsx as jsx4 } from "react/jsx-runtime";
@@ -81,63 +81,51 @@ function Items({ items, user }) {
   )) });
 }
 
-// src/components/MobileTopBar.tsx
-import { useState as useState2 } from "react";
-import { jsx as jsx5, jsxs as jsxs2 } from "react/jsx-runtime";
-function MobileTopBar(props) {
-  const [menuOpen, setMenuOpen] = useState2(false);
-  return /* @__PURE__ */ jsxs2("aside", { className: "  fixed top-0 left-0 w-full h-16\n                            flex md:hidden items-center justify-between\n                            px-4 py-2 bg-white dark:bg-gray-800 SideBar", children: [
-    /* @__PURE__ */ jsx5("span", { children: props.title }),
-    /* @__PURE__ */ jsx5("button", { onClick: () => setMenuOpen(!menuOpen), children: "\u2630" }),
-    menuOpen && /* @__PURE__ */ jsx5("nav", { children: props.children })
-  ] });
-}
-
 // src/components/ProfileTitle.tsx
-import { jsx as jsx6 } from "react/jsx-runtime";
+import { jsx as jsx5 } from "react/jsx-runtime";
 function ProfileTitle({ children }) {
-  return /* @__PURE__ */ jsx6("h1", { className: "text-2xl font-bold mb-4", children });
+  return /* @__PURE__ */ jsx5("h1", { className: "my-4 px-2 text-[1.5rem]", children });
 }
 
 // src/components/SideBar.tsx
-import { jsx as jsx7 } from "react/jsx-runtime";
+import { jsx as jsx6 } from "react/jsx-runtime";
 var SideBar = ({ children }) => {
-  return /* @__PURE__ */ jsx7(
+  return /* @__PURE__ */ jsx6(
     "aside",
     {
-      className: "\n        hidden md:flex\n        flex-col\n        w-64\n        h-screen\n        p-4\n\n        SideBar\n\n        fixed top-0 left-0\n",
+      className: "\n        /* Mobile: sticky top bar in normal flow */\n        sticky top-0 z-20 w-full h-12 box-border\n        \n\n        /* Desktop: sticky left rail */\n        md:h-screen md:w-64 md:flex-none md:flex-col md:items-stretch md:py-4\n        \n\n        /* Layout */\n        flex items-center px-4 py-2\n        flex-shrink-0\n\n        SideBar\n",
       children
     }
   );
 };
 
 // src/components/SideBarItem.tsx
-import { jsx as jsx8, jsxs as jsxs3 } from "react/jsx-runtime";
+import { jsx as jsx7, jsxs as jsxs2 } from "react/jsx-runtime";
 var SideBarItem = (props) => {
-  return /* @__PURE__ */ jsxs3(
+  return /* @__PURE__ */ jsxs2(
     "a",
     {
       href: props.href,
       className: "\n        flex items-center gap-2\n        p-2 rounded\n        hover:bg-gray-700\n        transition-colors\n",
       children: [
         props.icon,
-        /* @__PURE__ */ jsx8("span", { children: props.value })
+        /* @__PURE__ */ jsx7("span", { children: props.value })
       ]
     }
   );
 };
 
 // src/components/ToggleDarkMode.tsx
-import { useState as useState3, useEffect as useEffect2 } from "react";
-import { jsx as jsx9 } from "react/jsx-runtime";
+import { useState as useState2, useEffect as useEffect2 } from "react";
+import { jsx as jsx8 } from "react/jsx-runtime";
 var DarkModeToggle = () => {
-  const [isDark, setIsDark] = useState3(false);
+  const [isDark, setIsDark] = useState2(false);
   useEffect2(() => {
     const root = document.documentElement;
     if (isDark) root.classList.add("dark");
     else root.classList.remove("dark");
   }, [isDark]);
-  return /* @__PURE__ */ jsx9(
+  return /* @__PURE__ */ jsx8(
     "button",
     {
       onClick: () => setIsDark(!isDark),
@@ -152,7 +140,6 @@ export {
   Content,
   DarkModeToggle,
   Items,
-  MobileTopBar,
   ProfileTitle,
   SideBar,
   SideBarItem

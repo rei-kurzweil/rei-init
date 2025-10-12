@@ -29,6 +29,8 @@ AuthRouter.post("/supabase-sync", async (c) => {
         };
         const createdUser = await userRepository.save(newUser);
 
+        console.log("auth/supabase-sync - created user:", createdUser);
+
         return c.json(createdUser);
     }
 

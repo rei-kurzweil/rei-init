@@ -1,8 +1,20 @@
 import { Canvas } from '@react-three/fiber'
+import MeshSphereSkybox from '@rei-init/mesh-sphere-skybox'
+
 import { OrbitControls, Box, Sphere, Plane } from '@react-three/drei'
 import { useState, useRef } from 'react'
-import type { Mesh } from 'three'
+import { LinearToneMapping, SRGBColorSpace, DoubleSide, type Mesh, type Texture, type ShaderMaterial } from 'three'
 import './App.css'
+
+// Expose the debug shape for window.debug_rei_init
+declare global {
+  interface Window {
+    debug_rei_init?: {
+      texture?: Texture
+      shaderMaterial?: ShaderMaterial
+    }
+  }
+}
 
 export interface CatsAppProps {
   title?: string
@@ -50,92 +62,89 @@ function CatModel({ position = [0, 0, 0], color = 'orange' }: { position?: [numb
   )
 }
 
-function CatsScene({ scene = 'cats' }: { scene: CatsAppProps['scene'] }) {
+function CatsScene({ scene = 'playground' }: { scene: CatsAppProps['scene'] }) {
   switch (scene) {
-    case 'space':
-      return (
-        <>
-          <color attach="background" args={['#000014']} />
-          <ambientLight intensity={0.2} />
-          <pointLight position={[10, 10, 10]} />
-          <CatModel position={[0, 0, 0]} color="white" />
-          <CatModel position={[3, 1, -2]} color="gray" />
-          <CatModel position={[-3, -1, -1]} color="black" />
-          {/* Stars */}
-          {Array.from({ length: 100 }).map((_, i) => (
-            <Sphere
-              key={i}
-              args={[0.02]}
-              position={[
-                (Math.random() - 0.5) * 50,
-                (Math.random() - 0.5) * 50,
-                (Math.random() - 0.5) * 50
-              ]}
-            >
-              <meshBasicMaterial color="white" />
-            </Sphere>
-          ))}
-        </>
-      )
     
-    case 'playground':
+    default:
       return (
-        <>
-          <color attach="background" args={['#87CEEB']} />
-          <ambientLight intensity={0.6} />
-          <directionalLight position={[5, 5, 5]} />
+        <group rotation={[Math.PI / 6, Math.PI / 8, 0]} position={[1.6, 0, 0]}>
+          <ambientLight intensity={0.7} />
+          <directionalLight position={[-5, 5, 5]} intensity={1.5} />
           
           {/* Ground */}
           <Plane args={[10, 10]} rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]}>
-            <meshStandardMaterial color="lightgreen" />
+            <meshBasicMaterial color="#ecc1ff" />
           </Plane>
           
           {/* Multiple cats */}
-          <CatModel position={[0, 0, 0]} color="orange" />
-          <CatModel position={[2, 0, -1]} color="black" />
-          <CatModel position={[-2, 0, 1]} color="white" />
-          <CatModel position={[0, 0, -3]} color="gray" />
-        </>
-      )
-    
-    default: // 'cats'
-      return (
-        <>
-          <color attach="background" args={['#ffd700']} />
-          <ambientLight intensity={0.5} />
-          <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
-          <CatModel position={[0, 0, 0]} color="orange" />
-        </>
+          <CatModel position={[0, 0,  0.5]} color="orange" />
+          <CatModel position={[2, 0, -1]}   color="#ecc1ff" />
+          <CatModel position={[-2, 0, 1]}   color="white" />
+          <CatModel position={[0, 0, -3]}   color="gray" />
+        </group>
       )
   }
 }
 
-function App({ title = "🐱 Cats XR", scene = 'cats', enableVR = true, enableAR = false, className }: CatsAppProps) {
-  const [currentScene, setCurrentScene] = useState(scene)
+function App({ className }: CatsAppProps) {
+  const [debugTexture, setDebugTexture] = useState<Texture | null>(null)
+  const [debugShaderMaterial, setDebugShaderMaterial] = useState<ShaderMaterial | null>(null)
 
   return (
-    <div className={className} style={{ width: '100%', height: '500px', position: 'relative' }}>
-      <div style={{ position: 'absolute', top: 10, left: 10, zIndex: 10, color: 'white', background: 'rgba(0,0,0,0.7)', padding: '10px', borderRadius: '5px' }}>
-        <h3 style={{ margin: '0 0 10px 0' }}>{title}</h3>
-        <div>
-          <button onClick={() => setCurrentScene('cats')} style={{marginRight: '5px'}}>🐱 Cats</button>
-          <button onClick={() => setCurrentScene('playground')} style={{marginRight: '5px'}}>🏠 Playground</button>
-          <button onClick={() => setCurrentScene('space')} style={{marginRight: '5px'}}>🚀 Space</button>
-        </div>
+    <div style={{ position: 'relative' }}>
+      {/* Debug controls overlay */}
+      <div style={{ position: 'absolute', top: 8, left: 8, zIndex: 10, display: 'flex', gap: 8 }}>
+        <button onClick={() => {
+          const tex = window.debug_rei_init?.texture
+          if (tex) {
+            setDebugTexture(tex)
+            console.log("Debug texture set:", tex);
+          }
+            else console.warn('window.debug_rei_init?.texture not available yet')
+        }}>debug texture</button>
+        <button onClick={() => {
+          const mat = window.debug_rei_init?.shaderMaterial
+          if (mat) 
+            {
+              setDebugShaderMaterial(mat)
+              console.log("Debug shader material set:", mat);
+            }
+              else console.warn('window.debug_rei_init?.shaderMaterial not available yet')
+        }}>debug shader</button>
       </div>
 
-      {(enableVR || enableAR) && (
-        <div style={{ position: 'absolute', bottom: 10, left: 10, zIndex: 10 }}>
-          <button disabled>VR/AR Coming Soon</button>
-        </div>
-      )}
+      <Canvas className={className}
+              onCreated={(state) => {
+                state.gl.outputColorSpace = SRGBColorSpace;
+                state.gl.toneMapping = LinearToneMapping;
+              }}
+      >
+        <color attach="background" args={['#ffffff']} />
+        <MeshSphereSkybox />
 
-      <Canvas>
-        <CatsScene scene={currentScene} />
+        <CatsScene scene="playground" />
+
+        {/* Debug quads */}
+        {debugTexture && (
+          <mesh position={[0, 0, 0]} rotation={[-Math.PI / 12, Math.PI / 12, 0]}>
+            <planeGeometry args={[2, 2]} />
+            <meshBasicMaterial map={debugTexture} side={DoubleSide} />
+          </mesh>
+        )}
+
+        {debugShaderMaterial && (
+          <mesh position={[0, 0, 0]} rotation={[-Math.PI / 12, Math.PI / 12, 0]}>
+            <planeGeometry args={[2, 2]} />
+            {/* Use provided shader material directly */}
+            {/* eslint-disable-next-line react/no-unknown-property */}
+            <primitive attach="material" object={debugShaderMaterial} />
+          </mesh>
+        )}
+        
         <OrbitControls />
       </Canvas>
     </div>
-  )
+  ) 
 }
 
 export default App

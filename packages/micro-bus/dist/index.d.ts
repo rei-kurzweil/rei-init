@@ -8,6 +8,13 @@ type PubSubTopics = {
         id: string;
         title: string;
     };
+    "meow.user_login": {
+        user: any;
+    };
+    "meow.user_logout": {};
+    "cats.event": {
+        data: any;
+    };
 };
 type RequestReplyTopics = {
     "micro-item.get": {

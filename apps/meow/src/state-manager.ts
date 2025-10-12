@@ -1,4 +1,5 @@
 import type { Session } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js'
 
 export interface AppUser {
     id: number
@@ -13,10 +14,14 @@ export interface AppUser {
 
 class StateManager {
     session: Session | null = null
-    user: AppUser | null = null
+    user: AppUser    | null = null
+
+    supabaseUrl:     string = "";
+    supabaseAnonKey: string = "";
 
     // Handle session change from AuthUI
     async handleSessionChange(session: Session | null) {
+        console.log("Handling session change:", session);
         this.session = session
         
         if (session) {
@@ -32,6 +37,28 @@ class StateManager {
             this.user = null
         }
     }
+
+    async connectSupabaseClientFromTokens(access_token: string, refresh_token: string) {
+        // Dynamically import Supabase to avoid loading it unnecessarily
+        const client = createClient(
+            this.supabaseUrl,
+            this.supabaseAnonKey
+        );
+
+        // login using the provided tokens
+        const { data, error } = await client.auth.setSession({
+            access_token,
+            refresh_token
+        });
+
+        if (error) {
+            throw error;
+        }
+
+        // Update session and user state
+        await this.handleSessionChange(data.session);
+    }
+
 
     // Sync session with backend and get user data
     private async syncWithBackend(session: Session): Promise<AppUser> {

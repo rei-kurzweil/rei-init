@@ -1,0 +1,37 @@
+{
+  "name": "@rei-init/material-shader-rasterizer",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./src/index.tsx",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./src/index.tsx"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "type-check": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": ">=19.0.0",
+    "react-dom": ">=19.0.0",
+    "three": "^0.160.0",
+    "@react-three/fiber": "^9.3.0"
+  },
+  "devDependencies": {
+    "@react-three/fiber": "^9.3.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@types/three": "^0.160.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "three": "^0.160.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.2"
+  }
+}

@@ -5,7 +5,8 @@ import type { Env } from 'hono';
 import { renderToString } from '../react-ssr';
 
 import { ENV } from '../env';
-import { Content, MobileTopBar, SideBar, Card, ProfileTitle } from '@rei-init/ui';
+import { serializeSupabaseConfig } from '../supabase-config';
+import { Content, SideBar, Card, ProfileTitle } from '@rei-init/ui';
 import { Item, ItemRepository } from "@rei-init/micro-domain";
 
 export async function HandleHomePage(c: Context<Env & { Bindings: ENV }>) {
@@ -19,9 +20,9 @@ export async function HandleHomePage(c: Context<Env & { Bindings: ENV }>) {
         <html>
             <head>
                 <title>⚡ rei-cast.xyz</title>
+                <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
                 <link rel="stylesheet" href="/styles.css" />
                 <link rel="stylesheet" href="/apps/meow/meow.css" />
-                <link rel="stylesheet" href="/apps/cats/cats.css" />
                 
                 <script type="importmap">
                 {`{
@@ -34,45 +35,59 @@ export async function HandleHomePage(c: Context<Env & { Bindings: ENV }>) {
                 </script>
             </head>
             <body>
-                <MobileTopBar title={"⚡ REI-CAST.XYZ"}/>
-                <SideBar>
-                    <ProfileTitle>⚡ REI-CAST.XYZ</ProfileTitle>
-                </SideBar>
-                <Content>
-                    <div id="cats-island" className="cats-spa-container" 
-                        style={{ border: '1px solid #ccc', padding: '1rem', margin: '1rem 0' }}>
-                        <p>🐈 Loading Cats...</p>
-                    </div>
-                    
-                    <div id="meow-login-island" className="meow-spa-container"
-                        style={{ border: '1px solid #ccc', padding: '1rem', margin: '1rem 0' }}>
-                        <p>^w^ Loading Meow Login...</p>
-                    </div>
-                    
-                    <div id="meow-status-island" className="meow-spa-container"
-                        style={{ border: '1px solid #ccc', padding: '1rem', margin: '1rem 0' }}>
-                        <p>^w^ Loading Meow Status...</p>
-                    </div>
+                <div className="layout-container">
+                    <SideBar>
+                        <ProfileTitle>⚡ REI-CAST.XYZ</ProfileTitle>
 
+                        <div id="meow-status-island" className="meow-spa-container">
+                            <p>^w^ Loading Meow Status...</p>
+                        </div>
+                    </SideBar>
+                    <Content>
+                        <div id="meow-editor-island" className="meow-spa-container">
+                            <p>^w^ Loading Meow Editor...</p>
+                        </div>
                     {
                         items.map(item => (
                             <Card key={item.id} content={item.content} />
                         ))
                     }
-                </Content>
+                    </Content>
+                </div>
+
+                {/* Cats background - covers entire screen */}
+                <div id="cats-island" className="cats-spa-container">  
+                    <p className="loadingCats">🐈 Loading Cats...</p>
+                </div>
+                
                 <script type="module">
                     {/* javascript */ `
                         import { mountMultipleIslands } from '/apps/spa-multi-island.js'
                         
                         // Import app components
-                        import CatsApp from '/apps/cats/cats-spa.js'
                         import { MeowApp, MeowAppIslandType } from '/apps/meow/meow-spa.js'
                         
+                        import CatsApp from '/apps/cats/cats-spa.js'
+
                         // Mount multiple islands with shared micro-bus
                         const sharedBus = mountMultipleIslands([
-                            { component: CatsApp, selector: '#cats-island' },
-                            { component: MeowApp, selector: '#meow-login-island', props: { islandType: MeowAppIslandType.LOGIN_SIGN_UP } },
-                            { component: MeowApp, selector: '#meow-status-island', props: { islandType: MeowAppIslandType.USER_STATUS } }
+                            { 
+                                component: MeowApp, 
+                                selector: '#meow-status-island', 
+                                props: { 
+                                    islandType: MeowAppIslandType.USER_STATUS,
+                                    supabaseConfig: ${serializeSupabaseConfig(c)}
+                                }
+                            },
+                            {
+                                component: MeowApp,
+                                selector: '#meow-editor-island',
+                                props: {
+                                    islandType: MeowAppIslandType.EDITOR,
+                                    supabaseConfig: ${serializeSupabaseConfig(c)}
+                                }
+                            },
+                            { component: CatsApp, selector: '#cats-island' }
                         ])
                         
                     `}

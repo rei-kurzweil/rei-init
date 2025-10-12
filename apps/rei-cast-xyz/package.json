@@ -1,5 +1,5 @@
 {
-  "name": "vite-react-template",
+  "name": "@rei-init/rei-cast-xyz",
   "description": "A template for building a React application with Vite, Hono, and Cloudflare Workers",
   "private": true,
   "cloudflare": {
@@ -46,8 +46,9 @@
     "wrangler": "4.40.3"
   },
   "scripts": {
-    "build": "npm run build:spa-multi-island && npm run build:cats && npm run build:meow && vite build",
+    "build": "pnpm run build:spa-multi-island && pnpm run build:ui && pnpm run build:css && pnpm run build:cats && pnpm run build:meow",
     "build:css": "postcss ./src/css/global.css -o ./static_content/styles.css --minify",
+    "build:ui": "cd ../../packages/ui && pnpm run build",
     "build:cats": "./build-and-copy-cats.sh",
     "build:meow": "./build-and-copy-meow.sh",
     "build:micro-bus": "cd ../../packages/micro-bus && pnpm run build && cp dist/index.mjs ../../apps/rei-cast-xyz/static_content/apps/micro-bus.js",

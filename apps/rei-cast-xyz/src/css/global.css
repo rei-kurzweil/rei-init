@@ -10,13 +10,43 @@
 body {
     font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     
-    display: flex;
     min-height: 100vh;
     margin: 0;
     padding: 0;
     
     background-color: var(--color-bg);
     color: var(--color-text-primary);
+    overflow-x: hidden; /* Avoid horizontal scroll caused by 100vw elements */
+}
+
+html {
+    width: 100%;
+    overflow-x: hidden;
+}
+
+h1 {
+    padding: 1rem;
+    padding-right: 2rem;
+}
+
+
+.layout-container {
+    display: flex;
+    min-height: 100vh;
+    position: relative;
+    width: 100%;
+    overflow-x: hidden;
+    
+    justify-content: flex-start; /* start at top/left, not centered */
+    align-items: stretch;
+    
+        flex-direction: column; /* mobile first: stack */
+}
+
+@media (min-width: 768px) {
+    .layout-container {
+        flex-direction: row; /* desktop: side-by-side */
+    }
 }
 
 /** apply theme **/
@@ -25,11 +55,13 @@ body {
     color: var(--color-sidebar-text);
     background-color: var(--color-sidebar-bg);
     box-shadow: var(--shadow-sidebar);
+    z-index: 2;
 }
 
 .Content {
     color: var(--color-content-text);
     background-color: var(--color-content-bg);
+    z-index: 2;
 }
 
 .Content p {
@@ -38,4 +70,64 @@ body {
 
 .Card {
     box-shadow: var(--shadow-card);
+}
+
+#cats-island {
+    position: fixed;
+    top: 0;
+    left: 0;
+    /* Fallback */
+    width: 100vw;
+    height: 100vh;
+    /* Prefer dynamic viewport to avoid iOS address bar causing overflow */
+    width: 100dvw;
+    height: 100dvh;
+    z-index: 1;
+}
+
+.loadingCats {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    background: rgba(0,0,0,0.7);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    z-index: 3;
+}
+
+/* #meow-status-island intentionally styled via component-specific CSS */
+
+#meow-sign-in-island {
+    margin: 1rem auto !important;
+    max-width: 400px;
+    width: 100%;
+
+    color: var(--color-content-text);
+    background-color: var(--color-sidebar-bg);
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+#meow-status-island > supabase-auth-ui_ui-container {
+    background-color: var(--color-sidebar-bg);
+    color: var(--color-content-text);
+    box-shadow: var(--shadow-card);
+}
+
+/* Position meow-status-island with flex: right end on mobile topbar, bottom on desktop sidebar */
+.SideBar #meow-status-island {
+    margin-left: auto; /* mobile row: push to right */
+}
+
+@media (min-width: 768px) {
+    .SideBar #meow-status-island {
+        margin-left: 0;
+        margin-top: auto;   /* desktop column: push to bottom */
+        align-self: stretch; /* take full sidebar width */
+    }
 }

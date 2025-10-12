@@ -11,15 +11,19 @@ export const SideBar = ({ children }: SideBarProps) => {
     return (
         <aside
             className="
-        hidden md:flex
-        flex-col
-        w-64
-        h-screen
-        p-4
+        /* Mobile: sticky top bar in normal flow */
+        sticky top-0 z-20 w-full h-12 box-border
+        
+
+        /* Desktop: sticky left rail */
+        md:h-screen md:w-64 md:flex-none md:flex-col md:items-stretch md:py-4
+        
+
+        /* Layout */
+        flex items-center px-4 py-2
+        flex-shrink-0
 
         SideBar
-
-        fixed top-0 left-0
 "
         >
             {children}

@@ -5,10 +5,10 @@ interface ContentProps {
 }
 
 export const Content = ({ children }: ContentProps) => (
-    <div className="flex flex-col items-start justify-start 
-                    mx-auto w-full max-w-[1024px] 
-                    px-4 pt-4
-                    md:ml-64
+    <div className="flex flex-col justify-start 
+                    w-full max-w-[800px] mx-auto
+                    px-4 py-4
+                    min-h-screen
                     Content">
         {children}
     </div>

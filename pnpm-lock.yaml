@@ -16,15 +16,24 @@ importers:
       '@react-three/fiber':
         specifier: ^9.3.0
         version: 9.3.0(@types/react@18.3.24)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.160.1)
+      '@react-three/postprocessing':
+        specifier: ^3.0.4
+        version: 3.0.4(@react-three/fiber@9.3.0(@types/react@18.3.24)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.160.1))(@types/three@0.160.0)(react@19.0.0)(three@0.160.1)
       '@react-three/xr':
         specifier: ^6.6.27
         version: 6.6.27(@react-three/fiber@9.3.0(@types/react@18.3.24)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.160.1))(@types/react@18.3.24)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.160.1)
+      '@rei-init/mesh-sphere-skybox':
+        specifier: workspace:*
+        version: link:../../packages/mesh-sphere-skybox
       '@rei-init/spa-auto-mount':
         specifier: workspace:*
         version: link:../../packages/spa-auto-mount
       '@rei-init/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      postprocessing:
+        specifier: ^6.37.8
+        version: 6.37.8(three@0.160.1)
       react:
         specifier: 19.0.0
         version: 19.0.0
@@ -86,6 +95,9 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.58.0
         version: 2.58.0
+      dotenv:
+        specifier: ^17.2.3
+        version: 17.2.3
       react:
         specifier: 19.0.0
         version: 19.0.0
@@ -96,6 +108,9 @@ importers:
       '@eslint/js':
         specifier: ^9.13.0
         version: 9.29.0
+      '@rei-init/micro-bus':
+        specifier: workspace:*
+        version: link:../../packages/micro-bus
       '@types/node':
         specifier: ^22.0.0
         version: 22.17.2
@@ -279,6 +294,69 @@ importers:
         specifier: ^5.0.0
         version: 5.6.3
 
+  packages/material-shader-rasterizer:
+    devDependencies:
+      '@react-three/fiber':
+        specifier: ^9.3.0
+        version: 9.3.0(@types/react@18.3.24)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.160.1)
+      '@types/react':
+        specifier: ^18.3.12
+        version: 18.3.24
+      '@types/react-dom':
+        specifier: ^18.3.1
+        version: 18.3.7(@types/react@18.3.24)
+      '@types/three':
+        specifier: ^0.160.0
+        version: 0.160.0
+      react:
+        specifier: 19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
+      three:
+        specifier: ^0.160.0
+        version: 0.160.1
+      tsup:
+        specifier: ^8.3.5
+        version: 8.5.0(@swc/core@1.13.2(@swc/helpers@0.5.17))(jiti@2.6.0)(postcss@8.5.6)(tsx@4.20.3)(typescript@5.6.3)(yaml@2.8.0)
+      typescript:
+        specifier: ^5.6.2
+        version: 5.6.3
+
+  packages/mesh-sphere-skybox:
+    devDependencies:
+      '@react-three/fiber':
+        specifier: ^9.3.0
+        version: 9.3.0(@types/react@18.3.24)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.160.1)
+      '@rei-init/material-shader-rasterizer':
+        specifier: workspace:*
+        version: link:../material-shader-rasterizer
+      '@types/react':
+        specifier: ^18.3.12
+        version: 18.3.24
+      '@types/react-dom':
+        specifier: ^18.3.1
+        version: 18.3.7(@types/react@18.3.24)
+      '@types/three':
+        specifier: ^0.160.0
+        version: 0.160.0
+      react:
+        specifier: 19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
+      three:
+        specifier: ^0.160.0
+        version: 0.160.1
+      tsup:
+        specifier: ^8.3.5
+        version: 8.5.0(@swc/core@1.13.2(@swc/helpers@0.5.17))(jiti@2.6.0)(postcss@8.5.6)(tsx@4.20.3)(typescript@5.6.3)(yaml@2.8.0)
+      typescript:
+        specifier: ^5.6.2
+        version: 5.6.3
+
   packages/micro-bus:
     dependencies:
       '@rei-init/micro-domain':
@@ -341,6 +419,36 @@ importers:
       tsx:
         specifier: ^4.20.3
         version: 4.20.3
+
+  packages/shader-rasterizer-material:
+    devDependencies:
+      '@react-three/fiber':
+        specifier: ^9.3.0
+        version: 9.3.0(@types/react@18.3.24)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.160.1)
+      '@types/react':
+        specifier: ^18.3.12
+        version: 18.3.24
+      '@types/react-dom':
+        specifier: ^18.3.1
+        version: 18.3.7(@types/react@18.3.24)
+      '@types/three':
+        specifier: ^0.160.0
+        version: 0.160.0
+      react:
+        specifier: 19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
+      three:
+        specifier: ^0.160.0
+        version: 0.160.1
+      tsup:
+        specifier: ^8.3.5
+        version: 8.5.0(@swc/core@1.13.2(@swc/helpers@0.5.17))(jiti@2.6.0)(postcss@8.5.6)(tsx@4.20.3)(typescript@5.6.3)(yaml@2.8.0)
+      typescript:
+        specifier: ^5.6.2
+        version: 5.6.3
 
   packages/spa-auto-mount:
     devDependencies:
@@ -1728,6 +1836,13 @@ packages:
       react-native:
         optional: true
 
+  '@react-three/postprocessing@3.0.4':
+    resolution: {integrity: sha512-e4+F5xtudDYvhxx3y0NtWXpZbwvQ0x1zdOXWTbXMK6fFLVDd4qucN90YaaStanZGS4Bd5siQm0lGL/5ogf8iDQ==}
+    peerDependencies:
+      '@react-three/fiber': ^9.0.0
+      react: ^19.0
+      three: '>= 0.156.0'
+
   '@react-three/xr@6.6.27':
     resolution: {integrity: sha512-ueUYxM+oEcpq5fsi590kAiuWb/G0RbUoqSD9xzYVcjVsp40qfXQnYsf6mtv6KRSiPwbSw8AU8Sme40U9EOVo3Q==}
     peerDependencies:
@@ -2617,6 +2732,10 @@ packages:
     resolution: {integrity: sha512-1gxPBJpI/pcjQhKgIU91II6Wkay+dLcN3M6rf2uwP8hRur3HtQXjVrdAK3sjC0piaEuxzMwjXChcETiJl47lAQ==}
     engines: {node: '>=18'}
 
+  dotenv@17.2.3:
+    resolution: {integrity: sha512-JVUnt+DUIzu87TABbhPmNfVdBDt18BLOWjMUFJMSi/Qqg7NTYtabbvSNJGOJ7afbRuv9D/lngizHtP7QyLQ+9w==}
+    engines: {node: '>=12'}
+
   dprint-node@1.0.8:
     resolution: {integrity: sha512-iVKnUtYfGrYcW1ZAlfR/F59cUVL8QIhWoBJoSjkkdua/dkWIgjZfiLMeTjiB06X0ZLkQ0M2C1VbUj/CxkIf1zg==}
 
@@ -3459,6 +3578,12 @@ packages:
       '@types/three': '>=0.134.0'
       three: '>=0.134.0'
 
+  maath@0.6.0:
+    resolution: {integrity: sha512-dSb2xQuP7vDnaYqfoKzlApeRcR2xtN8/f7WV/TMAkBC8552TwTLtOO0JTcSygkYMjNDPoo6V01jTw/aPi4JrMw==}
+    peerDependencies:
+      '@types/three': '>=0.144.0'
+      three: '>=0.144.0'
+
   magic-string@0.30.19:
     resolution: {integrity: sha512-2N21sPY9Ws53PZvsEpVtNuSW+ScYbQdp4b9qUaL+9QkHUrGFKo56Lg9Emg5s9V/qrtNBmiR01sYhUOwu3H+VOw==}
 
@@ -3543,6 +3668,12 @@ packages:
 
   mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
+
+  n8ao@1.10.1:
+    resolution: {integrity: sha512-hhI1pC+BfOZBV1KMwynBrVlIm8wqLxj/abAWhF2nZ0qQKyzTSQa1QtLVS2veRiuoBQXojxobcnp0oe+PUoxf/w==}
+    peerDependencies:
+      postprocessing: '>=6.30.0'
+      three: '>=0.137'
 
   nanoid@3.3.11:
     resolution: {integrity: sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==}
@@ -3801,6 +3932,11 @@ packages:
   postcss@8.5.6:
     resolution: {integrity: sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg==}
     engines: {node: ^10 || ^12 || >=14}
+
+  postprocessing@6.37.8:
+    resolution: {integrity: sha512-qTFUKS51z/fuw2U+irz4/TiKJ/0oI70cNtvQG1WxlPKvBdJUfS1CcFswJd5ATY3slotWfvkDDZAsj1X0fU8BOQ==}
+    peerDependencies:
+      three: '>= 0.157.0 < 0.181.0'
 
   potpack@1.0.2:
     resolution: {integrity: sha512-choctRBIV9EMT9WGAZHn3V7t0Z2pMQyl0EZE6pFc/6ml3ssw7Dlf/oAOvFwjm1HVsqfQN8GfeFyJ+d8tRzqueQ==}
@@ -5858,6 +5994,17 @@ snapshots:
       - '@types/react'
       - immer
 
+  '@react-three/postprocessing@3.0.4(@react-three/fiber@9.3.0(@types/react@18.3.24)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.160.1))(@types/three@0.160.0)(react@19.0.0)(three@0.160.1)':
+    dependencies:
+      '@react-three/fiber': 9.3.0(@types/react@18.3.24)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.160.1)
+      maath: 0.6.0(@types/three@0.160.0)(three@0.160.1)
+      n8ao: 1.10.1(postprocessing@6.37.8(three@0.160.1))(three@0.160.1)
+      postprocessing: 6.37.8(three@0.160.1)
+      react: 19.0.0
+      three: 0.160.1
+    transitivePeerDependencies:
+      - '@types/three'
+
   '@react-three/xr@6.6.27(@react-three/fiber@9.3.0(@types/react@18.3.24)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.160.1))(@types/react@18.3.24)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.160.1)':
     dependencies:
       '@pmndrs/pointer-events': 6.6.27
@@ -6852,6 +6999,8 @@ snapshots:
     dependencies:
       type-fest: 4.41.0
 
+  dotenv@17.2.3: {}
+
   dprint-node@1.0.8:
     dependencies:
       detect-libc: 1.0.3
@@ -7673,6 +7822,11 @@ snapshots:
       '@types/three': 0.160.0
       three: 0.160.1
 
+  maath@0.6.0(@types/three@0.160.0)(three@0.160.1):
+    dependencies:
+      '@types/three': 0.160.0
+      three: 0.160.1
+
   magic-string@0.30.19:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
@@ -7779,6 +7933,11 @@ snapshots:
       any-promise: 1.3.0
       object-assign: 4.1.1
       thenify-all: 1.6.0
+
+  n8ao@1.10.1(postprocessing@6.37.8(three@0.160.1))(three@0.160.1):
+    dependencies:
+      postprocessing: 6.37.8(three@0.160.1)
+      three: 0.160.1
 
   nanoid@3.3.11: {}
 
@@ -8022,6 +8181,10 @@ snapshots:
       nanoid: 3.3.11
       picocolors: 1.1.1
       source-map-js: 1.2.1
+
+  postprocessing@6.37.8(three@0.160.1):
+    dependencies:
+      three: 0.160.1
 
   potpack@1.0.2: {}
 

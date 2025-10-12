@@ -24,11 +24,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-three/drei": "^9.92.7",
+    "@react-three/fiber": "^9.3.0",
+    "@react-three/postprocessing": "^3.0.4",
+    "@react-three/xr": "^6.6.27",
+    "@rei-init/mesh-sphere-skybox": "workspace:*",
     "@rei-init/spa-auto-mount": "workspace:*",
     "@rei-init/ui": "workspace:*",
-    "@react-three/fiber": "^9.3.0",
-    "@react-three/xr": "^6.6.27",
-    "@react-three/drei": "^9.92.7",
+    "postprocessing": "^6.37.8",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "three": "^0.160.0"

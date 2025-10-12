@@ -1,7 +1,7 @@
 // SPA mount function for embedding in other applications
 import { createRoot } from 'react-dom/client'
 import App from '../App'
-import '../index.css'
+import '../App.css'
 
 export interface MountOptions {
   container: HTMLElement

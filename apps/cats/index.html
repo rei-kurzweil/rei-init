@@ -5,6 +5,24 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cats XR - 3D Cat Experience</title>
+    <style>
+      /* Dev-only layout for the cats app; does not affect consumers */
+      html, body, #root {
+        height: 100%;
+        margin: 0;
+      }
+      /* Ensure the R3F canvas fills the viewport */
+      #root canvas {
+        width: 100vw;
+        height: 100vh;
+        display: block;
+      }
+      /* Optional: prevent scrollbars */
+      body {
+        overflow: hidden;
+        background: #fff;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>

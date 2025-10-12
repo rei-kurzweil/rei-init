@@ -5,9 +5,9 @@
     --color-text-primary: black;
     --color-bg: #ffffff;
     --color-sidebar-text: #333;
-    --color-sidebar-bg: #fff5e9;
+    --color-sidebar-bg: rgba(255, 255, 255, 0.8);
     --color-content-text: #333;
-    --color-content-bg: #fff;
+    --color-content-bg: transparent;
     --shadow-sidebar: inset -1em 1em 2em 1em rgba(0,0,0, 0.05);
     --shadow-card: 0em 1em 2em 1em rgba(0,0,0, 0.05);
 }
@@ -19,9 +19,9 @@
         --color-text-primary: white;
         --color-bg: #383838;
         --color-sidebar-text: #fff;
-        --color-sidebar-bg: #484848;
+        --color-sidebar-bg: rgba(0, 0, 0, 0.8);
         --color-content-text: #fff;
-        --color-content-bg: rgba(255, 255, 255, 0.25);
+        --color-content-bg: transparent;
         --shadow-sidebar: inset -1em 1em 2em 1em rgba(0,0,0, 0.2);
         --shadow-card: 0em 1em 2em 1em rgba(0,0,0, 0.05);
     }
@@ -33,9 +33,9 @@
     --color-text-primary: white;
     --color-bg: #383838;
     --color-sidebar-text: #ffffff;
-    --color-sidebar-bg: #484848;
+    --color-sidebar-bg: rgba(0, 0, 0, 0.8);
     --color-content-text: #fff;
-    --color-content-bg: rgba(255, 255, 255, 0.25);
+    --color-content-bg: transparent;
     --shadow-sidebar: inset -1em 1em 2em 1em rgba(255, 255, 255, 0.1);
     --shadow-card: 0em 1em 2em 1em rgba(0,0,0, 0.05);
 }

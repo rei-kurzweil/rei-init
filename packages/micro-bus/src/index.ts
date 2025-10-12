@@ -3,6 +3,9 @@ import { User, Item } from "@rei-init/micro-domain";
 type PubSubTopics = {
   "user.logged_in": { id: string };
   "item.created": { id: string; title: string };
+  "meow.user_login": { user: any }; // When user logs in via meow auth
+  "meow.user_logout": {}; // When user logs out
+  "cats.event": { data: any }; // Events from cats app
 };
 
 type RequestReplyTopics = {

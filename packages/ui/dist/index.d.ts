@@ -28,11 +28,6 @@ declare function Items({ items, user }: {
     user?: User;
 }): react_jsx_runtime.JSX.Element;
 
-declare function MobileTopBar(props: {
-    title: string;
-    children?: ReactNode;
-}): react_jsx_runtime.JSX.Element;
-
 declare function ProfileTitle({ children }: {
     children: ReactNode;
 }): react_jsx_runtime.JSX.Element;
@@ -51,4 +46,4 @@ declare const SideBarItem: (props: SideBarItemProps) => react_jsx_runtime.JSX.El
 
 declare const DarkModeToggle: () => react_jsx_runtime.JSX.Element;
 
-export { AuthUI, type AuthUIProps, Card, Content, DarkModeToggle, Items, MobileTopBar, ProfileTitle, SideBar, SideBarItem };
+export { AuthUI, type AuthUIProps, Card, Content, DarkModeToggle, Items, ProfileTitle, SideBar, SideBarItem };

@@ -6,7 +6,7 @@ import { renderToString } from 'react-dom/server';
 import { ENV } from '../env';
 
 
-import { Content, SideBar, ProfileTitle, MobileTopBar } from '@rei-init/ui';
+import { Content, SideBar, ProfileTitle } from '@rei-init/ui';
 
 
 export async function HandleSearchPage(c: Context<Env & { Bindings: ENV }>) {
@@ -19,18 +19,18 @@ export async function HandleSearchPage(c: Context<Env & { Bindings: ENV }>) {
         <html>
             <head>
                 <title>⚡ rei-cast.xyz</title>
+                <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
                 <link rel="stylesheet" href="/styles.css" />
             </head>
             <body>
-                <MobileTopBar title={"⚡ SEARCH 🔍"} />
-                <SideBar>
-                    <ProfileTitle>⚡ SEARCH 🔍</ProfileTitle>
-                </SideBar>
-                <Content>
-                    {
-                        "no items found." 
-                    }
-                </Content>
+                <div className="layout-container">
+                    <SideBar>
+                        <ProfileTitle>⚡ SEARCH 🔍</ProfileTitle>
+                    </SideBar>
+                    <Content>
+                        {"no items found."}
+                    </Content>
+                </div>
             </body>
 
         </html>
