@@ -3,8 +3,9 @@ import MeshSphereSkybox from '@rei-init/mesh-sphere-skybox'
 
 import { OrbitControls, Box, Sphere, Plane } from '@react-three/drei'
 import { useState, useRef } from 'react'
-import { LinearToneMapping, SRGBColorSpace, DoubleSide, type Mesh, type Texture, type ShaderMaterial } from 'three'
+import { LinearToneMapping, SRGBColorSpace, DoubleSide, type Mesh, type Texture, type ShaderMaterial, Vector3 } from 'three'
 import './App.css'
+
 
 // Expose the debug shape for window.debug_rei_init
 declare global {
@@ -62,7 +63,7 @@ function CatModel({ position = [0, 0, 0], color = 'orange' }: { position?: [numb
   )
 }
 
-function CatsScene({ scene = 'playground' }: { scene: CatsAppProps['scene'] }) {
+function CatsScene({ scene = 'playground' }: { scene?: CatsAppProps['scene'] }) {
   switch (scene) {
     
     default:
@@ -87,32 +88,9 @@ function CatsScene({ scene = 'playground' }: { scene: CatsAppProps['scene'] }) {
 }
 
 function App({ className }: CatsAppProps) {
-  const [debugTexture, setDebugTexture] = useState<Texture | null>(null)
-  const [debugShaderMaterial, setDebugShaderMaterial] = useState<ShaderMaterial | null>(null)
 
   return (
     <div style={{ position: 'relative' }}>
-      {/* Debug controls overlay */}
-      <div style={{ position: 'absolute', top: 8, left: 8, zIndex: 10, display: 'flex', gap: 8 }}>
-        <button onClick={() => {
-          const tex = window.debug_rei_init?.texture
-          if (tex) {
-            setDebugTexture(tex)
-            console.log("Debug texture set:", tex);
-          }
-            else console.warn('window.debug_rei_init?.texture not available yet')
-        }}>debug texture</button>
-        <button onClick={() => {
-          const mat = window.debug_rei_init?.shaderMaterial
-          if (mat) 
-            {
-              setDebugShaderMaterial(mat)
-              console.log("Debug shader material set:", mat);
-            }
-              else console.warn('window.debug_rei_init?.shaderMaterial not available yet')
-        }}>debug shader</button>
-      </div>
-
       <Canvas className={className}
               onCreated={(state) => {
                 state.gl.outputColorSpace = SRGBColorSpace;
@@ -126,25 +104,8 @@ function App({ className }: CatsAppProps) {
           color_3={[0.35, 0.35, 0.35]}
         />
 
-        <CatsScene scene="playground" />
+        <CatsScene />
 
-        {/* Debug quads */}
-        {debugTexture && (
-          <mesh position={[0, 0, 0]} rotation={[-Math.PI / 12, Math.PI / 12, 0]}>
-            <planeGeometry args={[2, 2]} />
-            <meshBasicMaterial map={debugTexture} side={DoubleSide} />
-          </mesh>
-        )}
-
-        {debugShaderMaterial && (
-          <mesh position={[0, 0, 0]} rotation={[-Math.PI / 12, Math.PI / 12, 0]}>
-            <planeGeometry args={[2, 2]} />
-            {/* Use provided shader material directly */}
-            {/* eslint-disable-next-line react/no-unknown-property */}
-            <primitive attach="material" object={debugShaderMaterial} />
-          </mesh>
-        )}
-        
         <OrbitControls />
       </Canvas>
     </div>

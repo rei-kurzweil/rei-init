@@ -66,13 +66,10 @@ export function ShaderRasterizerMaterial({
 
     const orthoCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
-    
     gl.setRenderTarget(rt)
     gl.render(bakeScene, orthoCamera)
-    
-    // Flag the texture for update and publish to state
-    setTexture(rt.texture)
-
+     // Flag the texture for update and publish to state
+    setTexture(rt.texture);
     gl.setRenderTarget(null); // Reset to render to canvas
 
     

@@ -1,4 +1,4 @@
-import { A as o } from "./App-Cds0fuP2.js";
+import { A as o } from "./App-DsNyILJk.js";
 export {
   o as CatsApp
 };
