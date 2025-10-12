@@ -120,7 +120,11 @@ function App({ className }: CatsAppProps) {
               }}
       >
         <color attach="background" args={['#ffffff']} />
-        <MeshSphereSkybox />
+        <MeshSphereSkybox 
+          color_1={[0.6, 0.4, 0.9]}
+          color_2={[0.95, 0.95, 1.0]}
+          color_3={[0.35, 0.35, 0.35]}
+        />
 
         <CatsScene scene="playground" />
 

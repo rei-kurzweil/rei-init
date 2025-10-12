@@ -44,46 +44,6 @@ function ShaderRasterizerMaterial({
     gl.setRenderTarget(rt);
     gl.render(bakeScene, orthoCamera);
     setTexture(rt.texture);
-    try {
-      const w = RT_RESOLUTION;
-      const h = RT_RESOLUTION;
-      const pixels = new Uint8Array(w * h * 4);
-      gl.readRenderTargetPixels(rt, 0, 0, w, h, pixels);
-      if (typeof document !== "undefined") {
-        const canvas = document.createElement("canvas");
-        canvas.width = w;
-        canvas.height = h;
-        const ctx = canvas.getContext("2d");
-        const imageData = ctx.createImageData(w, h);
-        const rowSize = w * 4;
-        for (let y = 0; y < h; y++) {
-          const src = (h - 1 - y) * rowSize;
-          const dst = y * rowSize;
-          imageData.data.set(pixels.subarray(src, src + rowSize), dst);
-        }
-        ctx.putImageData(imageData, 0, 0);
-        let img = document.getElementById("shader-rasterizer-preview");
-        if (!img) {
-          img = document.createElement("img");
-          img.id = "shader-rasterizer-preview";
-          img.style.position = "fixed";
-          img.style.right = "8px";
-          img.style.bottom = "8px";
-          img.style.width = "256px";
-          img.style.height = "256px";
-          img.style.zIndex = "9999";
-          img.style.border = "1px solid #999";
-          img.style.background = "#222";
-          img.style.imageRendering = "pixelated";
-          document.body.appendChild(img);
-        }
-        img.src = canvas.toDataURL("image/png");
-      }
-    } catch (err) {
-      console.warn("ShaderRasterizerMaterial: failed to read/preview RT", err);
-    }
-    console.log("\u{1F9E8}\u{1F4A5} set texture", rt.texture);
-    window.debug_rei_init = { texture: rt.texture, shaderMaterial };
     gl.setRenderTarget(null);
     return () => {
       rt.dispose();

@@ -1,5 +1,10 @@
 import { JSX } from 'react';
 
-declare function MeshSphereSkybox(): JSX.Element;
+interface MeshSphereSkyboxProps {
+    color_1?: [number, number, number];
+    color_2?: [number, number, number];
+    color_3?: [number, number, number];
+}
+declare function MeshSphereSkybox({ color_1, color_2, color_3, }?: MeshSphereSkyboxProps): JSX.Element;
 
-export { MeshSphereSkybox, MeshSphereSkybox as default };
+export { MeshSphereSkybox, type MeshSphereSkyboxProps, MeshSphereSkybox as default };
