@@ -7,11 +7,18 @@ import gpu
 from gpu_extras.batch import batch_for_shader
 
 
+"""
+        @Author: Rei Evans (rei.trace.me@gmail.com)
+        @Date: circa 2025
+        @Links: https://rei-cast.xyz
+        @License: MIT License
+"""
+
 ##
 ## Group helpers 
 ##
 def _default_group():
-    return {"first_index": None, "positions": {}, "heart": "circle"}  # 
+    return {"first_index": None, "positions": {}, "pinned_set_icon": "circle"}  # 
 
 # New: constant default JSON so there is always one visible empty group on first load
 DEFAULT_GROUPS_JSON = json.dumps([_default_group()])
@@ -36,7 +43,7 @@ def _load_groups(scene):
             positions = g.get("positions", {})
             if not isinstance(positions, dict):
                 positions = {}
-            cleaned.append({"first_index": first_index, "positions": positions, "heart": g.get("heart", "circle")})
+            cleaned.append({"first_index": first_index, "positions": positions, "pinned_set_icon": g.get("pinned_set_icon", "circle")})
         if not cleaned:
             cleaned = [_default_group()]
         return cleaned
@@ -59,7 +66,7 @@ def _ensure_groups(scene):
 ##
 ## View Helpers
 ##
-def heart_items(self, context):
+def pinned_set_icon_items(self, context):
     return [
         ("circle", "●", ""),
         ("square", "■", ""),
@@ -70,10 +77,10 @@ def heart_items(self, context):
     ]
 
 # New: mapping for quick lookup when drawing the label
-HEART_SYMBOLS = {k: v for k, v, _ in heart_items(None, None)}
+PINNED_SET_ICON_SYMBOLS = {k: v for k, v, _ in pinned_set_icon_items(None, None)}
 
-# Update callback to push heart choice into groups JSON
-def _update_heart(self, context):
+# Update callback to push pinned_set_icon choice into groups JSON
+def _update_pinned_set_icon(self, context):
     scene = context.scene
     groups = _load_groups(scene)
     try:
@@ -82,17 +89,17 @@ def _update_heart(self, context):
         return
     if idx < 0 or idx >= len(groups):
         return
-    if groups[idx].get("heart") == self.heart:
+    if groups[idx].get("pinned_set_icon") == self.pinned_set_icon:
         return
-    groups[idx]["heart"] = self.heart
+    groups[idx]["pinned_set_icon"] = self.pinned_set_icon
     _set_groups(scene, groups)
 
 class VertexToolsGroupSettings(bpy.types.PropertyGroup):
-    heart: bpy.props.EnumProperty(
+    pinned_set_icon: bpy.props.EnumProperty(
         name="",
-        description="Heart marker",
-        items=heart_items,
-        update=_update_heart
+        description="Pinned_set_icon marker",
+        items=pinned_set_icon_items,
+        update=_update_pinned_set_icon
     )
 
 def _sync_group_settings(scene):
@@ -106,12 +113,12 @@ def _sync_group_settings(scene):
         # grow
         while len(coll) < len(groups):
             item = coll.add()
-            item.heart = groups[len(coll)-1]["heart"]
+            item.pinned_set_icon = groups[len(coll)-1]["pinned_set_icon"]
     else:
         # ensure values match
         for i, g in enumerate(groups):
-            if coll[i].heart != g.get("heart", "red"):
-                coll[i].heart = g.get("heart", "red")
+            if coll[i].pinned_set_icon != g.get("pinned_set_icon", "red"):
+                coll[i].pinned_set_icon = g.get("pinned_set_icon", "red")
 
 ##
 ## Operators
@@ -302,6 +309,100 @@ class VERTEX_OT_select_group(bpy.types.Operator):
         return {'FINISHED'}
 
 # -----------------------------
+# Vertex Group Search UI List
+# -----------------------------
+class VERTEX_UL_vgroups_search(bpy.types.UIList):
+    """Filtered list of vertex groups based on search text."""
+
+    def filter_items(self, context, data, propname):
+        items = getattr(data, propname)
+        search = (getattr(context.scene, 'vertex_tools_vg_search', '') or '').lower()
+        flags = []
+        if not search:
+            # Show all when no search
+            flags = [self.bitflag_filter_item] * len(items)
+            return flags, []
+        for vg in items:
+            name = getattr(vg, 'name', '')
+            match = search in name.lower()
+            flags.append(self.bitflag_filter_item if match else 0)
+        return flags, []
+
+    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
+        if self.layout_type in {'DEFAULT', 'COMPACT'}:
+            layout.label(text=item.name, icon='GROUP_VERTEX')
+        elif self.layout_type == 'GRID':
+            layout.alignment = 'CENTER'
+            layout.label(text="")
+
+
+# -----------------------------
+# Panel: Vertex Group Search
+# -----------------------------
+def _update_vg_search(self, context):
+    """On search text change, optionally highlight the first matching
+    vertex group in Object Data Properties.
+
+    We avoid manual redraws; Blender's event system will refresh UI as needed.
+    """
+    try:
+        scene = context.scene
+        obj = context.object
+        search = (getattr(scene, 'vertex_tools_vg_search', '') or '').strip().lower()
+
+        # Optionally highlight a matching group in Object Data Properties
+        if obj and obj.type == 'MESH' and obj.vertex_groups and search:
+            for vg in obj.vertex_groups:
+                if search in vg.name.lower():
+                    obj.vertex_groups.active_index = vg.index
+                    break
+    except Exception:
+        # Be robust in case context is partial during updates
+        pass
+
+
+class VERTEX_PT_groups_name_search_panel(bpy.types.Panel):
+    bl_label = "Vertex Group Search"
+    bl_idname = "VERTEX_PT_groups_name_search_panel"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = 'Vertex Tools'
+
+    def draw(self, context):
+        layout = self.layout
+        obj = context.object
+        scene = context.scene
+
+        col = layout.column(align=False)
+        col.prop(scene, "vertex_tools_vg_search", text="Search Vertex Groups", icon='VIEWZOOM')
+
+        box = layout.box()
+        box.label(text="Results", icon='OUTLINER_DATA_MESH')
+
+        if not obj or obj.type != 'MESH':
+            box.label(text="Select a mesh object to search its vertex groups.")
+            return
+
+        if not obj.vertex_groups:
+            box.label(text="Object has no vertex groups.")
+            return
+
+        # Filtered list of the object's vertex groups
+        row = box.row()
+        row.template_list(
+            "VERTEX_UL_vgroups_search",
+            "vertex_group_search",
+            obj,
+            "vertex_groups",
+            obj.vertex_groups,
+            "active_index",
+            rows=6,
+        )
+
+    # Selecting an item in the list sets obj.vertex_groups.active_index directly,
+    # so no extra button is needed.
+
+# -----------------------------
 # Panel
 # -----------------------------
 class VERTEX_PT_positions_panel(bpy.types.Panel):
@@ -317,7 +418,6 @@ class VERTEX_PT_positions_panel(bpy.types.Panel):
         scene = context.scene
         settings_coll = getattr(scene, "vertex_tools_group_settings", None)
 
-        # IMPORTANT: do not write to scene properties during draw
         groups = _load_groups(context.scene)
         if not groups:
             groups = [_default_group()]
@@ -338,17 +438,17 @@ class VERTEX_PT_positions_panel(bpy.types.Panel):
                 op_rem = header.operator("vertex.remove_group", text="− Remove", emboss=True)
                 op_rem.group_index = idx
 
-            # Second row: Selected From Index + heart dropdown (no label)
+            # Second row: Selected From Index + pinned_set_icon dropdown (no label)
             row_meta = box.row(align=True)
             first_index = g.get("first_index")
             first_text = first_index if first_index is not None else "N/A"
             row_meta.label(text=f"Selected From Index: {first_text}")
             if settings_coll and idx < len(settings_coll):
-                # old: row_meta.prop(settings_coll[idx], "heart", text="")
-                heart_row = row_meta.row(align=True)
-                heart_row.scale_x = 0.5  # make the dropdown half as wide
-                heart_row.prop(settings_coll[idx], "heart", text="")
-                # Added heart symbol label to the right of dropdown
+                # old: row_meta.prop(settings_coll[idx], "pinned_set_icon", text="")
+                pinned_set_icon_row = row_meta.row(align=True)
+                pinned_set_icon_row.scale_x = 0.5  # make the dropdown half as wide
+                pinned_set_icon_row.prop(settings_coll[idx], "pinned_set_icon", text="")
+                # Added pinned_set_icon symbol label to the right of dropdown
                 
             # Saved count
             saved_count = len(g.get("positions", {}))
@@ -376,8 +476,10 @@ classes = (
     VERTEX_OT_add_group,
     VERTEX_OT_remove_group,
     VERTEX_OT_select_group,
+    VERTEX_UL_vgroups_search,
     VertexToolsGroupSettings,  # new
     VERTEX_PT_positions_panel,
+    VERTEX_PT_groups_name_search_panel,
 )
 
 def register():
@@ -398,6 +500,15 @@ def register():
     )
     bpy.types.Scene.vertex_tools_group_settings = bpy.props.CollectionProperty(type=VertexToolsGroupSettings)
 
+    # Search text for vertex group search (updates on each keypress)
+    bpy.types.Scene.vertex_tools_vg_search = StringProperty(
+        name="Search Vertex Groups",
+        description="Type to filter vertex groups by name",
+        default="",
+        options={'TEXTEDIT_UPDATE'},
+        update=_update_vg_search,
+    )
+
     # Sync collection
     scene = bpy.context.scene if bpy.context.scene else None
     if scene:
@@ -411,6 +522,8 @@ def unregister():
         del bpy.types.Scene.vertex_tools_group_count
     if hasattr(bpy.types.Scene, "vertex_tools_group_settings"):
         del bpy.types.Scene.vertex_tools_group_settings
+    if hasattr(bpy.types.Scene, "vertex_tools_vg_search"):
+        del bpy.types.Scene.vertex_tools_vg_search
 
     for c in reversed(classes):
         bpy.utils.unregister_class(c)

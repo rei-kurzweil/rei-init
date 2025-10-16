@@ -34,7 +34,7 @@ function CatModel({ position = [0, 0, 0], color = 'orange' }: { position?: [numb
       {/* Cat body */}
       <Sphere
         ref={meshRef}
-        args={[0.8, 16, 16]}
+        args={[0.8, 32, 32]}
         position={[0, 0, 0]}
         onPointerOver={() => setHovered(true)}
         onPointerOut={() => setHovered(false)}
@@ -68,18 +68,18 @@ function CatsScene({ scene = 'playground' }: { scene?: CatsAppProps['scene'] }) 
     
     default:
       return (
-        <group rotation={[Math.PI / 6, Math.PI / 8, 0]} position={[1.6, 0, 0]}>
+        <group rotation={[Math.PI / 6, Math.PI / 8, 0]} position={[0.5, 0, 0]}>
           <ambientLight intensity={0.7} />
           <directionalLight position={[-5, 5, 5]} intensity={1.5} />
           
           {/* Ground */}
           <Plane args={[10, 10]} rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]}>
-            <meshBasicMaterial color="#ecc1ff" />
+            <meshBasicMaterial color="#ffffff" />
           </Plane>
           
           {/* Multiple cats */}
-          <CatModel position={[0, 0,  0.5]} color="orange" />
-          <CatModel position={[2, 0, -1]}   color="#ecc1ff" />
+          <CatModel position={[1, 0,  1.5]} color="rgba(174, 255, 0, 1)" />
+          <CatModel position={[2, 0, -1]}   color="#ffa3dcff" />
           <CatModel position={[-2, 0, 1]}   color="white" />
           <CatModel position={[0, 0, -3]}   color="gray" />
         </group>
@@ -90,7 +90,7 @@ function CatsScene({ scene = 'playground' }: { scene?: CatsAppProps['scene'] }) 
 function App({ className }: CatsAppProps) {
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
       <Canvas className={className}
               onCreated={(state) => {
                 state.gl.outputColorSpace = SRGBColorSpace;

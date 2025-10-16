@@ -30505,7 +30505,7 @@ function Nu({ position: a = [0, 0, 0], color: e = "orange" }) {
       QL,
       {
         ref: t,
-        args: [0.8, 16, 16],
+        args: [0.8, 32, 32],
         position: [0, 0, 0],
         onPointerOver: () => i(!0),
         onPointerOut: () => i(!1),
@@ -30521,18 +30521,18 @@ function Nu({ position: a = [0, 0, 0], color: e = "orange" }) {
   ] });
 }
 function eU({ scene: a = "playground" }) {
-  return /* @__PURE__ */ pt.jsxs("group", { rotation: [Math.PI / 6, Math.PI / 8, 0], position: [1.6, 0, 0], children: [
+  return /* @__PURE__ */ pt.jsxs("group", { rotation: [Math.PI / 6, Math.PI / 8, 0], position: [0.5, 0, 0], children: [
     /* @__PURE__ */ pt.jsx("ambientLight", { intensity: 0.7 }),
     /* @__PURE__ */ pt.jsx("directionalLight", { position: [-5, 5, 5], intensity: 1.5 }),
-    /* @__PURE__ */ pt.jsx($L, { args: [10, 10], rotation: [-Math.PI / 2, 0, 0], position: [0, -2, 0], children: /* @__PURE__ */ pt.jsx("meshBasicMaterial", { color: "#ecc1ff" }) }),
-    /* @__PURE__ */ pt.jsx(Nu, { position: [0, 0, 0.5], color: "orange" }),
-    /* @__PURE__ */ pt.jsx(Nu, { position: [2, 0, -1], color: "#ecc1ff" }),
+    /* @__PURE__ */ pt.jsx($L, { args: [10, 10], rotation: [-Math.PI / 2, 0, 0], position: [0, -2, 0], children: /* @__PURE__ */ pt.jsx("meshBasicMaterial", { color: "#ffffff" }) }),
+    /* @__PURE__ */ pt.jsx(Nu, { position: [0, 0, 0.5], color: "rgba(174, 255, 0, 1)" }),
+    /* @__PURE__ */ pt.jsx(Nu, { position: [2, 0, -1], color: "#ffa3dcff" }),
     /* @__PURE__ */ pt.jsx(Nu, { position: [-2, 0, 1], color: "white" }),
     /* @__PURE__ */ pt.jsx(Nu, { position: [0, 0, -3], color: "gray" })
   ] });
 }
 function oU({ className: a }) {
-  return /* @__PURE__ */ pt.jsx("div", { style: { position: "relative" }, children: /* @__PURE__ */ pt.jsxs(
+  return /* @__PURE__ */ pt.jsx("div", { style: { position: "relative", width: "100%", height: "100%" }, children: /* @__PURE__ */ pt.jsxs(
     IL,
     {
       className: a,
