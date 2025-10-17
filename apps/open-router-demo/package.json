@@ -1,0 +1,29 @@
+{
+  "name": "@rei-init/open-router-demo",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev:client": "vite",
+    "dev:server": "tsx server/index.ts",
+    "dev": "pnpm -C ../../ -w --filter @rei-init/open-router-manager run build --watch & pnpm run dev:server & pnpm run dev:client",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "@rei-init/open-router-manager": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.5",
+    "@vitejs/plugin-react": "^4.3.3",
+    "@types/express": "^4.17.21",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "express": "^4.19.2",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.9",
+    "tsx": "^4.19.2"
+  }
+}
