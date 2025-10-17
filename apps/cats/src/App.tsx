@@ -3,7 +3,7 @@ import MeshSphereSkybox from '@rei-init/mesh-sphere-skybox'
 
 import { OrbitControls, Box, Sphere, Plane } from '@react-three/drei'
 import { useState, useRef } from 'react'
-import { LinearToneMapping, SRGBColorSpace, DoubleSide, type Mesh, type Texture, type ShaderMaterial, Vector3 } from 'three'
+import { LinearToneMapping, SRGBColorSpace, type Mesh, type Texture, type ShaderMaterial } from 'three'
 import './App.css'
 
 

@@ -93,8 +93,8 @@ export const emojis: Record<CellType, string[]> = {
 
     // civilization
     residential: ['🏡', '🏘️', '🏨'],
-    commercial:  ['🏢', '🏢', '🏢'],
-    industrial:  ['🏭', '🏭', '🏭'],
+    commercial:  ['⛽', '🏪', '🏢'],
+    industrial:  ['🚜', '🏭', '🏭'],
     road:        [' '],
     power_line:  [' '],
     power_plant: ['☢️'],

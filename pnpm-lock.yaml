@@ -420,6 +420,22 @@ importers:
         specifier: ^4.20.3
         version: 4.20.3
 
+  packages/open-router-manager:
+    dependencies:
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.6.1
+    devDependencies:
+      '@types/node':
+        specifier: ^22.7.5
+        version: 22.17.2
+      tsup:
+        specifier: ^8.3.5
+        version: 8.5.0(@swc/core@1.13.2(@swc/helpers@0.5.17))(jiti@2.6.0)(postcss@8.5.6)(tsx@4.20.3)(typescript@5.6.3)(yaml@2.8.0)
+      typescript:
+        specifier: ^5.6.2
+        version: 5.6.3
+
   packages/shader-rasterizer-material:
     devDependencies:
       '@react-three/fiber':
@@ -2731,6 +2747,10 @@ packages:
   dot-prop@9.0.0:
     resolution: {integrity: sha512-1gxPBJpI/pcjQhKgIU91II6Wkay+dLcN3M6rf2uwP8hRur3HtQXjVrdAK3sjC0piaEuxzMwjXChcETiJl47lAQ==}
     engines: {node: '>=18'}
+
+  dotenv@16.6.1:
+    resolution: {integrity: sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==}
+    engines: {node: '>=12'}
 
   dotenv@17.2.3:
     resolution: {integrity: sha512-JVUnt+DUIzu87TABbhPmNfVdBDt18BLOWjMUFJMSi/Qqg7NTYtabbvSNJGOJ7afbRuv9D/lngizHtP7QyLQ+9w==}
@@ -6286,7 +6306,7 @@ snapshots:
 
   '@types/better-sqlite3@7.6.13':
     dependencies:
-      '@types/node': 24.5.2
+      '@types/node': 22.17.2
 
   '@types/draco3d@1.4.10': {}
 
@@ -6295,7 +6315,7 @@ snapshots:
   '@types/fs-extra@11.0.4':
     dependencies:
       '@types/jsonfile': 6.1.4
-      '@types/node': 24.5.2
+      '@types/node': 22.17.2
 
   '@types/json-schema@7.0.15': {}
 
@@ -6327,6 +6347,7 @@ snapshots:
   '@types/node@24.5.2':
     dependencies:
       undici-types: 7.12.0
+    optional: true
 
   '@types/offscreencanvas@2019.7.3': {}
 
@@ -6998,6 +7019,8 @@ snapshots:
   dot-prop@9.0.0:
     dependencies:
       type-fest: 4.41.0
+
+  dotenv@16.6.1: {}
 
   dotenv@17.2.3: {}
 
@@ -8893,7 +8916,8 @@ snapshots:
 
   undici-types@7.10.0: {}
 
-  undici-types@7.12.0: {}
+  undici-types@7.12.0:
+    optional: true
 
   undici-types@7.8.0: {}
 
