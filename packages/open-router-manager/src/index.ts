@@ -74,6 +74,9 @@ export class OpenRouterManager {
     async send(opts: SendOptions) {
         const modelsToTry = this.pickModels(opts.model)
         const headers = this.make_config_headers(opts.extraHeaders)
+        if (opts.stream) {
+            headers['Accept'] = 'text/event-stream'
+        }
         const url = opts.baseUrl ?? this.baseUrl
 
         let lastError: unknown
@@ -84,7 +87,8 @@ export class OpenRouterManager {
                     headers,
                     body: JSON.stringify({
                         model,
-                        messages: opts.messages
+                        messages: opts.messages,
+                        stream: opts.stream === true
                     }),
                     signal: (opts.signal ?? null) as any
                 })
@@ -100,6 +104,60 @@ export class OpenRouterManager {
                     continue
                 }
 
+                // If streaming was requested, parse incremental data
+                if (opts.stream) {
+                    const reader = (res.body as any)?.getReader?.()
+                    if (!reader) throw new Error('Response body is not readable')
+                    const decoder = new TextDecoder()
+                    let buffer = ''
+                    const pieces: string[] = []
+                    const accumulate = opts.accumulate !== false
+
+                    try {
+                        while (true) {
+                            const { done, value } = await reader.read()
+                            if (done) break
+
+                            buffer += decoder.decode(value, { stream: true })
+
+                            while (true) {
+                                const lineEnd = buffer.indexOf('\n')
+                                if (lineEnd === -1) break
+                                const rawLine = buffer.slice(0, lineEnd)
+                                buffer = buffer.slice(lineEnd + 1)
+                                const line = rawLine.trim()
+                                if (!line) continue
+
+                                if (line.startsWith('data: ')) {
+                                    const data = line.slice(6)
+                                    if (data === '[DONE]') {
+                                        // Return on completion for this model
+                                        return accumulate ? { content: pieces.join('') } : { done: true }
+                                    }
+                                    try {
+                                        console.log('STREAM DATA:', data);
+                                        const parsed = JSON.parse(data)
+                                        const delta = parsed?.choices?.[0]?.delta
+                                        const content: unknown = delta?.content
+                                        if (typeof content === 'string' && content.length) {
+                                            if (accumulate) pieces.push(content)
+                                            opts.onToken?.(content)
+                                        }
+                                        opts.onEvent?.(parsed)
+                                    } catch {
+                                        // Ignore invalid JSON lines
+                                    }
+                                }
+                            }
+                        }
+                        // Stream ended without explicit [DONE]
+                        return accumulate ? { content: pieces.join('') } : { done: true }
+                    } finally {
+                        try { reader.cancel() } catch {}
+                    }
+                }
+
+                // Non-streaming response
                 const data = await res.json()
                 return data
             } catch (err) {

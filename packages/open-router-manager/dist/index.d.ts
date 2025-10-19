@@ -10,6 +10,10 @@ type SendOptions = {
     signal?: AbortSignal;
     extraHeaders?: Record<string, string>;
     baseUrl?: string;
+    stream?: boolean;
+    onToken?: (text: string) => void;
+    onEvent?: (data: unknown) => void;
+    accumulate?: boolean;
 };
 
 type OpenRouterManagerConfig = {
