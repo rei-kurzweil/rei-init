@@ -27,6 +27,7 @@
     "dist"
   ],
   "dependencies": {
+    "@electric-sql/pglite": "^0.3.11",
     "@elizaos/cli": "1.6.1",
     "@elizaos/client": "1.6.1",
     "@elizaos/core": "1.6.1",
@@ -74,7 +75,12 @@
     "cypress:component": "bun run test:install && cypress run --component",
     "cypress:e2e": "bun run test:install && cypress run --e2e",
     "cypress:open": "bun run test:install && cypress open",
-    "build:watch": "bun run build.ts --watch"
+    "build:watch": "bun run build.ts --watch",
+    "inspect:memories": "bun run scripts/inspect-memories.ts",
+    "inspect:all-memories": "bun run scripts/inspect-all-memories.ts",
+    "dump:embeddings:hex": "bun run scripts/dump-embeddings-hex.ts",
+    "report:embeddings": "bun run scripts/report-embeddings.ts",
+    "pglite:sql": "bun run scripts/pglite-sql.ts"
   },
   "publishConfig": {
     "access": "public"
