@@ -8,7 +8,9 @@
   "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "outDir": "dist",
-    "types": ["node", "blessed"]
+    "types": ["node", "blessed"],
+  "jsx": "react-jsx",
+    "skipLibCheck": true
   },
   "include": ["src/**/*"],
   "exclude": ["dist", "node_modules"]

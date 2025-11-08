@@ -1,8 +1,8 @@
 import { defineConfig } from 'tsup'
 
 export default defineConfig({
-  entry: ['src/index.ts', 'src/run.ts'],
-  format: ['esm'],
+  entry: ['src/index.tsx', 'src/run.ts'],
+  format: ['cjs'],
   splitting: false,
   sourcemap: false,
   dts: true,
