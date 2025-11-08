@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json.schemastore.org/json",
+  "version": 1,
+  "targets": [
+    {
+      "id": "spa-multi-island",
+      "label": "Build spa-multi-island lib",
+      "script": "pnpm --filter @rei-init/rei-cast-xyz run build:spa-multi-island",
+      "default": true
+    },
+    {
+      "id": "ui",
+      "label": "Build @rei-init/ui",
+      "script": "pnpm --filter @rei-init/rei-cast-xyz run build:ui",
+      "default": true
+    },
+    {
+      "id": "css",
+      "label": "Build CSS (postcss)",
+      "script": "pnpm --filter @rei-init/rei-cast-xyz run build:css",
+      "default": true
+    },
+    {
+      "id": "cats",
+      "label": "Build cats app",
+      "script": "pnpm --filter @rei-init/rei-cast-xyz run build:cats",
+      "default": true
+    },
+    {
+      "id": "meow",
+      "label": "Build meow app",
+      "script": "pnpm --filter @rei-init/rei-cast-xyz run build:meow",
+      "default": true
+    },
+    {
+      "id": "micro-bus",
+      "label": "Build micro-bus lib",
+      "script": "pnpm --filter @rei-init/rei-cast-xyz run build:micro-bus",
+      "default": true
+    }
+  ]
+}

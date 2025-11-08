@@ -1,6 +1,6 @@
 import { createRoot as f } from "react-dom/client";
 import { createElement as m } from "react";
-import { A as d } from "./App-BeI7u6aL.js";
+import { A as d } from "./App-MMa2xGB3.js";
 function l(n) {
   const { appPrefix: o, component: s, cssImport: a } = n;
   return function() {

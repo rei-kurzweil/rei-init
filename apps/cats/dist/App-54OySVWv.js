@@ -30525,7 +30525,7 @@ function eU({ scene: a = "playground" }) {
     /* @__PURE__ */ pt.jsx("ambientLight", { intensity: 0.7 }),
     /* @__PURE__ */ pt.jsx("directionalLight", { position: [-5, 5, 5], intensity: 1.5 }),
     /* @__PURE__ */ pt.jsx($L, { args: [10, 10], rotation: [-Math.PI / 2, 0, 0], position: [0, -2, 0], children: /* @__PURE__ */ pt.jsx("meshBasicMaterial", { color: "#ffffff" }) }),
-    /* @__PURE__ */ pt.jsx(Nu, { position: [0, 0, 0.5], color: "rgba(174, 255, 0, 1)" }),
+    /* @__PURE__ */ pt.jsx(Nu, { position: [1, 0, 1.5], color: "rgba(174, 255, 0, 1)" }),
     /* @__PURE__ */ pt.jsx(Nu, { position: [2, 0, -1], color: "#ffa3dcff" }),
     /* @__PURE__ */ pt.jsx(Nu, { position: [-2, 0, 1], color: "white" }),
     /* @__PURE__ */ pt.jsx(Nu, { position: [0, 0, -3], color: "gray" })

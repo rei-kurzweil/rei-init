@@ -1,4 +1,4 @@
-import type { Session } from '@supabase/supabase-js'
+import type { Session, SupabaseClient } from '@supabase/supabase-js'
 import { createClient } from '@supabase/supabase-js'
 
 export interface AppUser {
@@ -18,6 +18,19 @@ class StateManager {
 
     supabaseUrl:     string = "";
     supabaseAnonKey: string = "";
+
+    // Singleton Supabase client for the browser session
+    private supabaseClient: SupabaseClient | null = null
+
+    private getClient(): SupabaseClient {
+        if (!this.supabaseClient) {
+            if (!this.supabaseUrl || !this.supabaseAnonKey) {
+                throw new Error('Supabase configuration is missing (url/anonKey)')
+            }
+            this.supabaseClient = createClient(this.supabaseUrl, this.supabaseAnonKey)
+        }
+        return this.supabaseClient
+    }
 
     // Handle session change from AuthUI
     async handleSessionChange(session: Session | null) {
@@ -39,24 +52,22 @@ class StateManager {
     }
 
     async connectSupabaseClientFromTokens(access_token: string, refresh_token: string) {
-        // Dynamically import Supabase to avoid loading it unnecessarily
-        const client = createClient(
-            this.supabaseUrl,
-            this.supabaseAnonKey
-        );
-
+        const client = this.getClient()
         // login using the provided tokens
-        const { data, error } = await client.auth.setSession({
-            access_token,
-            refresh_token
-        });
+        const { data, error } = await client.auth.setSession({ access_token, refresh_token })
+        if (error) throw error
+        await this.handleSessionChange(data.session)
+    }
 
-        if (error) {
-            throw error;
+    async signOut() {
+        try {
+            const client = this.getClient()
+            await client.auth.signOut()
+        } catch (err) {
+            console.warn('Supabase signOut encountered an issue (continuing):', err)
+        } finally {
+            await this.handleSessionChange(null)
         }
-
-        // Update session and user state
-        await this.handleSessionChange(data.session);
     }
 
 

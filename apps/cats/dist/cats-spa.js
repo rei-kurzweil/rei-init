@@ -1,4 +1,4 @@
-import { A as e, j as s } from "./App-C7hm__C6.js";
+import { A as e, j as s } from "./App-54OySVWv.js";
 import { createRoot as m } from "react-dom/client";
 /* empty css               */
 function i(o, r = {}) {

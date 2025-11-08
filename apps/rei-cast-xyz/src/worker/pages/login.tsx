@@ -60,7 +60,7 @@ export async function HandleAuthPage(c: Context<Env & { Bindings: ENV }>) {
                 
                 <script type="module">
                     {/* javascript */ `
-                        import { mountMultipleIslands } from '/apps/spa-multi-island.js'
+                        import { mountMultipleIslands } from '/js/spa-multi-island.js'
                         
                         // Import app components
                         import { MeowApp, MeowAppIslandType } from '/apps/meow/meow-spa.js'

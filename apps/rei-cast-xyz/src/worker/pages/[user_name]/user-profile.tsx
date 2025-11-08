@@ -71,7 +71,7 @@ export async function HandleUserProfile(c: Context<Env & { Bindings: ENV }>) {
                 
                 <script type="module">
                     {/* javascript */ `
-                        import { mountMultipleIslands } from '/apps/spa-multi-island.js'
+                        import { mountMultipleIslands } from '/js/spa-multi-island.js'
                         
                         // Import app components  
                         import CatsApp from '/apps/cats/cats-spa.js'

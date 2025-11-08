@@ -13,6 +13,7 @@
     "publish": true
   },
   "dependencies": {
+    "@rei-init/multi-build-tui": "workspace:*",
     "@rei-init/meow": "workspace:*",
     "@rei-init/micro-bus": "workspace:*",
     "@rei-init/micro-domain": "workspace:*",
@@ -46,13 +47,15 @@
     "wrangler": "4.40.3"
   },
   "scripts": {
-    "build": "pnpm run build:spa-multi-island && pnpm run build:ui && pnpm run build:css && pnpm run build:cats && pnpm run build:meow",
+  "build": "pnpm run build:spa-multi-island && pnpm run build:ui && pnpm run build:css && pnpm run build:cats && pnpm run build:meow",
+    "multi-build-tui": "multi-build-tui",
+    "multi-build": "multi-build-run",
     "build:css": "postcss ./src/css/global.css -o ./static_content/styles.css --minify",
     "build:ui": "cd ../../packages/ui && pnpm run build",
     "build:cats": "./build-and-copy-cats.sh",
     "build:meow": "./build-and-copy-meow.sh",
-    "build:micro-bus": "cd ../../packages/micro-bus && pnpm run build && cp dist/index.mjs ../../apps/rei-cast-xyz/static_content/apps/micro-bus.js",
-    "build:spa-multi-island": "cd ../../packages/spa-multi-island && pnpm run build && cp dist/index.js ../../apps/rei-cast-xyz/static_content/apps/spa-multi-island.js && cd ../../apps/rei-cast-xyz && pnpm run build:micro-bus",
+  "build:micro-bus": "cd ../../packages/micro-bus && pnpm run build && cp dist/index.mjs ../../apps/rei-cast-xyz/static_content/apps/micro-bus.js",
+  "build:spa-multi-island": "./build-and-copy-spa-multi-island.sh",
     "cf-typegen": "wrangler types",
     "check": "tsc && vite build && wrangler deploy --dry-run",
     "deploy": "wrangler deploy",

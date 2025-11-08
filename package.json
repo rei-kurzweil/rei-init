@@ -6,7 +6,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "multi-build-tui": "pnpm --filter @rei-init/multi-build-tui run build && bun run packages/multi-build-tui/dist/index.js",
+    "multi-build": "pnpm --filter @rei-init/multi-build-tui run build && bun run packages/multi-build-tui/dist/run.js"
   },
   "keywords": [],
   "author": "",
