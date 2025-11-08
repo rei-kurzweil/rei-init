@@ -24,38 +24,52 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 
 // src/index.tsx
-var fs = __toESM(require("fs"));
-var path = __toESM(require("path"));
-var os = __toESM(require("os"));
+var fs2 = __toESM(require("fs"));
 var import_react = require("react");
 var import_blessed = __toESM(require("blessed"));
 var import_react_blessed = require("react-blessed");
 var import_node_child_process = require("child_process");
-var import_jsx_runtime = require("react/jsx-runtime");
-var ROOT = process.cwd();
-var OPTIONS_PATH = path.join(ROOT, "multi-build-options.json");
-var CONFIG_PATH = path.join(ROOT, "multi-build-config.json");
+
+// src/config-manager.ts
+var import_fs = __toESM(require("fs"));
+var import_os = __toESM(require("os"));
+
+// src/util.ts
+var import_path = __toESM(require("path"));
+function getDataFilePaths() {
+  const ROOT2 = process.cwd();
+  const OPTIONS_PATH3 = import_path.default.join(ROOT2, "multi-build-options.json");
+  const CONFIG_PATH3 = import_path.default.join(ROOT2, "multi-build-config.json");
+  return { OPTIONS_PATH: OPTIONS_PATH3, CONFIG_PATH: CONFIG_PATH3, ROOT: ROOT2 };
+}
+
+// src/config-manager.ts
+var { OPTIONS_PATH, CONFIG_PATH } = getDataFilePaths();
 var config_manager = new class {
   loadOptions() {
-    const raw = fs.readFileSync(OPTIONS_PATH, "utf8");
+    const raw = import_fs.default.readFileSync(OPTIONS_PATH, "utf8");
     return JSON.parse(raw);
   }
   ensureInitialConfig(opts) {
-    if (fs.existsSync(CONFIG_PATH)) {
-      const raw = fs.readFileSync(CONFIG_PATH, "utf8");
+    if (import_fs.default.existsSync(CONFIG_PATH)) {
+      const raw = import_fs.default.readFileSync(CONFIG_PATH, "utf8");
       return JSON.parse(raw);
     }
     const selected = {};
     for (const t of opts.targets) selected[t.id] = t.default !== false;
     const cfg = { version: opts.version ?? 1, selected, updatedAt: (/* @__PURE__ */ new Date()).toISOString() };
-    fs.writeFileSync(CONFIG_PATH, JSON.stringify(cfg, null, 2) + os.EOL);
+    import_fs.default.writeFileSync(CONFIG_PATH, JSON.stringify(cfg, null, 2) + import_os.default.EOL);
     return cfg;
   }
   saveConfig(version, selected) {
     const cfg = { version, selected, updatedAt: (/* @__PURE__ */ new Date()).toISOString() };
-    fs.writeFileSync(CONFIG_PATH, JSON.stringify(cfg, null, 2) + os.EOL);
+    import_fs.default.writeFileSync(CONFIG_PATH, JSON.stringify(cfg, null, 2) + import_os.default.EOL);
   }
 }();
+
+// src/index.tsx
+var import_jsx_runtime = require("react/jsx-runtime");
+var { OPTIONS_PATH: OPTIONS_PATH2, CONFIG_PATH: CONFIG_PATH2, ROOT } = getDataFilePaths();
 function App() {
   const initialOpts = config_manager.loadOptions();
   const [opts] = (0, import_react.useState)(initialOpts);
@@ -101,14 +115,12 @@ function App() {
       child.on("error", (e) => reject(e));
     });
   }
-  async function runBuilds() {
-    if (building) return;
+  async function buildSelected() {
     const selectedTargets = targets.filter((t) => selected[t.id]);
     if (selectedTargets.length === 0) {
       log("{yellow-fg}No targets selected{/yellow-fg}");
-      return;
+      return false;
     }
-    setBuilding(true);
     clearLogs();
     log(`Starting ${selectedTargets.length} target(s) ...`);
     try {
@@ -119,11 +131,35 @@ function App() {
         log(`{green-fg}\u2705 Completed ${t.id}{/green-fg}`);
       }
       log("{green-fg}All selected builds finished{/green-fg}");
+      return true;
     } catch (err) {
       log(`{red-fg}\u274C Failed: ${err?.message || err}{/red-fg}`);
-    } finally {
-      setBuilding(false);
+      return false;
     }
+  }
+  async function runBuilds() {
+    if (building) return;
+    setBuilding(true);
+    const success = await buildSelected();
+    setBuilding(false);
+    return success;
+  }
+  async function runBuildsAndDeploy() {
+    if (building) return;
+    setBuilding(true);
+    const success = await buildSelected();
+    if (success) {
+      const deployCmd = opts.deploy_command || "pnpm run deploy";
+      log(`
+{bold}\u{1F680} Deploying with:{/bold} ${deployCmd}`);
+      try {
+        await execStreaming(deployCmd);
+        log("{green-fg}\u{1F389} Deploy completed{/green-fg}");
+      } catch (err) {
+        log(`{red-fg}\u274C Deploy failed: ${err?.message || err}{/red-fg}`);
+      }
+    }
+    setBuilding(false);
   }
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("element", { children: [
     /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
@@ -135,7 +171,7 @@ function App() {
         height: 2,
         tags: true,
         style: { fg: "white" },
-        content: "{bold}\u2191/\u2193{/bold} move  {bold}Space/Click{/bold} toggle  {bold}a{/bold} all  {bold}n{/bold} none  {bold}b{/bold} build  {bold}q{/bold} quit"
+        content: "{bold}\u2191/\u2193{/bold} move  {bold}Space/Click{/bold} toggle  {bold}a{/bold} all  {bold}n{/bold} none  {bold}b{/bold} build  {bold}d{/bold} build+deploy  {bold}q{/bold} quit"
       }
     ),
     /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
@@ -161,6 +197,7 @@ function App() {
           if (key.name === "a") selectAll(true);
           if (key.name === "n") selectAll(false);
           if (key.name === "b") runBuilds();
+          if (key.name === "d") runBuildsAndDeploy();
         }
       }
     ),
@@ -188,7 +225,7 @@ function App() {
         bottom: 3,
         width: 15,
         height: 3,
-        left: "center",
+        left: "40%",
         mouse: true,
         keys: true,
         content: building ? " [ Building... ] " : " [ Build ] ",
@@ -199,12 +236,29 @@ function App() {
         style: { fg: "white", bg: "green", focus: { bg: "lightgreen" }, hover: { bg: "lightgreen" } }
       }
     ),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+      "button",
+      {
+        bottom: 3,
+        width: 23,
+        height: 3,
+        left: "60%",
+        mouse: true,
+        keys: true,
+        content: building ? " [ Building... ] " : " [ Build & Deploy ] ",
+        align: "center",
+        shrink: true,
+        border: "line",
+        onPress: () => runBuildsAndDeploy(),
+        style: { fg: "white", bg: "magenta", focus: { bg: "lightmagenta" }, hover: { bg: "lightmagenta" } }
+      }
+    ),
     /* @__PURE__ */ (0, import_jsx_runtime.jsx)("box", { bottom: 0, left: 0, right: 0, height: 3, tags: true, children: "Ready" })
   ] });
 }
 function main() {
-  if (!fs.existsSync(OPTIONS_PATH)) {
-    console.error(`multi-build-tui: missing ${OPTIONS_PATH}`);
+  if (!fs2.existsSync(OPTIONS_PATH2)) {
+    console.error(`multi-build-tui: missing ${OPTIONS_PATH2}`);
     process.exit(1);
   }
   const screen = import_blessed.default.screen({

@@ -8,49 +8,13 @@ import blessed from 'blessed'
 import { render } from 'react-blessed'
 import { spawn } from 'node:child_process'
 
-type Target = {
-    id: string
-    label: string
-    script: string
-    default?: boolean
-}
 
-type OptionsFile = {
-    version: number
-    targets: Target[]
-}
+import { Target, OptionsFile } from './model'
+import { config_manager } from './config-manager'
+import { getDataFilePaths } from './util'
 
-type ConfigFile = {
-    version: number
-    selected: Record<string, boolean>
-    updatedAt: string
-}
+const { OPTIONS_PATH, CONFIG_PATH, ROOT } = getDataFilePaths();
 
-const ROOT = process.cwd()
-const OPTIONS_PATH = path.join(ROOT, 'multi-build-options.json')
-const CONFIG_PATH = path.join(ROOT, 'multi-build-config.json')
-
-const config_manager = new (class {
-    loadOptions(): OptionsFile {
-        const raw = fs.readFileSync(OPTIONS_PATH, 'utf8')
-        return JSON.parse(raw)
-    }
-    ensureInitialConfig(opts: OptionsFile): ConfigFile {
-        if (fs.existsSync(CONFIG_PATH)) {
-            const raw = fs.readFileSync(CONFIG_PATH, 'utf8')
-            return JSON.parse(raw)
-        }
-        const selected: Record<string, boolean> = {}
-        for (const t of opts.targets) selected[t.id] = t.default !== false
-        const cfg: ConfigFile = { version: opts.version ?? 1, selected, updatedAt: new Date().toISOString() }
-        fs.writeFileSync(CONFIG_PATH, JSON.stringify(cfg, null, 2) + os.EOL)
-        return cfg
-    }
-    saveConfig(version: number, selected: Record<string, boolean>) {
-        const cfg: ConfigFile = { version, selected, updatedAt: new Date().toISOString() }
-        fs.writeFileSync(CONFIG_PATH, JSON.stringify(cfg, null, 2) + os.EOL)
-    }
-})()
 
 function App() {
     const initialOpts = config_manager.loadOptions()
@@ -107,14 +71,12 @@ function App() {
         })
     }
 
-    async function runBuilds() {
-        if (building) return
+    async function buildSelected(): Promise<boolean> {
         const selectedTargets = targets.filter((t: Target) => selected[t.id])
         if (selectedTargets.length === 0) {
             log('{yellow-fg}No targets selected{/yellow-fg}')
-            return
+            return false
         }
-        setBuilding(true)
         clearLogs()
         log(`Starting ${selectedTargets.length} target(s) ...`)
         try {
@@ -124,11 +86,36 @@ function App() {
                 log(`{green-fg}✅ Completed ${t.id}{/green-fg}`)
             }
             log('{green-fg}All selected builds finished{/green-fg}')
+            return true
         } catch (err: any) {
             log(`{red-fg}❌ Failed: ${err?.message || err}{/red-fg}`)
-        } finally {
-            setBuilding(false)
+            return false
         }
+    }
+
+    async function runBuilds() {
+        if (building) return
+        setBuilding(true)
+        const success = await buildSelected()
+        setBuilding(false)
+        return success
+    }
+
+    async function runBuildsAndDeploy() {
+        if (building) return
+        setBuilding(true)
+        const success = await buildSelected()
+        if (success) {
+            const deployCmd = opts.deploy_command || 'pnpm run deploy'
+            log(`\n{bold}🚀 Deploying with:{/bold} ${deployCmd}`)
+            try {
+                await execStreaming(deployCmd)
+                log('{green-fg}🎉 Deploy completed{/green-fg}')
+            } catch (err: any) {
+                log(`{red-fg}❌ Deploy failed: ${err?.message || err}{/red-fg}`)
+            }
+        }
+        setBuilding(false)
     }
 
     return (
@@ -140,7 +127,7 @@ function App() {
                 height={2} 
                 tags={true}
                 style={{ fg: 'white' }} 
-                content="{bold}↑/↓{/bold} move  {bold}Space/Click{/bold} toggle  {bold}a{/bold} all  {bold}n{/bold} none  {bold}b{/bold} build  {bold}q{/bold} quit" 
+                content="{bold}↑/↓{/bold} move  {bold}Space/Click{/bold} toggle  {bold}a{/bold} all  {bold}n{/bold} none  {bold}b{/bold} build  {bold}d{/bold} build+deploy  {bold}q{/bold} quit" 
             />
 
             <list
@@ -164,6 +151,7 @@ function App() {
                     if (key.name === 'a') selectAll(true)
                     if (key.name === 'n') selectAll(false)
                     if (key.name === 'b') runBuilds()
+                    if (key.name === 'd') runBuildsAndDeploy()
                 }}
             />
 
@@ -183,20 +171,35 @@ function App() {
                 content={logs.join('\n')}
             />
 
-            <button
-                bottom={3}
-                width={15}
-                height={3}
-                left="center"
-                mouse={true}
-                keys={true}
-                content={building ? ' [ Building... ] ' : ' [ Build ] '}
-                align="center"
-                shrink={true}
-                border="line"
-                onPress={() => runBuilds()}
-                style={{ fg: 'white', bg: 'green', focus: { bg: 'lightgreen' }, hover: { bg: 'lightgreen' } }}
-            />
+                    <button
+                        bottom={3}
+                        width={15}
+                        height={3}
+                        left="40%"
+                        mouse={true}
+                        keys={true}
+                        content={building ? ' [ Building... ] ' : ' [ Build ] '}
+                        align="center"
+                        shrink={true}
+                        border="line"
+                        onPress={() => runBuilds()}
+                        style={{ fg: 'white', bg: 'green', focus: { bg: 'lightgreen' }, hover: { bg: 'lightgreen' } }}
+                    />
+
+                    <button
+                        bottom={3}
+                        width={23}
+                        height={3}
+                        left="60%"
+                        mouse={true}
+                        keys={true}
+                        content={building ? ' [ Building... ] ' : ' [ Build & Deploy ] '}
+                        align="center"
+                        shrink={true}
+                        border="line"
+                        onPress={() => runBuildsAndDeploy()}
+                        style={{ fg: 'white', bg: 'magenta', focus: { bg: 'lightmagenta' }, hover: { bg: 'lightmagenta' } }}
+                    />
 
             <box bottom={0} left={0} right={0} height={3} tags={true}>
                 Ready

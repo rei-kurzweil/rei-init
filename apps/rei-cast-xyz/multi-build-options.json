@@ -1,5 +1,6 @@
 {
   "version": 1,
+  "deploy_command": "pnpm run deploy",
   "targets": [
     {
       "id": "spa-multi-island",
