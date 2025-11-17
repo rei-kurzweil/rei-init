@@ -4,6 +4,7 @@ import type { MicroBus } from '@rei-init/micro-bus'
 import './App.css'
 import { defaultSupabaseConfig, type SupabaseConfig } from './supabase-config'
 import { stateManager } from './state-manager'
+import { DebugUrlTracker } from './DebugUrlTracker'
 
 export enum MeowAppIslandType {
     LOGIN_SIGN_UP = "login-sign-up",
@@ -31,6 +32,8 @@ function App({ className, islandType, supabaseConfig = defaultSupabaseConfig }: 
     const isAuthIsland = islandType === MeowAppIslandType.LOGIN_SIGN_UP
     // Track last processed access token to avoid duplicate session handling
     const lastHandledAccessTokenRef = useRef<string | null>(stateManager.session?.access_token ?? null)
+    // Debug URL tracker instance
+    const debugTrackerRef = useRef<DebugUrlTracker | null>(null)
 
     async function sendItem() {
         if (!user) {
@@ -79,6 +82,13 @@ function App({ className, islandType, supabaseConfig = defaultSupabaseConfig }: 
     }
 
     useEffect(() => {
+        // Initialize debug URL tracker to track query and fragment parameters
+        if (!debugTrackerRef.current) {
+            debugTrackerRef.current = new DebugUrlTracker();
+            // Make debug tracker available globally for console access
+            (window as any).meowDebug = debugTrackerRef.current;
+        }
+        
         // set supabase url and anon key from props
         stateManager.supabaseUrl = supabaseConfig.url;
         stateManager.supabaseAnonKey = supabaseConfig.anonKey;

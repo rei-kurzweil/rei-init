@@ -4,9 +4,9 @@
     "spa-multi-island": false,
     "ui": true,
     "css": true,
-    "cats": false,
+    "cats": true,
     "meow": true,
     "micro-bus": false
   },
-  "updatedAt": "2025-11-08T06:03:31.499Z"
+  "updatedAt": "2025-11-17T06:41:56.996Z"
 }
