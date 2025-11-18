@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
-import { Card, AuthUI } from '@rei-init/ui'
+import { Card } from '@rei-init/ui'
 import type { MicroBus } from '@rei-init/micro-bus'
 import './App.css'
 import { defaultSupabaseConfig, type SupabaseConfig } from './supabase-config'
 import { stateManager } from './state-manager'
-import { DebugUrlTracker } from './DebugUrlTracker'
+
+import { Auth } from '@supabase/auth-ui-react'
+import { ThemeSupa } from '@supabase/auth-ui-shared'
+
 
 export enum MeowAppIslandType {
     LOGIN_SIGN_UP = "login-sign-up",
@@ -23,20 +26,13 @@ function App({ className, islandType, supabaseConfig = defaultSupabaseConfig }: 
 
     console.log("init island type: ", islandType);
 
-    // Ensure supabaseConfig has required properties, fallback to defaults if missing
-    if (!supabaseConfig?.url || !supabaseConfig?.anonKey) {
-        supabaseConfig = defaultSupabaseConfig;
-    }
-    
-    const [user, setUser] = useState(stateManager.user)
-    // Only show loading for auth islands, not status islands
+    const [user,      setUser]      = useState(stateManager.user)
     const [isLoading, setIsLoading] = useState(false)
-    const [isProcessingSession, setIsProcessingSession] = useState(false)
+
+    
     const isAuthIsland = islandType === MeowAppIslandType.LOGIN_SIGN_UP
     // Track last processed access token to avoid duplicate session handling
     const lastHandledAccessTokenRef = useRef<string | null>(stateManager.session?.access_token ?? null)
-    // Debug URL tracker instance
-    const debugTrackerRef = useRef<DebugUrlTracker | null>(null)
 
     async function sendItem() {
         if (!user) {
@@ -61,7 +57,8 @@ function App({ className, islandType, supabaseConfig = defaultSupabaseConfig }: 
         }
     }
 
-    async function supabaseConnectFromSessionOrURLFragment() {
+    async function supabaseConnectURLParams() {
+        console.log("🩷🩷🩷 connect from session or URL fragment");
         // Parse tokens from URL hash fragment (after #)
         const hashFragment = window.location.hash.substring(1); // Remove the # character
         const urlParams = new URLSearchParams(hashFragment);
@@ -69,57 +66,92 @@ function App({ className, islandType, supabaseConfig = defaultSupabaseConfig }: 
         const refreshToken = urlParams.get('refresh_token');
 
         if (accessToken && refreshToken) {
-            console.log("Meow supabaseConnectFromSessionOrURLFragment has both tokens");
-            // setIsLoading(true);
+            setIsLoading(true);
             await stateManager.connectSupabaseClientFromTokens(accessToken, refreshToken);
             setUser(stateManager.user);
-            // Seed last handled token so AuthUI's onSessionChange doesn't double-handle
-            lastHandledAccessTokenRef.current = stateManager.session?.access_token ?? accessToken;
-            // setIsLoading(false);
-            
+            setIsLoading(false);
+
             // Clear tokens from URL hash
             window.history.replaceState({}, document.title, window.location.pathname);
         } else {
-            console.log("Meow supabaseConnectFromSessionOrURLFragment didn't find both tokens");
+            console.log("Meow supabaseConnectURLParams didn't find both tokens");
         }
     }
 
     useEffect(() => {
-        // Initialize debug URL tracker to track query and fragment parameters
-        if (!debugTrackerRef.current) {
-            debugTrackerRef.current = new DebugUrlTracker();
-            // Make debug tracker available globally for console access
-            (window as any).meowDebug = debugTrackerRef.current;
-        }
-        
+
         // set supabase url and anon key from props
-        stateManager.supabaseUrl = supabaseConfig.url;
+        stateManager.supabaseUrl     = supabaseConfig.url;
         stateManager.supabaseAnonKey = supabaseConfig.anonKey;
 
-        console.log("Meow Supabase config set in state manager:", {
-            url: stateManager.supabaseUrl,
-            anonKey: stateManager.supabaseAnonKey
-        });
-
+        // Ensure supabaseConfig has required properties, fallback to defaults if missing
+        if (!supabaseConfig?.url || !supabaseConfig?.anonKey) {
+            supabaseConfig = defaultSupabaseConfig;
+        } 
+        
+        console.log("🩷🩷🩷 Initializing Supabase Client with light pink hearts 🩷🩷🩷");
+        stateManager.init(supabaseConfig.url, supabaseConfig.anonKey);
+        
         // Only attempt URL-fragment token connect on the LOGIN_SIGN_UP island
         // and ensure we only process it once per-page globally to avoid duplicates across multiple islands
         if (islandType === MeowAppIslandType.LOGIN_SIGN_UP) {
             const w = window as any;
             if (!w.__meowProcessedURLTokens) {
                 w.__meowProcessedURLTokens = true;
-                supabaseConnectFromSessionOrURLFragment();
+                supabaseConnectURLParams();
             } else {
                 console.log('Meow URL tokens already processed on this page, skipping.');
             }
         }
 
-    }, []); // Empty dependency array ensures this runs once on mount
+
+        // supabase:  get session,  and handle session change
+
+        if (!stateManager.supabaseClient) {
+            console.warn("🩷🩷🩷 Supabase client not initialized yet, cannot handle session");
+            return
+        }
+
+        const   supabase   = stateManager.supabaseClient,
+                authClient = supabase.auth;
+
+        authClient.getSession().then(({ data: { session } }) => {
+            if (!session) {             console.log("🩷🩷🩷 no existing session found");
+                return;
+            }
+
+            console.log("🩷🩷🩷 already had session", session)
+        })
+
+        const {
+            data: { subscription },
+        } = authClient.onAuthStateChange(async (_event, session) => {
+            setIsLoading(true);
+            console.log("❤️‍🔥❤️‍🔥❤️‍🔥 Auth state changed, processing...", session);
+
+            
+            await stateManager.handleSessionChange(session);
+
+            console.log("❤️‍🔥❤️‍🔥❤️‍🔥 handle session update");
+            if (stateManager.user) {
+                console.log("❤️‍🔥❤️‍🔥❤️‍🔥 handle session update", stateManager.user);
+                setUser(stateManager.user);
+            }
+
+            setIsLoading(false);
+            
+        })
+
+    }, [stateManager.supabaseClient]); // Empty dependency array ensures this runs once on mount
 
 
 
 
     return (
         <div className={className}>
+            {
+                        stateManager.supabaseClient != null ? "stateManager.supabaseClient is ready" : "stateManager.supabaseClient is null"
+            }
 
             {islandType === MeowAppIslandType.USER_STATUS && (
                 
@@ -146,77 +178,17 @@ function App({ className, islandType, supabaseConfig = defaultSupabaseConfig }: 
 
             {islandType === MeowAppIslandType.LOGIN_SIGN_UP && (
                 <>
-                    {isAuthIsland && isLoading && (
+                    {isLoading &&  ( 
                         <Card title="🔄 Syncing..." content="Meow connecting to backend..." />
                     )}
-                    {
-                        console.log("Rendering AuthUI component")
-                    }
-                    <AuthUI
-                        supabaseUrl={supabaseConfig.url}
-                        supabaseAnonKey={supabaseConfig.anonKey}
-                        onSessionChange={async (session) => {
-                            console.log("Auth UI onSessionChange triggered:", session);
-                            // log red heart
-                            console.log("❤️");
-                            // Prevent processing if already processing a session change
-                            if (isProcessingSession) {
-                                console.log("Auth UI Already processing session change, skipping...");
-
-                                return;
-                            }
-                            // log orange heart
-                            console.log("🧡");
-                            // Handle sign-out events explicitly
-                            if (!session) {
-                                console.log("Auth UI Session is null (sign-out), processing...");
-                                setIsProcessingSession(true);
-                                setIsLoading(true);
-                                console.log("🧡🧡🧡 handle null session update");
-                                await stateManager.handleSessionChange(null);
-                                setUser(stateManager.user);
-                                lastHandledAccessTokenRef.current = null;
-                                setIsLoading(false);
-                                setIsProcessingSession(false);
-
-                                return;
-                            }
-
-                            // log yellow heart
-                            console.log("💛");
-
-                            const incomingAccessToken = session?.access_token ?? null;
-
-                            // Skip if we've already handled this exact token
-                            if (incomingAccessToken && lastHandledAccessTokenRef.current === incomingAccessToken) {
-                                console.log("Auth UI Session token already handled, skipping...");
-                                return;
-                            }
-
-                            // log green heart 
-                            console.log("💚");
-                            // Also skip if it matches current stateManager session
-                            if (incomingAccessToken && incomingAccessToken === stateManager.session?.access_token) {
-                                console.log("Auth UI Session unchanged (matches state), skipping...");
-                                lastHandledAccessTokenRef.current = incomingAccessToken; // keep in sync
-                                return;
-                            }
-
-                            // log blue heart
-                            console.log("💙");
-                            console.log("Auth UI Processing session change *** DID UPDATE *** :");
-                            setIsProcessingSession(true);
-                            setIsLoading(true);
-                            
-                            console.log("💙💙💙 handle session update");
-                            await stateManager.handleSessionChange(session);
-                            setUser(stateManager.user);
-                            lastHandledAccessTokenRef.current = stateManager.session?.access_token ?? incomingAccessToken;
-                            
-                            setIsLoading(false);
-                            setIsProcessingSession(false);
-                        }}
-                    />
+                    
+                    {stateManager.supabaseClient != null && (
+                        <Auth
+                            supabaseClient={stateManager.supabaseClient}
+                            appearance={{ theme: ThemeSupa }}
+                        />
+                    )}
+                    
                 </>
             )}
 

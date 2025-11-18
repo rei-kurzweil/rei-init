@@ -20,22 +20,21 @@ class StateManager {
     supabaseAnonKey: string = "";
 
     // Singleton Supabase client for the browser session
-    private supabaseClient: SupabaseClient | null = null
+    public supabaseClient: SupabaseClient | null = null
 
-    private getClient(): SupabaseClient {
+    public init(supabaseUrl: string, supabaseAnonKey: string) {
+        this.supabaseUrl = supabaseUrl;
+        this.supabaseAnonKey = supabaseAnonKey;
+
         if (!this.supabaseClient) {
-            if (!this.supabaseUrl || !this.supabaseAnonKey) {
-                throw new Error('Supabase configuration is missing (url/anonKey)')
-            }
-            this.supabaseClient = createClient(this.supabaseUrl, this.supabaseAnonKey)
+            this.supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
         }
-        return this.supabaseClient
     }
 
     // Handle session change from AuthUI
     async handleSessionChange(session: Session | null) {
         // spooky console log 
-        console.log("🩷🩷🩷💜💜💜 Handling session change:", session);
+        console.log("💜💜💜 Handling session change:", session);
         this.session = session
         
         if (session) {
@@ -48,23 +47,29 @@ class StateManager {
             }
         } else {
             // Clear user data when session ends
-            console.log("❤️‍🩹❤️‍🩹❤️‍🩹🩷🩷🩷💜💜💜 Handling session change:", session);
+            console.log("❤️‍🩹❤️‍🩹❤️‍🩹💜💜💜 Handling session change:", session);
             this.user = null
         }
     }
 
     async connectSupabaseClientFromTokens(access_token: string, refresh_token: string) {
-        const client = this.getClient()
+        if (!this.supabaseClient) {
+            throw new Error('Supabase client not initialized')
+        }
+        
         // login using the provided tokens
-        const { data, error } = await client.auth.setSession({ access_token, refresh_token })
+        const { data, error } = await this.supabaseClient.auth.setSession({ access_token, refresh_token })
         if (error) throw error
         await this.handleSessionChange(data.session)
     }
 
     async signOut() {
         try {
-            const client = this.getClient()
-            await client.auth.signOut()
+            if (!this.supabaseClient) {
+                throw new Error('Supabase client not initialized')
+            }
+
+            await this.supabaseClient.auth.signOut()
         } catch (err) {
             console.warn('Supabase signOut encountered an issue (continuing):', err)
         } finally {
@@ -75,7 +80,7 @@ class StateManager {
 
     // Sync session with backend and get user data
     private async syncWithBackend(session: Session): Promise<AppUser> {
-        console.log("🩷🩷🩷💜💜💜🙀🙀🙀")
+        console.log("💜💜💜🙀🙀🙀")
         const response = await fetch('/api/v0/auth/supabase-sync', {
             method: 'POST',
             headers: {
