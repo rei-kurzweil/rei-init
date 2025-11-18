@@ -15,6 +15,7 @@ export default defineConfig({
     global: 'globalThis',
   },
   build: {
+    sourcemap: true,
     lib: {
       entry: {
         'meow-spa': path.resolve(__dirname, 'src/spa/index.tsx'),

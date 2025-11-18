@@ -87,7 +87,10 @@ export async function HandleHomePage(c: Context<Env & { Bindings: ENV }>) {
                                     supabaseConfig: ${serializeSupabaseConfig(c)}
                                 }
                             },
-                            { component: CatsApp, selector: '#cats-island' }
+                            { 
+                                component: CatsApp, 
+                                selector: '#cats-island' 
+                            }
                         ])
                         
                     `}

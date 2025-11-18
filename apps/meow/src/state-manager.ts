@@ -34,7 +34,8 @@ class StateManager {
 
     // Handle session change from AuthUI
     async handleSessionChange(session: Session | null) {
-        console.log("Handling session change:", session);
+        // spooky console log 
+        console.log("🩷🩷🩷💜💜💜 Handling session change:", session);
         this.session = session
         
         if (session) {
@@ -47,6 +48,7 @@ class StateManager {
             }
         } else {
             // Clear user data when session ends
+            console.log("❤️‍🩹❤️‍🩹❤️‍🩹🩷🩷🩷💜💜💜 Handling session change:", session);
             this.user = null
         }
     }
@@ -73,6 +75,7 @@ class StateManager {
 
     // Sync session with backend and get user data
     private async syncWithBackend(session: Session): Promise<AppUser> {
+        console.log("🩷🩷🩷💜💜💜🙀🙀🙀")
         const response = await fetch('/api/v0/auth/supabase-sync', {
             method: 'POST',
             headers: {

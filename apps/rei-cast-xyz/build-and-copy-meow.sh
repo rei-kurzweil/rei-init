@@ -25,18 +25,9 @@ pnpm run build 2>/dev/null || echo "⚠️  TypeScript errors (D1Database types)
 echo "📂 Creating static content directory..."
 mkdir -p "$SCRIPT_DIR/static_content/apps/meow"
 
-# Copy built files with their original names
-echo "📋 Copying Meow SPA files..."
-cp dist/meow-spa.js "$SCRIPT_DIR/static_content/apps/meow/"
-cp dist/meow-spa-auto.js "$SCRIPT_DIR/static_content/apps/meow/" 2>/dev/null || echo "Auto-mount version not built"
-cp dist/meow.css "$SCRIPT_DIR/static_content/apps/meow/"
-
-# Copy ALL JS chunk files with any naming pattern (App-*.js, index-*.js, client-*.js, etc.)
-echo "📦 Copying all JS chunk files..."
-find dist/ -name "*.js" -not -name "meow-spa.js" -not -name "meow-spa-auto.js" -not -name "meow.js" -exec cp {} "$SCRIPT_DIR/static_content/apps/meow/" \; 2>/dev/null || echo "No chunk files found"
-
-# Copy any other assets
-cp dist/vite.svg "$SCRIPT_DIR/static_content/apps/meow/" 2>/dev/null || echo "No additional assets"
+# Copy all built files from dist to static content
+echo "📋 Copying all Meow build artifacts (JS, CSS, source maps, assets)..."
+cp -r dist/* "$SCRIPT_DIR/static_content/apps/meow/"
 
 echo "✅ Meow SPA copied to rei-cast-xyz/static_content/apps/meow/"
 echo "🎯 Available at: /apps/meow/meow-spa.js"

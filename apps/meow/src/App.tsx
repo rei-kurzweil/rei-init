@@ -149,28 +149,41 @@ function App({ className, islandType, supabaseConfig = defaultSupabaseConfig }: 
                     {isAuthIsland && isLoading && (
                         <Card title="🔄 Syncing..." content="Meow connecting to backend..." />
                     )}
+                    {
+                        console.log("Rendering AuthUI component")
+                    }
                     <AuthUI
                         supabaseUrl={supabaseConfig.url}
                         supabaseAnonKey={supabaseConfig.anonKey}
                         onSessionChange={async (session) => {
+                            console.log("Auth UI onSessionChange triggered:", session);
+                            // log red heart
+                            console.log("❤️");
                             // Prevent processing if already processing a session change
                             if (isProcessingSession) {
                                 console.log("Auth UI Already processing session change, skipping...");
+
                                 return;
                             }
-                            
+                            // log orange heart
+                            console.log("🧡");
                             // Handle sign-out events explicitly
                             if (!session) {
                                 console.log("Auth UI Session is null (sign-out), processing...");
                                 setIsProcessingSession(true);
                                 setIsLoading(true);
+                                console.log("🧡🧡🧡 handle null session update");
                                 await stateManager.handleSessionChange(null);
                                 setUser(stateManager.user);
                                 lastHandledAccessTokenRef.current = null;
                                 setIsLoading(false);
                                 setIsProcessingSession(false);
+
                                 return;
                             }
+
+                            // log yellow heart
+                            console.log("💛");
 
                             const incomingAccessToken = session?.access_token ?? null;
 
@@ -180,17 +193,22 @@ function App({ className, islandType, supabaseConfig = defaultSupabaseConfig }: 
                                 return;
                             }
 
+                            // log green heart 
+                            console.log("💚");
                             // Also skip if it matches current stateManager session
                             if (incomingAccessToken && incomingAccessToken === stateManager.session?.access_token) {
                                 console.log("Auth UI Session unchanged (matches state), skipping...");
                                 lastHandledAccessTokenRef.current = incomingAccessToken; // keep in sync
                                 return;
                             }
-                            
-                            console.log("Auth UI Processing session change:", session);
+
+                            // log blue heart
+                            console.log("💙");
+                            console.log("Auth UI Processing session change *** DID UPDATE *** :");
                             setIsProcessingSession(true);
                             setIsLoading(true);
                             
+                            console.log("💙💙💙 handle session update");
                             await stateManager.handleSessionChange(session);
                             setUser(stateManager.user);
                             lastHandledAccessTokenRef.current = stateManager.session?.access_token ?? incomingAccessToken;
