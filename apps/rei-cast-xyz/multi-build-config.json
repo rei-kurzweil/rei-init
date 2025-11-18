@@ -2,11 +2,11 @@
   "version": 1,
   "selected": {
     "spa-multi-island": false,
-    "ui": true,
+    "ui": false,
     "css": true,
-    "cats": true,
+    "cats": false,
     "meow": true,
     "micro-bus": false
   },
-  "updatedAt": "2025-11-17T06:41:56.996Z"
+  "updatedAt": "2025-11-18T02:46:07.471Z"
 }

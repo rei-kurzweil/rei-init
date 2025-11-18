@@ -20,6 +20,9 @@ export interface MeowAppProps {
 }
 
 function App({ className, islandType, supabaseConfig = defaultSupabaseConfig }: MeowAppProps) {
+
+    console.log("init island type: ", islandType);
+
     // Ensure supabaseConfig has required properties, fallback to defaults if missing
     if (!supabaseConfig?.url || !supabaseConfig?.anonKey) {
         supabaseConfig = defaultSupabaseConfig;

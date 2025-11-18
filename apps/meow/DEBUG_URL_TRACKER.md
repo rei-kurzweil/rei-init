@@ -6,10 +6,11 @@ The `DebugUrlTracker` class automatically tracks URL query parameters and fragme
 
 - **Automatic Initialization**: Tracks URL parameters on app startup
 - **Persistent Storage**: Stores parameter history in `localStorage` under the key `meow_debug`
-- **Query Parameters**: Captures all `?param=value` parameters with `query_` prefix
-- **Fragment Parameters**: Captures all `#param=value` parameters with `fragment_` prefix
-- **Raw Fragment Support**: Stores raw fragment content if it's not URL parameter format
-- **Timestamping**: Adds timestamps for each capture session
+- **Query Parameters**: Captures all `?param=value` parameters in `query` bucket
+- **Fragment Parameters**: Captures all `#param=value` parameters in `fragment` bucket
+- **Raw Fragment Support**: Stores raw fragment content as `_raw` if it's not URL parameter format
+- **Time-based Organization**: Groups captures by hour/minute (YYYY-MM-DD HH:MM format)
+- **Security**: Automatically truncates sensitive tokens (`provider_token`, `access_token`, `refresh_token`)
 - **Console Logging**: Automatically logs captured data to browser console
 
 ## Usage
@@ -23,8 +24,14 @@ window.meowDebug
 // Manually refresh and capture current URL parameters
 window.meowDebug.refresh()
 
-// View current debug data
+// View all debug data (organized by time)
 window.meowDebug.getData()
+
+// Get data for a specific time
+window.meowDebug.getDataForTime('2025-11-17 10:30')
+
+// Get all available time keys
+window.meowDebug.getTimeKeys()
 
 // Clear all debug data
 window.meowDebug.clear()
@@ -33,22 +40,40 @@ window.meowDebug.clear()
 ## Example
 
 If you load the meow app with URLs like:
-- `https://example.com/meow?user=john&debug=true#access_token=abc123&refresh_token=def456`
-- `https://example.com/meow?theme=dark#state=authorized`
+- `https://example.com/meow?user=john&debug=true#access_token=abc123&refresh_token=def456` at 10:30 AM
+- `https://example.com/meow?theme=dark#state=authorized` at 10:31 AM
 
 The debug tracker will capture and store:
 ```json
 {
-  "_last_captured_1637123456789": "2021-11-17T10:30:56.789Z",
-  "query_user": "john",
-  "query_debug": "true",
-  "fragment_access_token": "abc123",
-  "fragment_refresh_token": "def456",
-  "_last_captured_1637123500000": "2021-11-17T10:31:40.000Z",
-  "query_theme": "dark",
-  "fragment_state": "authorized"
+  "2025-11-17 10:30": {
+    "query": {
+      "user": "john",
+      "debug": "true"
+    },
+    "fragment": {
+      "access_token": "abc1...",
+      "refresh_token": "def4..."
+    }
+  },
+  "2025-11-17 10:31": {
+    "query": {
+      "theme": "dark"
+    },
+    "fragment": {
+      "state": "authorized"
+    }
+  }
 }
 ```
+
+## Security
+
+Sensitive authentication tokens are automatically sanitized for security:
+- `provider_token`, `access_token`, and `refresh_token` values are truncated
+- Only the first 4 characters are shown, followed by `...`
+- This applies to both structured parameters and raw fragment content
+- Example: `access_token=eyJ0eXAiOiJKV1QiLCJhbGc` becomes `access_token=eyJ0...`
 
 ## Storage
 
