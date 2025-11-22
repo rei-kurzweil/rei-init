@@ -1,5 +1,7 @@
+from multiprocessing import context
 import bpy
 from bpy.props import StringProperty, IntProperty
+import bmesh
 import json
 from mathutils import Vector
 
@@ -309,6 +311,82 @@ class VERTEX_OT_select_group(bpy.types.Operator):
         return {'FINISHED'}
 
 # -----------------------------
+# Select by Material and Vertex Group
+# -----------------------------
+class VERTEX_OT_select_by_material_and_vgroup(bpy.types.Operator):
+    bl_idname = "vertex.select_by_material_and_vgroup"
+    bl_label = "Select by Material & Vertex Group"
+    bl_description = "Select vertices that match both the selected material slot and vertex group"
+
+    @classmethod
+    def poll(cls, context):
+        return context.object is not None and context.object.type == 'MESH'
+
+    def execute(self, context):
+        obj = context.object
+        scene = context.scene
+        
+        # Get selected material slot index
+        material_index = getattr(scene, 'vertex_tools_material_index', 0)
+        
+        # Get selected vertex group index
+        vgroup_index = getattr(scene, 'vertex_tools_vgroup_index', 0)
+        
+        if not obj.material_slots:
+            self.report({'WARNING'}, "Object has no material slots")
+            return {'CANCELLED'}
+            
+        if not obj.vertex_groups:
+            self.report({'WARNING'}, "Object has no vertex groups")
+            return {'CANCELLED'}
+            
+        if material_index >= len(obj.material_slots):
+            self.report({'WARNING'}, "Invalid material slot index")
+            return {'CANCELLED'}
+            
+        if vgroup_index >= len(obj.vertex_groups):
+            self.report({'WARNING'}, "Invalid vertex group index")
+            return {'CANCELLED'}
+        
+        # Switch to object mode to access vertex data
+        bpy.ops.object.mode_set(mode='OBJECT')
+        
+        # Get the vertex group
+        vertex_group = obj.vertex_groups[vgroup_index]
+        
+        # Get vertices in the vertex group
+        vgroup_vertices = set()
+        for vertex in obj.data.vertices:
+            for group in vertex.groups:
+                if group.group == vertex_group.index:
+                    vgroup_vertices.add(vertex.index)
+                    break
+        
+        # Get vertices assigned to the material slot
+        material_vertices = set()
+        for face in obj.data.polygons:
+            if face.material_index == material_index:
+                for vertex_index in face.vertices:
+                    material_vertices.add(vertex_index)
+        
+        # Find intersection - vertices that are in both the material slot and vertex group
+        matching_vertices = vgroup_vertices.intersection(material_vertices)
+        
+        # Clear current selection and select matching vertices
+        for vertex in obj.data.vertices:
+            vertex.select = vertex.index in matching_vertices
+        
+        obj.data.update()
+        bpy.context.view_layer.objects.active = obj
+        obj.select_set(True)
+        bpy.ops.object.mode_set(mode='EDIT')
+        
+        material_name = obj.material_slots[material_index].material.name if obj.material_slots[material_index].material else "No Material"
+        self.report({'INFO'}, f"Selected {len(matching_vertices)} vertices matching material '{material_name}' and vertex group '{vertex_group.name}'")
+        
+        return {'FINISHED'}
+
+# -----------------------------
 # Vertex Group Search UI List
 # -----------------------------
 class VERTEX_UL_vgroups_search(bpy.types.UIList):
@@ -335,13 +413,39 @@ class VERTEX_UL_vgroups_search(bpy.types.UIList):
             layout.alignment = 'CENTER'
             layout.label(text="")
 
+# -----------------------------
+# Material/Vertex Group Selector UI Lists
+# -----------------------------
+class VERTEX_UL_materials_selector(bpy.types.UIList):
+    """List of material slots for selection."""
+
+    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
+        if self.layout_type in {'DEFAULT', 'COMPACT'}:
+            if item.material:
+                layout.label(text=f"{index}: {item.material.name}", icon='MATERIAL')
+            else:
+                layout.label(text=f"{index}: <No Material>", icon='MATERIAL')
+        elif self.layout_type == 'GRID':
+            layout.alignment = 'CENTER'
+            layout.label(text="")
+
+class VERTEX_UL_vgroups_selector(bpy.types.UIList):
+    """List of vertex groups for selection."""
+
+    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
+        if self.layout_type in {'DEFAULT', 'COMPACT'}:
+            layout.label(text=item.name, icon='GROUP_VERTEX')
+        elif self.layout_type == 'GRID':
+            layout.alignment = 'CENTER'
+            layout.label(text="")
+
 
 # -----------------------------
 # Panel: Vertex Group Search
 # -----------------------------
 def _update_vg_search(self, context):
     """On search text change, optionally highlight the first matching
-    vertex group in Object Data Properties.
+    vertex group in Object Data Properties and sync with selector panel.
 
     We avoid manual redraws; Blender's event system will refresh UI as needed.
     """
@@ -352,10 +456,26 @@ def _update_vg_search(self, context):
 
         # Optionally highlight a matching group in Object Data Properties
         if obj and obj.type == 'MESH' and obj.vertex_groups and search:
-            for vg in obj.vertex_groups:
+            for i, vg in enumerate(obj.vertex_groups):
                 if search in vg.name.lower():
                     obj.vertex_groups.active_index = vg.index
+                    # Also sync with the selector panel
+                    scene.vertex_tools_vgroup_index = i
                     break
+    except Exception:
+        # Be robust in case context is partial during updates
+        pass
+
+def _update_vg_selector(self, context):
+    """When vertex group is selected in selector panel, sync with Object Data Properties."""
+    try:
+        scene = context.scene
+        obj = context.object
+        vgroup_index = getattr(scene, 'vertex_tools_vgroup_index', 0)
+        
+        if obj and obj.type == 'MESH' and obj.vertex_groups:
+            if 0 <= vgroup_index < len(obj.vertex_groups):
+                obj.vertex_groups.active_index = vgroup_index
     except Exception:
         # Be robust in case context is partial during updates
         pass
@@ -401,6 +521,81 @@ class VERTEX_PT_groups_name_search_panel(bpy.types.Panel):
 
     # Selecting an item in the list sets obj.vertex_groups.active_index directly,
     # so no extra button is needed.
+
+# -----------------------------
+# Panel: Material & Vertex Group Selector
+# -----------------------------
+class VERTEX_PT_material_vgroup_selector(bpy.types.Panel):
+    bl_label = "Material & Vertex Group Selector"
+    bl_idname = "VERTEX_PT_material_vgroup_selector"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = 'Vertex Tools'
+
+    def draw(self, context):
+        layout = self.layout
+        obj = context.object
+        scene = context.scene
+
+        if not obj or obj.type != 'MESH':
+            layout.label(text="Select a mesh object")
+            return
+
+        # Material Slots Section
+        box = layout.box()
+        box.label(text="Material Slots", icon='MATERIAL')
+        
+        if not obj.material_slots:
+            box.label(text="Object has no material slots")
+        else:
+            row = box.row()
+            row.template_list(
+                "VERTEX_UL_materials_selector",
+                "material_selector",
+                obj,
+                "material_slots",
+                scene,
+                "vertex_tools_material_index",
+                rows=4,
+            )
+
+        # Vertex Groups Section
+        box = layout.box()
+        box.label(text="Vertex Groups", icon='GROUP_VERTEX')
+        
+        if not obj.vertex_groups:
+            box.label(text="Object has no vertex groups")
+        else:
+            row = box.row()
+            row.template_list(
+                "VERTEX_UL_vgroups_selector",
+                "vgroup_selector",
+                obj,
+                "vertex_groups",
+                scene,
+                "vertex_tools_vgroup_index",
+                rows=4,
+            )
+
+        # Select Button
+        layout.separator()
+        
+        # Show current selection info
+        if obj.material_slots and obj.vertex_groups:
+            material_index = getattr(scene, 'vertex_tools_material_index', 0)
+            vgroup_index = getattr(scene, 'vertex_tools_vgroup_index', 0)
+            
+            if material_index < len(obj.material_slots) and vgroup_index < len(obj.vertex_groups):
+                material_name = obj.material_slots[material_index].material.name if obj.material_slots[material_index].material else "No Material"
+                vgroup_name = obj.vertex_groups[vgroup_index].name
+                
+                info_box = layout.box()
+                info_box.label(text=f"Material: {material_name}")
+                info_box.label(text=f"Vertex Group: {vgroup_name}")
+        
+        # Select button
+        select_op = layout.operator("vertex.select_by_material_and_vgroup", text="Select Matching Vertices", icon='RESTRICT_SELECT_OFF')
+        select_op.poll = obj and obj.type == 'MESH' and obj.material_slots and obj.vertex_groups
 
 # -----------------------------
 # Panel
@@ -466,6 +661,8 @@ class VERTEX_PT_positions_panel(bpy.types.Panel):
         layout.separator()
         layout.operator("vertex.add_group", text="+ New Pinned Set")
 
+
+
 # -----------------------------
 # Register
 # -----------------------------
@@ -476,10 +673,18 @@ classes = (
     VERTEX_OT_add_group,
     VERTEX_OT_remove_group,
     VERTEX_OT_select_group,
+    VERTEX_OT_select_by_material_and_vgroup,
+
     VERTEX_UL_vgroups_search,
-    VertexToolsGroupSettings,  # new
+    VERTEX_UL_materials_selector,
+    VERTEX_UL_vgroups_selector,
+
+    VertexToolsGroupSettings,
+    
+
     VERTEX_PT_positions_panel,
     VERTEX_PT_groups_name_search_panel,
+    VERTEX_PT_material_vgroup_selector,
 )
 
 def register():
@@ -508,6 +713,22 @@ def register():
         options={'TEXTEDIT_UPDATE'},
         update=_update_vg_search,
     )
+    
+    # Material and vertex group selector indices
+    bpy.types.Scene.vertex_tools_material_index = IntProperty(
+        name="Material Slot Index",
+        description="Selected material slot index for vertex selection",
+        default=0,
+        min=0,
+    )
+    
+    bpy.types.Scene.vertex_tools_vgroup_index = IntProperty(
+        name="Vertex Group Index", 
+        description="Selected vertex group index for vertex selection",
+        default=0,
+        min=0,
+        update=_update_vg_selector,
+    )
 
     # Sync collection
     scene = bpy.context.scene if bpy.context.scene else None
@@ -524,6 +745,10 @@ def unregister():
         del bpy.types.Scene.vertex_tools_group_settings
     if hasattr(bpy.types.Scene, "vertex_tools_vg_search"):
         del bpy.types.Scene.vertex_tools_vg_search
+    if hasattr(bpy.types.Scene, "vertex_tools_material_index"):
+        del bpy.types.Scene.vertex_tools_material_index
+    if hasattr(bpy.types.Scene, "vertex_tools_vgroup_index"):
+        del bpy.types.Scene.vertex_tools_vgroup_index
 
     for c in reversed(classes):
         bpy.utils.unregister_class(c)

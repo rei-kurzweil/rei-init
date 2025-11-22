@@ -29,8 +29,6 @@ function App({ className, islandType, supabaseConfig = defaultSupabaseConfig }: 
     const [user,      setUser]      = useState(stateManager.user)
     const [isLoading, setIsLoading] = useState(false)
 
-    
-    const isAuthIsland = islandType === MeowAppIslandType.LOGIN_SIGN_UP
     // Track last processed access token to avoid duplicate session handling
     const lastHandledAccessTokenRef = useRef<string | null>(stateManager.session?.access_token ?? null)
 
@@ -191,8 +189,6 @@ function App({ className, islandType, supabaseConfig = defaultSupabaseConfig }: 
                     
                 </>
             )}
-
-            {/* ADMIN_LOGIN_SIGN_UP removed; admin uses LOGIN_SIGN_UP mode */}
 
             {islandType === MeowAppIslandType.EDITOR && (
                 <>
