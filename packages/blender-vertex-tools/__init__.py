@@ -661,7 +661,106 @@ class VERTEX_PT_positions_panel(bpy.types.Panel):
         layout.separator()
         layout.operator("vertex.add_group", text="+ New Pinned Set")
 
+# -----------------------------
+# Helper function for Vertex Info
+# -----------------------------
+def _get_vertex_group_weights(obj):
+    """Calculate total weights for each vertex group from selected vertices."""
+    if not obj or obj.type != 'MESH':
+        return {}
+    
+    from collections import defaultdict
+    mesh = obj.data
+    weights = defaultdict(float)
+    
+    # Get selected vertices depending on mode
+    if obj.mode == "EDIT":
+        try:
+            bm = bmesh.from_edit_mesh(mesh)
+            bm.verts.ensure_lookup_table()
+            selected_verts = [v for v in bm.verts if v.select]
+        except:
+            return {}
+    else:
+        selected_verts = [v for v in mesh.vertices if v.select]
+    
+    # Calculate weights
+    for v in selected_verts:
+        # Convert bmesh vert to mesh vert if needed
+        mv = mesh.vertices[v.index] if obj.mode == "EDIT" else v
+        
+        for g in mv.groups:
+            group_index = g.group
+            if group_index < len(obj.vertex_groups):  # Safety check
+                weights[group_index] += g.weight
+    
+    return weights
 
+# -----------------------------
+# Panel: Vertex Info
+# -----------------------------
+class VERTEX_PT_vertex_info(bpy.types.Panel):
+    bl_label = "Vertex Info"
+    bl_idname = "VERTEX_PT_vertex_info"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = 'Vertex Info'
+
+    def draw(self, context):
+        layout = self.layout
+        obj = context.object
+
+        if not obj or obj.type != 'MESH':
+            layout.label(text="Select a mesh object", icon='INFO')
+            return
+
+        mesh = obj.data
+        
+        # Count selected vertices
+        selected_count = 0
+        if obj.mode == "EDIT":
+            try:
+                bm = bmesh.from_edit_mesh(mesh)
+                bm.verts.ensure_lookup_table()
+                selected_count = sum(1 for v in bm.verts if v.select)
+            except:
+                selected_count = 0
+        else:
+            selected_count = sum(1 for v in mesh.vertices if v.select)
+        
+        # Basic info
+        info_box = layout.box()
+        info_box.label(text="Selection Info", icon='RESTRICT_SELECT_OFF')
+        info_box.label(text=f"Selected Vertices: {selected_count}")
+        info_box.label(text=f"Total Vertices: {len(mesh.vertices)}")
+        
+        if selected_count == 0:
+            layout.label(text="No vertices selected")
+            return
+        
+        # Vertex group weights
+        weights = _get_vertex_group_weights(obj)
+        
+        if not weights:
+            if obj.vertex_groups:
+                layout.label(text="Selected vertices have no group weights")
+            else:
+                layout.label(text="Object has no vertex groups")
+            return
+        
+        # Display group weights
+        weights_box = layout.box()
+        weights_box.label(text="Group Weights for Selected Vertices", icon='GROUP_VERTEX')
+        
+        # Sort by group index for consistent display
+        for group_index in sorted(weights.keys()):
+            if group_index < len(obj.vertex_groups):
+                group_name = obj.vertex_groups[group_index].name
+                total_weight = weights[group_index]
+                
+                row = weights_box.row()
+                row.label(text=f"{group_name}:")
+                row.label(text=f"{total_weight:.4f}")
 
 # -----------------------------
 # Register
@@ -681,10 +780,10 @@ classes = (
 
     VertexToolsGroupSettings,
     
-
     VERTEX_PT_positions_panel,
     VERTEX_PT_groups_name_search_panel,
     VERTEX_PT_material_vgroup_selector,
+    VERTEX_PT_vertex_info,
 )
 
 def register():
