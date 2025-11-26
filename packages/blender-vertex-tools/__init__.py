@@ -744,11 +744,11 @@ class VERTEX_PT_vertex_info(bpy.types.Panel):
         weights_box = layout.box()
         weights_box.label(text="Group Weights for Selected Vertices", icon='GROUP_VERTEX')
         
-        # Sort by group index for consistent display
-        for group_index in sorted(weights.keys()):
+        # Sort by total weight (descending order - highest weights first)
+        sorted_groups = sorted(weights.items(), key=lambda x: x[1], reverse=True)
+        for group_index, total_weight in sorted_groups:
             if group_index < len(obj.vertex_groups):
                 group_name = obj.vertex_groups[group_index].name
-                total_weight = weights[group_index]
                 
                 row = weights_box.row()
                 row.label(text=f"{group_name}:")
