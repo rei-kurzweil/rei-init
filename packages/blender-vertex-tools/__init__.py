@@ -730,16 +730,12 @@ class VERTEX_PT_vertex_info(bpy.types.Panel):
         # Basic info
         layout.label(text=f"Vertices selected: {selected_count}")
         
-        if selected_count == 0:
-            layout.label(text="No vertices selected")
-            return
-        
         # Vertex group weights
         weights = _get_vertex_group_weights(obj)
         
         if not weights:
             if obj.vertex_groups:
-                layout.label(text="Selected vertices have no group weights")
+                layout.label(text="Select vertices to see aggregate weights")
             else:
                 layout.label(text="Object has no vertex groups")
             return
