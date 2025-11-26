@@ -311,6 +311,39 @@ class VERTEX_OT_select_group(bpy.types.Operator):
         return {'FINISHED'}
 
 # -----------------------------
+# Select Vertex Group from Info Panel
+# -----------------------------
+class VERTEX_OT_select_vertex_group(bpy.types.Operator):
+    bl_idname = "vertex.select_vertex_group"
+    bl_label = "Select Vertex Group"
+    bl_description = "Select this vertex group in Object Data Properties and Material & Vertex Group Selector"
+    
+    group_index: IntProperty()
+
+    @classmethod
+    def poll(cls, context):
+        return context.object is not None and context.object.type == 'MESH'
+
+    def execute(self, context):
+        obj = context.object
+        scene = context.scene
+        
+        if not obj.vertex_groups or self.group_index >= len(obj.vertex_groups):
+            self.report({'WARNING'}, "Invalid vertex group index")
+            return {'CANCELLED'}
+        
+        # Set active vertex group in Object Data Properties
+        obj.vertex_groups.active_index = self.group_index
+        
+        # Sync with Material & Vertex Group Selector panel
+        scene.vertex_tools_vgroup_index = self.group_index
+        
+        group_name = obj.vertex_groups[self.group_index].name
+        self.report({'INFO'}, f"Selected vertex group: {group_name}")
+        
+        return {'FINISHED'}
+
+# -----------------------------
 # Select by Material and Vertex Group
 # -----------------------------
 class VERTEX_OT_select_by_material_and_vgroup(bpy.types.Operator):
@@ -751,7 +784,9 @@ class VERTEX_PT_vertex_info(bpy.types.Panel):
                 group_name = obj.vertex_groups[group_index].name
                 
                 row = weights_box.row()
-                row.label(text=f"{group_name}:")
+                # Make the group name clickable to select it
+                props = row.operator("vertex.select_vertex_group", text=group_name, emboss=False)
+                props.group_index = group_index
                 row.label(text=f"{total_weight:.4f}")
 
 # -----------------------------
@@ -764,6 +799,7 @@ classes = (
     VERTEX_OT_add_group,
     VERTEX_OT_remove_group,
     VERTEX_OT_select_group,
+    VERTEX_OT_select_vertex_group,
     VERTEX_OT_select_by_material_and_vgroup,
 
     VERTEX_UL_vgroups_search,
