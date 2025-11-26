@@ -595,13 +595,13 @@ class VERTEX_PT_material_vgroup_selector(bpy.types.Panel):
         
         # Select button
         select_op = layout.operator("vertex.select_by_material_and_vgroup", text="Select Matching Vertices", icon='RESTRICT_SELECT_OFF')
-        select_op.poll = obj and obj.type == 'MESH' and obj.material_slots and obj.vertex_groups
+        # select_op.poll = obj and obj.type == 'MESH' and obj.material_slots and obj.vertex_groups
 
 # -----------------------------
 # Panel
 # -----------------------------
 class VERTEX_PT_positions_panel(bpy.types.Panel):
-    bl_label = "Vertex Tools"
+    bl_label = "Vertex Sets"
     bl_idname = "VERTEX_PT_positions_panel"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
@@ -621,7 +621,6 @@ class VERTEX_PT_positions_panel(bpy.types.Panel):
         count = 0
         if obj and obj.type == 'MESH':
             count = sum(1 for v in obj.data.vertices if v.select)
-        layout.label(text=f"Current Selection: {count}")
 
         # Each group
         for idx, g in enumerate(groups):
@@ -704,7 +703,7 @@ class VERTEX_PT_vertex_info(bpy.types.Panel):
     bl_idname = "VERTEX_PT_vertex_info"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = 'Vertex Info'
+    bl_category = 'Vertex Tools'
 
     def draw(self, context):
         layout = self.layout
@@ -729,10 +728,7 @@ class VERTEX_PT_vertex_info(bpy.types.Panel):
             selected_count = sum(1 for v in mesh.vertices if v.select)
         
         # Basic info
-        info_box = layout.box()
-        info_box.label(text="Selection Info", icon='RESTRICT_SELECT_OFF')
-        info_box.label(text=f"Selected Vertices: {selected_count}")
-        info_box.label(text=f"Total Vertices: {len(mesh.vertices)}")
+        layout.label(text=f"Vertices selected: {selected_count}")
         
         if selected_count == 0:
             layout.label(text="No vertices selected")
