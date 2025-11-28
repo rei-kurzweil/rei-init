@@ -779,7 +779,11 @@ class VERTEX_PT_vertex_info(bpy.types.Panel):
         
         # Sort by total weight (descending order - highest weights first)
         sorted_groups = sorted(weights.items(), key=lambda x: x[1], reverse=True)
-        for group_index, total_weight in sorted_groups:
+        # Limit to first 16 groups to avoid UI overflow
+        max_groups_to_show = min(len(sorted_groups), 16)
+        for i, (group_index, total_weight) in enumerate(sorted_groups):
+            if i >= max_groups_to_show:
+                break
             if group_index < len(obj.vertex_groups):
                 group_name = obj.vertex_groups[group_index].name
                 
@@ -788,9 +792,10 @@ class VERTEX_PT_vertex_info(bpy.types.Panel):
                 props = row.operator("vertex.select_vertex_group", text=group_name, emboss=False)
                 props.group_index = group_index
                 row.label(text=f"{total_weight:.4f}")
-
+        if len(sorted_groups) > max_groups_to_show:
+            weights_box.label(text=f"... and {len(sorted_groups) - max_groups_to_show} more groups")
 # -----------------------------
-# Register
+# 
 # -----------------------------
 classes = (
     VERTEX_OT_save_positions,
@@ -809,9 +814,10 @@ classes = (
     VertexToolsGroupSettings,
     
     VERTEX_PT_positions_panel,
+    VERTEX_PT_vertex_info,
     VERTEX_PT_groups_name_search_panel,
     VERTEX_PT_material_vgroup_selector,
-    VERTEX_PT_vertex_info,
+    
 )
 
 def register():
