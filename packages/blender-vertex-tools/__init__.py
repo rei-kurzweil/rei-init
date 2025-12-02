@@ -104,6 +104,10 @@ class VertexToolsGroupSettings(bpy.types.PropertyGroup):
         update=_update_pinned_set_icon
     )
 
+# Property group for storing bone name filters
+class BoneNameFilterItem(bpy.types.PropertyGroup):
+    name: bpy.props.StringProperty(name="Bone Name")
+
 def _sync_group_settings(scene):
     groups = _load_groups(scene)
     coll = scene.vertex_tools_group_settings
@@ -316,7 +320,7 @@ class VERTEX_OT_select_group(bpy.types.Operator):
 class VERTEX_OT_select_vertex_group(bpy.types.Operator):
     bl_idname = "vertex.select_vertex_group"
     bl_label = "Select Vertex Group"
-    bl_description = "Select this vertex group in Object Data Properties and Material & Vertex Group Selector"
+    bl_description = "Select this vertex group in Object Data Properties"
     
     group_index: IntProperty()
 
@@ -335,7 +339,7 @@ class VERTEX_OT_select_vertex_group(bpy.types.Operator):
         # Set active vertex group in Object Data Properties
         obj.vertex_groups.active_index = self.group_index
         
-        # Sync with Material & Vertex Group Selector panel
+        # Sync with vertex group index property
         scene.vertex_tools_vgroup_index = self.group_index
         
         group_name = obj.vertex_groups[self.group_index].name
@@ -344,78 +348,120 @@ class VERTEX_OT_select_vertex_group(bpy.types.Operator):
         return {'FINISHED'}
 
 # -----------------------------
-# Select by Material and Vertex Group
+# Select Vertex Group from Active Bone
 # -----------------------------
-class VERTEX_OT_select_by_material_and_vgroup(bpy.types.Operator):
-    bl_idname = "vertex.select_by_material_and_vgroup"
-    bl_label = "Select by Material & Vertex Group"
-    bl_description = "Select vertices that match both the selected material slot and vertex group"
+class VERTEX_OT_select_vgroup_from_bone(bpy.types.Operator):
+    bl_idname = "vertex.select_vgroup_from_bone"
+    bl_label = "Select from Bone"
+    bl_description = "Select vertex group matching the active bone's name"
 
     @classmethod
     def poll(cls, context):
-        return context.object is not None and context.object.type == 'MESH'
+        # Need a mesh object with vertex groups
+        if not context.object or context.object.type != 'MESH':
+            return False
+        if not context.object.vertex_groups:
+            return False
+        
+        # Need an active bone from an armature in the selection
+        active_bone = context.active_bone
+        if not active_bone:
+            return False
+        
+        return True
 
     def execute(self, context):
         obj = context.object
         scene = context.scene
+        active_bone = context.active_bone
         
-        # Get selected material slot index
-        material_index = getattr(scene, 'vertex_tools_material_index', 0)
-        
-        # Get selected vertex group index
-        vgroup_index = getattr(scene, 'vertex_tools_vgroup_index', 0)
-        
-        if not obj.material_slots:
-            self.report({'WARNING'}, "Object has no material slots")
-            return {'CANCELLED'}
-            
-        if not obj.vertex_groups:
-            self.report({'WARNING'}, "Object has no vertex groups")
-            return {'CANCELLED'}
-            
-        if material_index >= len(obj.material_slots):
-            self.report({'WARNING'}, "Invalid material slot index")
-            return {'CANCELLED'}
-            
-        if vgroup_index >= len(obj.vertex_groups):
-            self.report({'WARNING'}, "Invalid vertex group index")
+        if not active_bone:
+            self.report({'WARNING'}, "No active bone selected")
             return {'CANCELLED'}
         
-        # Switch to object mode to access vertex data
-        bpy.ops.object.mode_set(mode='OBJECT')
+        bone_name = active_bone.name
         
-        # Get the vertex group
-        vertex_group = obj.vertex_groups[vgroup_index]
+        # Find matching vertex group
+        vgroup_index = None
+        for i, vg in enumerate(obj.vertex_groups):
+            if vg.name == bone_name:
+                vgroup_index = i
+                break
         
-        # Get vertices in the vertex group
-        vgroup_vertices = set()
-        for vertex in obj.data.vertices:
-            for group in vertex.groups:
-                if group.group == vertex_group.index:
-                    vgroup_vertices.add(vertex.index)
-                    break
+        if vgroup_index is None:
+            self.report({'WARNING'}, f"No vertex group found matching bone '{bone_name}'")
+            return {'CANCELLED'}
         
-        # Get vertices assigned to the material slot
-        material_vertices = set()
-        for face in obj.data.polygons:
-            if face.material_index == material_index:
-                for vertex_index in face.vertices:
-                    material_vertices.add(vertex_index)
+        # Set active vertex group in Object Data Properties
+        obj.vertex_groups.active_index = vgroup_index
         
-        # Find intersection - vertices that are in both the material slot and vertex group
-        matching_vertices = vgroup_vertices.intersection(material_vertices)
+        # Sync with vertex group index property
+        scene.vertex_tools_vgroup_index = vgroup_index
         
-        # Clear current selection and select matching vertices
-        for vertex in obj.data.vertices:
-            vertex.select = vertex.index in matching_vertices
+        self.report({'INFO'}, f"Selected vertex group: {bone_name}")
         
-        obj.data.update()
-        bpy.context.view_layer.objects.active = obj
-        obj.select_set(True)
-        bpy.ops.object.mode_set(mode='EDIT')
+        return {'FINISHED'}
+
+# -----------------------------
+# Add Selected Bone to Filter
+# -----------------------------
+class VERTEX_OT_add_bone_to_filter(bpy.types.Operator):
+    bl_idname = "vertex.add_bone_to_filter"
+    bl_label = "Add Selected Bone"
+    bl_description = "Add the active bone name to the filter list"
+
+    @classmethod
+    def poll(cls, context):
+        # Need an active bone
+        return context.active_bone is not None
+
+    def execute(self, context):
+        scene = context.scene
+        active_bone = context.active_bone
         
-        material_name = obj.material_slots[material_index].material.name if obj.material_slots[material_index].material else "No Material"
-        self.report({'INFO'}, f"Selected {len(matching_vertices)} vertices matching material '{material_name}' and vertex group '{vertex_group.name}'")
+        if not active_bone:
+            self.report({'WARNING'}, "No active bone selected")
+            return {'CANCELLED'}
+        
+        bone_name = active_bone.name
+        
+        # Check if bone name already exists in the filter list
+        bone_filters = scene.vertex_tools_bone_filters
+        for item in bone_filters:
+            if item.name == bone_name:
+                self.report({'INFO'}, f"Bone '{bone_name}' already in filter list")
+                return {'CANCELLED'}
+        
+        # Add new bone name to the list
+        new_item = bone_filters.add()
+        new_item.name = bone_name
+        
+        self.report({'INFO'}, f"Added bone '{bone_name}' to filter list")
+        
+        return {'FINISHED'}
+
+# -----------------------------
+# Remove Bone from Filter
+# -----------------------------
+class VERTEX_OT_remove_bone_from_filter(bpy.types.Operator):
+    bl_idname = "vertex.remove_bone_from_filter"
+    bl_label = "Remove Bone Filter"
+    bl_description = "Remove this bone from the filter list"
+    
+    index: IntProperty()
+
+    def execute(self, context):
+        scene = context.scene
+        bone_filters = scene.vertex_tools_bone_filters
+        
+        if self.index < 0 or self.index >= len(bone_filters):
+            self.report({'WARNING'}, "Invalid filter index")
+            return {'CANCELLED'}
+        
+        bone_name = bone_filters[self.index].name
+        bone_filters.remove(self.index)
+        
+        self.report({'INFO'}, f"Removed '{bone_name}' from filter list")
         
         return {'FINISHED'}
 
@@ -423,47 +469,40 @@ class VERTEX_OT_select_by_material_and_vgroup(bpy.types.Operator):
 # Vertex Group Search UI List
 # -----------------------------
 class VERTEX_UL_vgroups_search(bpy.types.UIList):
-    """Filtered list of vertex groups based on search text."""
+    """Filtered list of vertex groups based on search text and bone name filters."""
 
     def filter_items(self, context, data, propname):
         items = getattr(data, propname)
         search = (getattr(context.scene, 'vertex_tools_vg_search', '') or '').lower()
+        bone_filters = context.scene.vertex_tools_bone_filters
+        
         flags = []
-        if not search:
-            # Show all when no search
+        
+        # If no filters, show all
+        if not search and len(bone_filters) == 0:
             flags = [self.bitflag_filter_item] * len(items)
             return flags, []
+        
+        # Apply filters
         for vg in items:
             name = getattr(vg, 'name', '')
-            match = search in name.lower()
-            flags.append(self.bitflag_filter_item if match else 0)
-        return flags, []
-
-    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
-        if self.layout_type in {'DEFAULT', 'COMPACT'}:
-            layout.label(text=item.name, icon='GROUP_VERTEX')
-        elif self.layout_type == 'GRID':
-            layout.alignment = 'CENTER'
-            layout.label(text="")
-
-# -----------------------------
-# Material/Vertex Group Selector UI Lists
-# -----------------------------
-class VERTEX_UL_materials_selector(bpy.types.UIList):
-    """List of material slots for selection."""
-
-    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
-        if self.layout_type in {'DEFAULT', 'COMPACT'}:
-            if item.material:
-                layout.label(text=f"{index}: {item.material.name}", icon='MATERIAL')
+            name_lower = name.lower()
+            
+            # Check text search filter
+            text_match = (not search) or (search in name_lower)
+            
+            # Check bone name filters (if any exist, name must match at least one)
+            bone_match = True
+            if len(bone_filters) > 0:
+                bone_match = any(item.name == name for item in bone_filters)
+            
+            # Show item if it matches both filters
+            if text_match and bone_match:
+                flags.append(self.bitflag_filter_item)
             else:
-                layout.label(text=f"{index}: <No Material>", icon='MATERIAL')
-        elif self.layout_type == 'GRID':
-            layout.alignment = 'CENTER'
-            layout.label(text="")
-
-class VERTEX_UL_vgroups_selector(bpy.types.UIList):
-    """List of vertex groups for selection."""
+                flags.append(0)
+        
+        return flags, []
 
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         if self.layout_type in {'DEFAULT', 'COMPACT'}:
@@ -526,8 +565,26 @@ class VERTEX_PT_groups_name_search_panel(bpy.types.Panel):
         obj = context.object
         scene = context.scene
 
-        col = layout.column(align=False)
-        col.prop(scene, "vertex_tools_vg_search", text="Search Vertex Groups", icon='VIEWZOOM')
+        # Search bar - full width, no label
+        layout.prop(scene, "vertex_tools_vg_search", text="", icon='VIEWZOOM')
+        
+        # Bone filter section
+        bone_box = layout.box()
+        bone_header = bone_box.row()
+        bone_header.label(text="Bone Filters", icon='BONE_DATA')
+        
+        bone_filters = scene.vertex_tools_bone_filters
+        if len(bone_filters) > 0:
+            for i, item in enumerate(bone_filters):
+                row = bone_box.row()
+                row.label(text=item.name, icon='DOT')
+                op_remove = row.operator("vertex.remove_bone_from_filter", text="", icon='X')
+                op_remove.index = i
+        else:
+            bone_box.label(text="No bone filters", icon='INFO')
+        
+        # Add bone button
+        bone_box.operator("vertex.add_bone_to_filter", text="Add Selected Bone", icon='ADD')
 
         box = layout.box()
         box.label(text="Results", icon='OUTLINER_DATA_MESH')
@@ -551,84 +608,14 @@ class VERTEX_PT_groups_name_search_panel(bpy.types.Panel):
             "active_index",
             rows=6,
         )
+        
+        # Select from Bone button
+        layout.separator()
+        layout.operator("vertex.select_vgroup_from_bone", text="Select from Bone", icon='BONE_DATA')
 
     # Selecting an item in the list sets obj.vertex_groups.active_index directly,
     # so no extra button is needed.
 
-# -----------------------------
-# Panel: Material & Vertex Group Selector
-# -----------------------------
-class VERTEX_PT_material_vgroup_selector(bpy.types.Panel):
-    bl_label = "Material & Vertex Group Selector"
-    bl_idname = "VERTEX_PT_material_vgroup_selector"
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
-    bl_category = 'Vertex Tools'
-
-    def draw(self, context):
-        layout = self.layout
-        obj = context.object
-        scene = context.scene
-
-        if not obj or obj.type != 'MESH':
-            layout.label(text="Select a mesh object")
-            return
-
-        # Material Slots Section
-        box = layout.box()
-        box.label(text="Material Slots", icon='MATERIAL')
-        
-        if not obj.material_slots:
-            box.label(text="Object has no material slots")
-        else:
-            row = box.row()
-            row.template_list(
-                "VERTEX_UL_materials_selector",
-                "material_selector",
-                obj,
-                "material_slots",
-                scene,
-                "vertex_tools_material_index",
-                rows=4,
-            )
-
-        # Vertex Groups Section
-        box = layout.box()
-        box.label(text="Vertex Groups", icon='GROUP_VERTEX')
-        
-        if not obj.vertex_groups:
-            box.label(text="Object has no vertex groups")
-        else:
-            row = box.row()
-            row.template_list(
-                "VERTEX_UL_vgroups_selector",
-                "vgroup_selector",
-                obj,
-                "vertex_groups",
-                scene,
-                "vertex_tools_vgroup_index",
-                rows=4,
-            )
-
-        # Select Button
-        layout.separator()
-        
-        # Show current selection info
-        if obj.material_slots and obj.vertex_groups:
-            material_index = getattr(scene, 'vertex_tools_material_index', 0)
-            vgroup_index = getattr(scene, 'vertex_tools_vgroup_index', 0)
-            
-            if material_index < len(obj.material_slots) and vgroup_index < len(obj.vertex_groups):
-                material_name = obj.material_slots[material_index].material.name if obj.material_slots[material_index].material else "No Material"
-                vgroup_name = obj.vertex_groups[vgroup_index].name
-                
-                info_box = layout.box()
-                info_box.label(text=f"Material: {material_name}")
-                info_box.label(text=f"Vertex Group: {vgroup_name}")
-        
-        # Select button
-        select_op = layout.operator("vertex.select_by_material_and_vgroup", text="Select Matching Vertices", icon='RESTRICT_SELECT_OFF')
-        # select_op.poll = obj and obj.type == 'MESH' and obj.material_slots and obj.vertex_groups
 
 # -----------------------------
 # Panel
@@ -779,8 +766,8 @@ class VERTEX_PT_vertex_info(bpy.types.Panel):
         
         # Sort by total weight (descending order - highest weights first)
         sorted_groups = sorted(weights.items(), key=lambda x: x[1], reverse=True)
-        # Limit to first 16 groups to avoid UI overflow
-        max_groups_to_show = min(len(sorted_groups), 16)
+        # Limit to first 8 groups to avoid UI overflow
+        max_groups_to_show = min(len(sorted_groups), 8)
         for i, (group_index, total_weight) in enumerate(sorted_groups):
             if i >= max_groups_to_show:
                 break
@@ -798,6 +785,9 @@ class VERTEX_PT_vertex_info(bpy.types.Panel):
 # 
 # -----------------------------
 classes = (
+    VertexToolsGroupSettings,
+    BoneNameFilterItem,
+
     VERTEX_OT_save_positions,
     VERTEX_OT_restore_positions,
     VERTEX_OT_clear_positions,
@@ -805,18 +795,15 @@ classes = (
     VERTEX_OT_remove_group,
     VERTEX_OT_select_group,
     VERTEX_OT_select_vertex_group,
-    VERTEX_OT_select_by_material_and_vgroup,
+    VERTEX_OT_select_vgroup_from_bone,
+    VERTEX_OT_add_bone_to_filter,
+    VERTEX_OT_remove_bone_from_filter,
 
     VERTEX_UL_vgroups_search,
-    VERTEX_UL_materials_selector,
-    VERTEX_UL_vgroups_selector,
-
-    VertexToolsGroupSettings,
     
     VERTEX_PT_positions_panel,
     VERTEX_PT_vertex_info,
-    VERTEX_PT_groups_name_search_panel,
-    VERTEX_PT_material_vgroup_selector,
+    VERTEX_PT_groups_name_search_panel
     
 )
 
@@ -838,6 +825,9 @@ def register():
     )
     bpy.types.Scene.vertex_tools_group_settings = bpy.props.CollectionProperty(type=VertexToolsGroupSettings)
 
+    # Bone name filters collection
+    bpy.types.Scene.vertex_tools_bone_filters = bpy.props.CollectionProperty(type=BoneNameFilterItem)
+
     # Search text for vertex group search (updates on each keypress)
     bpy.types.Scene.vertex_tools_vg_search = StringProperty(
         name="Search Vertex Groups",
@@ -847,14 +837,7 @@ def register():
         update=_update_vg_search,
     )
     
-    # Material and vertex group selector indices
-    bpy.types.Scene.vertex_tools_material_index = IntProperty(
-        name="Material Slot Index",
-        description="Selected material slot index for vertex selection",
-        default=0,
-        min=0,
-    )
-    
+    # Vertex group selector index
     bpy.types.Scene.vertex_tools_vgroup_index = IntProperty(
         name="Vertex Group Index", 
         description="Selected vertex group index for vertex selection",
@@ -876,10 +859,10 @@ def unregister():
         del bpy.types.Scene.vertex_tools_group_count
     if hasattr(bpy.types.Scene, "vertex_tools_group_settings"):
         del bpy.types.Scene.vertex_tools_group_settings
+    if hasattr(bpy.types.Scene, "vertex_tools_bone_filters"):
+        del bpy.types.Scene.vertex_tools_bone_filters
     if hasattr(bpy.types.Scene, "vertex_tools_vg_search"):
         del bpy.types.Scene.vertex_tools_vg_search
-    if hasattr(bpy.types.Scene, "vertex_tools_material_index"):
-        del bpy.types.Scene.vertex_tools_material_index
     if hasattr(bpy.types.Scene, "vertex_tools_vgroup_index"):
         del bpy.types.Scene.vertex_tools_vgroup_index
 
