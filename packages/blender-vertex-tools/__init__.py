@@ -113,6 +113,10 @@ class SelectedVertexGroupItem(bpy.types.PropertyGroup):
     index: bpy.props.IntProperty(name="Group Index")
     name: bpy.props.StringProperty(name="Group Name")
 
+# Property group for pinned vertex groups
+class PinnedVertexGroupItem(bpy.types.PropertyGroup):
+    name: bpy.props.StringProperty(name="Vertex Group Name")
+
 def _sync_group_settings(scene):
     groups = _load_groups(scene)
     coll = scene.vertex_tools_group_settings
@@ -629,6 +633,59 @@ class VERTEX_OT_clear_vgroup_selection(bpy.types.Operator):
         return {'FINISHED'}
 
 # -----------------------------
+# Toggle Vertex Group Pin
+# -----------------------------
+class VERTEX_OT_toggle_vgroup_pin(bpy.types.Operator):
+    bl_idname = "vertex.toggle_vgroup_pin"
+    bl_label = "Toggle Vertex Group Pin"
+    bl_description = "Pin/unpin this vertex group to keep it in search results"
+    
+    group_name: bpy.props.StringProperty()
+
+    def execute(self, context):
+        scene = context.scene
+        pinned_groups = scene.vertex_tools_pinned_groups
+        
+        # Check if already pinned
+        found_index = -1
+        for i, item in enumerate(pinned_groups):
+            if item.name == self.group_name:
+                found_index = i
+                break
+        
+        if found_index >= 0:
+            # Remove from pinned
+            pinned_groups.remove(found_index)
+        else:
+            # Add to pinned
+            new_item = pinned_groups.add()
+            new_item.name = self.group_name
+        
+        # Force UI redraw
+        if context.area:
+            context.area.tag_redraw()
+        
+        return {'FINISHED'}
+
+# -----------------------------
+# Clear Pinned Vertex Groups
+# -----------------------------
+class VERTEX_OT_clear_pinned_vgroups(bpy.types.Operator):
+    bl_idname = "vertex.clear_pinned_vgroups"
+    bl_label = "Clear Pins"
+    bl_description = "Clear all pinned vertex groups"
+
+    def execute(self, context):
+        scene = context.scene
+        scene.vertex_tools_pinned_groups.clear()
+        
+        # Force UI redraw
+        if context.area:
+            context.area.tag_redraw()
+        
+        return {'FINISHED'}
+
+# -----------------------------
 # Vertex Group Search UI List
 # -----------------------------
 class VERTEX_UL_vgroups_search(bpy.types.UIList):
@@ -638,18 +695,22 @@ class VERTEX_UL_vgroups_search(bpy.types.UIList):
         items = getattr(data, propname)
         search = (getattr(context.scene, 'vertex_tools_vg_search', '') or '').lower()
         bone_filters = context.scene.vertex_tools_bone_filters
+        pinned_groups = context.scene.vertex_tools_pinned_groups
         
         flags = []
         
         # If no filters, show all
-        if not search and len(bone_filters) == 0:
+        if not search and len(bone_filters) == 0 and len(pinned_groups) == 0:
             flags = [self.bitflag_filter_item] * len(items)
             return flags, []
         
-        # Apply filters (union: show if matches text search OR bone filter)
+        # Apply filters (union: show if matches text search OR bone filter OR pinned)
         for vg in items:
             name = getattr(vg, 'name', '')
             name_lower = name.lower()
+            
+            # Check if pinned
+            is_pinned = any(item.name == name for item in pinned_groups)
             
             # Check text search filter
             text_match = search and (search in name_lower)
@@ -659,8 +720,8 @@ class VERTEX_UL_vgroups_search(bpy.types.UIList):
             if len(bone_filters) > 0:
                 bone_match = any(item.name == name for item in bone_filters)
             
-            # Show item if it matches either text search OR bone filter (union)
-            if text_match or bone_match:
+            # Show item if it matches text search OR bone filter OR is pinned (union)
+            if text_match or bone_match or is_pinned:
                 flags.append(self.bitflag_filter_item)
             else:
                 flags.append(0)
@@ -699,6 +760,12 @@ class VERTEX_UL_vgroups_search(bpy.types.UIList):
                 count_label = row.row()
                 count_label.alignment = 'RIGHT'
                 count_label.label(text=f"({vertex_count})")
+            
+            # Pin button
+            pinned_groups = context.scene.vertex_tools_pinned_groups
+            is_pinned = any(pg.name == item.name for pg in pinned_groups)
+            pin_icon = 'PINNED' if is_pinned else 'UNPINNED'
+            row.operator("vertex.toggle_vgroup_pin", text="", icon=pin_icon, emboss=False).group_name = item.name
             
         elif self.layout_type == 'GRID':
             layout.alignment = 'CENTER'
@@ -780,6 +847,13 @@ class VERTEX_PT_groups_name_search_panel(bpy.types.Panel):
         bone_box.operator("vertex.add_bone_to_filter", text="Add Selected Bone", icon='ADD')
 
         box = layout.box()
+        
+        # Show pinned groups info
+        pinned_groups = scene.vertex_tools_pinned_groups
+        if len(pinned_groups) > 0:
+            pin_row = box.row()
+            pin_row.label(text=f"{len(pinned_groups)} pinned", icon='PINNED')
+            pin_row.operator("vertex.clear_pinned_vgroups", text="Clear Pins", icon='X')
         
         # Show selection info
         selected_groups = scene.vertex_tools_selected_groups
@@ -991,6 +1065,7 @@ classes = (
     VertexToolsGroupSettings,
     BoneNameFilterItem,
     SelectedVertexGroupItem,
+    PinnedVertexGroupItem,
 
     VERTEX_OT_save_positions,
     VERTEX_OT_restore_positions,
@@ -1005,6 +1080,8 @@ classes = (
     VERTEX_OT_merge_vertex_groups,
     VERTEX_OT_toggle_vgroup_selection,
     VERTEX_OT_clear_vgroup_selection,
+    VERTEX_OT_toggle_vgroup_pin,
+    VERTEX_OT_clear_pinned_vgroups,
 
     VERTEX_UL_vgroups_search,
     
@@ -1037,6 +1114,9 @@ def register():
     
     # Selected vertex groups for merging
     bpy.types.Scene.vertex_tools_selected_groups = bpy.props.CollectionProperty(type=SelectedVertexGroupItem)
+    
+    # Pinned vertex groups
+    bpy.types.Scene.vertex_tools_pinned_groups = bpy.props.CollectionProperty(type=PinnedVertexGroupItem)
 
     # Search text for vertex group search (updates on each keypress)
     bpy.types.Scene.vertex_tools_vg_search = StringProperty(
@@ -1073,6 +1153,8 @@ def unregister():
         del bpy.types.Scene.vertex_tools_bone_filters
     if hasattr(bpy.types.Scene, "vertex_tools_selected_groups"):
         del bpy.types.Scene.vertex_tools_selected_groups
+    if hasattr(bpy.types.Scene, "vertex_tools_pinned_groups"):
+        del bpy.types.Scene.vertex_tools_pinned_groups
     if hasattr(bpy.types.Scene, "vertex_tools_vg_search"):
         del bpy.types.Scene.vertex_tools_vg_search
     if hasattr(bpy.types.Scene, "vertex_tools_vgroup_index"):
