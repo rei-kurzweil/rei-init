@@ -743,7 +743,7 @@ class VERTEX_UL_vgroups_search(bpy.types.UIList):
             # Vertex group name
             row.label(text=item.name, icon='GROUP_VERTEX')
             
-            # Count vertices in this group
+            # Count vertices in this group (only if we have a mesh object)
             obj = context.object
             if obj and obj.type == 'MESH':
                 vertex_count = 0
@@ -864,35 +864,106 @@ class VERTEX_PT_groups_name_search_panel(bpy.types.Panel):
         
         box.label(text="Results", icon='OUTLINER_DATA_MESH')
 
+        # Collect bone filters and pinned groups
+        bone_filter_names = {item.name for item in bone_filters}
+        pinned_group_names = {item.name for item in pinned_groups}
+        all_virtual_names = bone_filter_names | pinned_group_names
+
+        # If no mesh object is selected, show everything as virtual results
         if not obj or obj.type != 'MESH':
-            box.label(text="Select a mesh object to search its vertex groups.")
+            if all_virtual_names:
+                box.label(text="(No mesh selected - showing filters & pins)", icon='INFO')
+                for name in sorted(all_virtual_names):
+                    row = box.row(align=True)
+                    
+                    # Check if selected
+                    is_selected = any(sg.name == name for sg in selected_groups)
+                    checkbox_icon = 'CHECKBOX_HLT' if is_selected else 'CHECKBOX_DEHLT'
+                    row.operator("vertex.toggle_vgroup_selection", text="", icon=checkbox_icon, emboss=False).group_name = name
+                    
+                    # Show name with appropriate icon
+                    is_bone_filter = name in bone_filter_names
+                    is_pinned = name in pinned_group_names
+                    
+                    icon = 'BONE_DATA' if is_bone_filter else 'GROUP_VERTEX'
+                    row.label(text=name, icon=icon)
+                    
+                    # Pin button
+                    pin_icon = 'PINNED' if is_pinned else 'UNPINNED'
+                    row.operator("vertex.toggle_vgroup_pin", text="", icon=pin_icon, emboss=False).group_name = name
+            else:
+                box.label(text="Select a mesh object to search its vertex groups.")
+            
+            # Still show merge button if groups are selected
+            if len(selected_groups) >= 2:
+                merge_row = box.row()
+                merge_row.scale_y = 1.2
+                merge_row.operator("vertex.merge_vertex_groups", text=f"Merge {len(selected_groups)} Groups", icon='AUTOMERGE_ON')
+            
             return
 
+        # Mesh is selected - show template_list with actual vertex groups
         if not obj.vertex_groups:
             box.label(text="Object has no vertex groups.")
-            return
-
-        # Filtered list of the object's vertex groups
-        row = box.row()
-        row.template_list(
-            "VERTEX_UL_vgroups_search",
-            "vertex_group_search",
-            obj,
-            "vertex_groups",
-            obj.vertex_groups,
-            "active_index",
-            rows=6,
-        )
+            # Still show virtual groups even if mesh has no vertex groups
+            if all_virtual_names:
+                box.separator()
+                box.label(text="Bone Filters & Pinned Groups:", icon='INFO')
+                for name in sorted(all_virtual_names):
+                    row = box.row(align=True)
+                    
+                    is_selected = any(sg.name == name for sg in selected_groups)
+                    checkbox_icon = 'CHECKBOX_HLT' if is_selected else 'CHECKBOX_DEHLT'
+                    row.operator("vertex.toggle_vgroup_selection", text="", icon=checkbox_icon, emboss=False).group_name = name
+                    
+                    is_bone_filter = name in bone_filter_names
+                    icon = 'BONE_DATA' if is_bone_filter else 'GROUP_VERTEX'
+                    row.label(text=name, icon=icon)
+                    
+                    is_pinned = name in pinned_group_names
+                    pin_icon = 'PINNED' if is_pinned else 'UNPINNED'
+                    row.operator("vertex.toggle_vgroup_pin", text="", icon=pin_icon, emboss=False).group_name = name
+        else:
+            # Show filtered list of the object's vertex groups
+            row = box.row()
+            row.template_list(
+                "VERTEX_UL_vgroups_search",
+                "vertex_group_search",
+                obj,
+                "vertex_groups",
+                obj.vertex_groups,
+                "active_index",
+                rows=6,
+            )
+            
+            # Find virtual groups that don't exist on this mesh
+            existing_vg_names = {vg.name for vg in obj.vertex_groups}
+            virtual_only_names = all_virtual_names - existing_vg_names
+            
+            # Show virtual groups that don't exist on the mesh
+            if virtual_only_names:
+                box.separator()
+                box.label(text="Filters/Pins not on this mesh:", icon='INFO')
+                for name in sorted(virtual_only_names):
+                    row = box.row(align=True)
+                    
+                    is_selected = any(sg.name == name for sg in selected_groups)
+                    checkbox_icon = 'CHECKBOX_HLT' if is_selected else 'CHECKBOX_DEHLT'
+                    row.operator("vertex.toggle_vgroup_selection", text="", icon=checkbox_icon, emboss=False).group_name = name
+                    
+                    is_bone_filter = name in bone_filter_names
+                    icon = 'BONE_DATA' if is_bone_filter else 'GROUP_VERTEX'
+                    row.label(text=name, icon=icon)
+                    
+                    is_pinned = name in pinned_group_names
+                    pin_icon = 'PINNED' if is_pinned else 'UNPINNED'
+                    row.operator("vertex.toggle_vgroup_pin", text="", icon=pin_icon, emboss=False).group_name = name
         
         # Merge button - only enabled if 2+ groups selected
         if len(selected_groups) >= 2:
             merge_row = box.row()
             merge_row.scale_y = 1.2
             merge_row.operator("vertex.merge_vertex_groups", text=f"Merge {len(selected_groups)} Groups", icon='AUTOMERGE_ON')
-
-    # Selecting an item in the list sets obj.vertex_groups.active_index directly,
-    # so no extra button is needed.
-
 
 # -----------------------------
 # Panel
