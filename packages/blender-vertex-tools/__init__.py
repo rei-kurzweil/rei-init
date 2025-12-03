@@ -578,6 +578,68 @@ class VERTEX_OT_merge_vertex_groups(bpy.types.Operator):
         return {'FINISHED'}
 
 # -----------------------------
+# Delete Selected Vertex Groups
+# -----------------------------
+class VERTEX_OT_delete_vertex_groups(bpy.types.Operator):
+    bl_idname = "vertex.delete_vertex_groups"
+    bl_label = "Delete Vertex Groups"
+    bl_description = "Delete all selected vertex groups from the mesh"
+
+    @classmethod
+    def poll(cls, context):
+        obj = context.object
+        if not obj or obj.type != 'MESH':
+            return False
+        # Check if there are selected groups
+        return len(context.scene.vertex_tools_selected_groups) > 0
+
+    def invoke(self, context, event):
+        selected_groups = context.scene.vertex_tools_selected_groups
+        return context.window_manager.invoke_confirm(
+            self, 
+            event, 
+            message=f"Delete {len(selected_groups)} vertex groups?"
+        )
+
+    def execute(self, context):
+        obj = context.object
+        scene = context.scene
+        selected_groups = scene.vertex_tools_selected_groups
+        
+        if len(selected_groups) == 0:
+            self.report({'WARNING'}, "No vertex groups selected")
+            return {'CANCELLED'}
+        
+        # Store original mode
+        original_mode = obj.mode
+        
+        # Switch to object mode if needed
+        if original_mode != 'OBJECT':
+            bpy.ops.object.mode_set(mode='OBJECT')
+        
+        # Collect groups to delete
+        groups_to_delete = [item.name for item in selected_groups]
+        deleted_count = 0
+        
+        # Delete groups (iterate in reverse to avoid index issues)
+        for group_name in groups_to_delete:
+            if group_name in obj.vertex_groups:
+                vg = obj.vertex_groups[group_name]
+                obj.vertex_groups.remove(vg)
+                deleted_count += 1
+        
+        # Clear selection
+        scene.vertex_tools_selected_groups.clear()
+        
+        self.report({'INFO'}, f"Deleted {deleted_count} vertex groups")
+        
+        # Switch back to original mode
+        if original_mode != 'OBJECT':
+            bpy.ops.object.mode_set(mode=original_mode)
+        
+        return {'FINISHED'}
+
+# -----------------------------
 # Toggle Vertex Group Selection
 # -----------------------------
 class VERTEX_OT_toggle_vgroup_selection(bpy.types.Operator):
@@ -959,11 +1021,19 @@ class VERTEX_PT_groups_name_search_panel(bpy.types.Panel):
                     pin_icon = 'PINNED' if is_pinned else 'UNPINNED'
                     row.operator("vertex.toggle_vgroup_pin", text="", icon=pin_icon, emboss=False).group_name = name
         
-        # Merge button - only enabled if 2+ groups selected
-        if len(selected_groups) >= 2:
-            merge_row = box.row()
-            merge_row.scale_y = 1.2
-            merge_row.operator("vertex.merge_vertex_groups", text=f"Merge {len(selected_groups)} Groups", icon='AUTOMERGE_ON')
+        # Merge and delete buttons - show when groups are selected
+        if len(selected_groups) >= 1:
+            action_row = box.row(align=True)
+            action_row.scale_y = 1.2
+            
+            if len(selected_groups) >= 2:
+                # Show merge button when 2+ groups selected
+                action_row.operator("vertex.merge_vertex_groups", text=f"Merge {len(selected_groups)} Groups", icon='AUTOMERGE_ON')
+                # Delete button as icon only
+                action_row.operator("vertex.delete_vertex_groups", text="", icon='TRASH')
+            else:
+                # Show only delete button when 1 group selected
+                action_row.operator("vertex.delete_vertex_groups", text=f"Delete {len(selected_groups)} Group", icon='TRASH')
 
 # -----------------------------
 # Panel
@@ -1149,6 +1219,7 @@ classes = (
     VERTEX_OT_add_bone_to_filter,
     VERTEX_OT_remove_bone_from_filter,
     VERTEX_OT_merge_vertex_groups,
+    VERTEX_OT_delete_vertex_groups,
     VERTEX_OT_toggle_vgroup_selection,
     VERTEX_OT_clear_vgroup_selection,
     VERTEX_OT_toggle_vgroup_pin,
