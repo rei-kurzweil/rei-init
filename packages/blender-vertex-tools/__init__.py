@@ -108,6 +108,11 @@ class VertexToolsGroupSettings(bpy.types.PropertyGroup):
 class BoneNameFilterItem(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(name="Bone Name")
 
+# Property group for tracking selected vertex groups
+class SelectedVertexGroupItem(bpy.types.PropertyGroup):
+    index: bpy.props.IntProperty(name="Group Index")
+    name: bpy.props.StringProperty(name="Group Name")
+
 def _sync_group_settings(scene):
     groups = _load_groups(scene)
     coll = scene.vertex_tools_group_settings
@@ -466,6 +471,164 @@ class VERTEX_OT_remove_bone_from_filter(bpy.types.Operator):
         return {'FINISHED'}
 
 # -----------------------------
+# Merge Selected Vertex Groups
+# -----------------------------
+class VERTEX_OT_merge_vertex_groups(bpy.types.Operator):
+    bl_idname = "vertex.merge_vertex_groups"
+    bl_label = "Merge Vertex Groups"
+    bl_description = "Combine selected vertex groups into a new group without blending weights"
+    
+    new_group_name: bpy.props.StringProperty(
+        name="New Group Name",
+        default="Merged_Group"
+    )
+    
+    overwrite_conflicts: bpy.props.BoolProperty(
+        name="Later Groups Override",
+        description="If enabled, later groups override earlier ones for overlapping vertices. If disabled, first group wins",
+        default=False
+    )
+
+    @classmethod
+    def poll(cls, context):
+        obj = context.object
+        if not obj or obj.type != 'MESH':
+            return False
+        # Check if there are selected groups
+        return len(context.scene.vertex_tools_selected_groups) > 0
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
+
+    def execute(self, context):
+        obj = context.object
+        scene = context.scene
+        selected_groups = scene.vertex_tools_selected_groups
+        
+        if len(selected_groups) == 0:
+            self.report({'WARNING'}, "No vertex groups selected")
+            return {'CANCELLED'}
+        
+        # Store original mode
+        original_mode = obj.mode
+        
+        # Switch to object mode if needed
+        if original_mode != 'OBJECT':
+            bpy.ops.object.mode_set(mode='OBJECT')
+        
+        # Collect source group names
+        source_names = [item.name for item in selected_groups]
+        
+        # Create or get the new vertex group
+        if self.new_group_name in obj.vertex_groups:
+            new_group = obj.vertex_groups[self.new_group_name]
+            # Clear existing weights
+            for v in obj.data.vertices:
+                try:
+                    new_group.remove([v.index])
+                except:
+                    pass
+        else:
+            new_group = obj.vertex_groups.new(name=self.new_group_name)
+        
+        # Track which vertices we've assigned
+        assigned_verts = {}  # vertex_index -> weight
+        
+        # Iterate through source groups
+        for group_name in source_names:
+            if group_name not in obj.vertex_groups:
+                print(f"Warning: Group '{group_name}' not found, skipping")
+                continue
+            
+            source_group = obj.vertex_groups[group_name]
+            group_vertex_count = 0
+            
+            # Iterate through all vertices and check which ones are in this group
+            for v in obj.data.vertices:
+                # Check if vertex is in this group by looking at its groups
+                for vg in v.groups:
+                    if vg.group == source_group.index:
+                        # Vertex is in this source group
+                        weight = vg.weight
+                        
+                        # Only assign if we haven't assigned this vertex yet, or if we're overwriting
+                        if v.index not in assigned_verts or self.overwrite_conflicts:
+                            assigned_verts[v.index] = weight
+                        group_vertex_count += 1
+                        break
+            
+            print(f"Processing group '{group_name}': found {group_vertex_count} vertices, added {group_vertex_count if not assigned_verts or self.overwrite_conflicts else 'some'}")
+        
+        # Now add all collected vertices to the new group
+        for v_index, weight in assigned_verts.items():
+            new_group.add([v_index], weight, 'REPLACE')
+        
+        vertex_count = len(assigned_verts)
+        print(f"Final result: {vertex_count} vertices assigned to '{self.new_group_name}'")
+        self.report({'INFO'}, f"Created '{self.new_group_name}' with {vertex_count} vertices from {len(source_names)} groups")
+        
+        # Switch back to original mode
+        if original_mode != 'OBJECT':
+            bpy.ops.object.mode_set(mode=original_mode)
+        
+        return {'FINISHED'}
+
+# -----------------------------
+# Toggle Vertex Group Selection
+# -----------------------------
+class VERTEX_OT_toggle_vgroup_selection(bpy.types.Operator):
+    bl_idname = "vertex.toggle_vgroup_selection"
+    bl_label = "Toggle Vertex Group Selection"
+    bl_description = "Toggle selection of this vertex group for merging"
+    
+    group_name: bpy.props.StringProperty()
+    group_index: bpy.props.IntProperty()
+
+    def execute(self, context):
+        scene = context.scene
+        selected_groups = scene.vertex_tools_selected_groups
+        
+        # Check if already selected
+        found_index = -1
+        for i, item in enumerate(selected_groups):
+            if item.name == self.group_name:
+                found_index = i
+                break
+        
+        if found_index >= 0:
+            # Remove from selection
+            selected_groups.remove(found_index)
+        else:
+            # Add to selection
+            new_item = selected_groups.add()
+            new_item.name = self.group_name
+            new_item.index = self.group_index
+        
+        # Force UI redraw
+        if context.area:
+            context.area.tag_redraw()
+        
+        return {'FINISHED'}
+
+# -----------------------------
+# Clear Vertex Group Selection
+# -----------------------------
+class VERTEX_OT_clear_vgroup_selection(bpy.types.Operator):
+    bl_idname = "vertex.clear_vgroup_selection"
+    bl_label = "Clear Selection"
+    bl_description = "Clear all selected vertex groups"
+
+    def execute(self, context):
+        scene = context.scene
+        scene.vertex_tools_selected_groups.clear()
+        
+        # Force UI redraw
+        if context.area:
+            context.area.tag_redraw()
+        
+        return {'FINISHED'}
+
+# -----------------------------
 # Vertex Group Search UI List
 # -----------------------------
 class VERTEX_UL_vgroups_search(bpy.types.UIList):
@@ -506,7 +669,37 @@ class VERTEX_UL_vgroups_search(bpy.types.UIList):
 
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         if self.layout_type in {'DEFAULT', 'COMPACT'}:
-            layout.label(text=item.name, icon='GROUP_VERTEX')
+            row = layout.row(align=True)
+            
+            # Check if this group is selected
+            selected_groups = context.scene.vertex_tools_selected_groups
+            is_selected = any(sg.name == item.name for sg in selected_groups)
+            
+            # Checkbox for selection
+            checkbox_icon = 'CHECKBOX_HLT' if is_selected else 'CHECKBOX_DEHLT'
+            row.operator("vertex.toggle_vgroup_selection", text="", icon=checkbox_icon, emboss=False).group_name = item.name
+            
+            # Vertex group name
+            row.label(text=item.name, icon='GROUP_VERTEX')
+            
+            # Count vertices in this group
+            obj = context.object
+            if obj and obj.type == 'MESH':
+                vertex_count = 0
+                for v in obj.data.vertices:
+                    try:
+                        # Check if vertex has weight in this group
+                        item.weight(v.index)
+                        vertex_count += 1
+                    except RuntimeError:
+                        # Vertex not in this group
+                        pass
+                
+                # Display count
+                count_label = row.row()
+                count_label.alignment = 'RIGHT'
+                count_label.label(text=f"({vertex_count})")
+            
         elif self.layout_type == 'GRID':
             layout.alignment = 'CENTER'
             layout.label(text="")
@@ -587,6 +780,14 @@ class VERTEX_PT_groups_name_search_panel(bpy.types.Panel):
         bone_box.operator("vertex.add_bone_to_filter", text="Add Selected Bone", icon='ADD')
 
         box = layout.box()
+        
+        # Show selection info
+        selected_groups = scene.vertex_tools_selected_groups
+        if len(selected_groups) > 0:
+            sel_row = box.row()
+            sel_row.label(text=f"{len(selected_groups)} selected", icon='CHECKBOX_HLT')
+            sel_row.operator("vertex.clear_vgroup_selection", text="Clear", icon='X')
+        
         box.label(text="Results", icon='OUTLINER_DATA_MESH')
 
         if not obj or obj.type != 'MESH':
@@ -609,9 +810,11 @@ class VERTEX_PT_groups_name_search_panel(bpy.types.Panel):
             rows=6,
         )
         
-        # Select from Bone button
-        layout.separator()
-        layout.operator("vertex.select_vgroup_from_bone", text="Select from Bone", icon='BONE_DATA')
+        # Merge button - only enabled if 2+ groups selected
+        if len(selected_groups) >= 2:
+            merge_row = box.row()
+            merge_row.scale_y = 1.2
+            merge_row.operator("vertex.merge_vertex_groups", text=f"Merge {len(selected_groups)} Groups", icon='AUTOMERGE_ON')
 
     # Selecting an item in the list sets obj.vertex_groups.active_index directly,
     # so no extra button is needed.
@@ -787,6 +990,7 @@ class VERTEX_PT_vertex_info(bpy.types.Panel):
 classes = (
     VertexToolsGroupSettings,
     BoneNameFilterItem,
+    SelectedVertexGroupItem,
 
     VERTEX_OT_save_positions,
     VERTEX_OT_restore_positions,
@@ -798,6 +1002,9 @@ classes = (
     VERTEX_OT_select_vgroup_from_bone,
     VERTEX_OT_add_bone_to_filter,
     VERTEX_OT_remove_bone_from_filter,
+    VERTEX_OT_merge_vertex_groups,
+    VERTEX_OT_toggle_vgroup_selection,
+    VERTEX_OT_clear_vgroup_selection,
 
     VERTEX_UL_vgroups_search,
     
@@ -827,6 +1034,9 @@ def register():
 
     # Bone name filters collection
     bpy.types.Scene.vertex_tools_bone_filters = bpy.props.CollectionProperty(type=BoneNameFilterItem)
+    
+    # Selected vertex groups for merging
+    bpy.types.Scene.vertex_tools_selected_groups = bpy.props.CollectionProperty(type=SelectedVertexGroupItem)
 
     # Search text for vertex group search (updates on each keypress)
     bpy.types.Scene.vertex_tools_vg_search = StringProperty(
@@ -861,6 +1071,8 @@ def unregister():
         del bpy.types.Scene.vertex_tools_group_settings
     if hasattr(bpy.types.Scene, "vertex_tools_bone_filters"):
         del bpy.types.Scene.vertex_tools_bone_filters
+    if hasattr(bpy.types.Scene, "vertex_tools_selected_groups"):
+        del bpy.types.Scene.vertex_tools_selected_groups
     if hasattr(bpy.types.Scene, "vertex_tools_vg_search"):
         del bpy.types.Scene.vertex_tools_vg_search
     if hasattr(bpy.types.Scene, "vertex_tools_vgroup_index"):
