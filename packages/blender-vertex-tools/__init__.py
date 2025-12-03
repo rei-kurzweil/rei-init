@@ -646,21 +646,21 @@ class VERTEX_UL_vgroups_search(bpy.types.UIList):
             flags = [self.bitflag_filter_item] * len(items)
             return flags, []
         
-        # Apply filters
+        # Apply filters (union: show if matches text search OR bone filter)
         for vg in items:
             name = getattr(vg, 'name', '')
             name_lower = name.lower()
             
             # Check text search filter
-            text_match = (not search) or (search in name_lower)
+            text_match = search and (search in name_lower)
             
             # Check bone name filters (if any exist, name must match at least one)
-            bone_match = True
+            bone_match = False
             if len(bone_filters) > 0:
                 bone_match = any(item.name == name for item in bone_filters)
             
-            # Show item if it matches both filters
-            if text_match and bone_match:
+            # Show item if it matches either text search OR bone filter (union)
+            if text_match or bone_match:
                 flags.append(self.bitflag_filter_item)
             else:
                 flags.append(0)
