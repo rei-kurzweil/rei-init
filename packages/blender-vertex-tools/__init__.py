@@ -20,7 +20,7 @@ from gpu_extras.batch import batch_for_shader
 ## Group helpers 
 ##
 def _default_group():
-    return {"first_index": None, "positions": {}, "pinned_set_icon": "circle"}  # 
+    return {"first_index": None, "positions": {}, "name": "Untitled Set"}
 
 # New: constant default JSON so there is always one visible empty group on first load
 DEFAULT_GROUPS_JSON = json.dumps([_default_group()])
@@ -35,7 +35,7 @@ def _load_groups(scene):
         return [_default_group()]
     # Backward compatibility: old format was a dict of positions
     if isinstance(data, dict):
-        return [{"first_index": None, "positions": data}]
+        return [{"first_index": None, "positions": data, "name": "Untitled Set"}]
     if isinstance(data, list):
         cleaned = []
         for g in data:
@@ -45,7 +45,9 @@ def _load_groups(scene):
             positions = g.get("positions", {})
             if not isinstance(positions, dict):
                 positions = {}
-            cleaned.append({"first_index": first_index, "positions": positions, "pinned_set_icon": g.get("pinned_set_icon", "circle")})
+            # Backward compatibility: convert old pinned_set_icon to name if no name exists
+            name = g.get("name", "Untitled Set")
+            cleaned.append({"first_index": first_index, "positions": positions, "name": name})
         if not cleaned:
             cleaned = [_default_group()]
         return cleaned
@@ -68,21 +70,12 @@ def _ensure_groups(scene):
 ##
 ## View Helpers
 ##
-def pinned_set_icon_items(self, context):
-    return [
-        ("circle", "●", ""),
-        ("square", "■", ""),
-        ("triangle", "▲", ""),
-        ("diamond", "◆", ""),
-        ("star", "★", ""),
-        ("hex", "⬢", ""),
-    ]
+# Remove old icon-related functions
+# def pinned_set_icon_items(self, context):
+# PINNED_SET_ICON_SYMBOLS = ...
 
-# New: mapping for quick lookup when drawing the label
-PINNED_SET_ICON_SYMBOLS = {k: v for k, v, _ in pinned_set_icon_items(None, None)}
-
-# Update callback to push pinned_set_icon choice into groups JSON
-def _update_pinned_set_icon(self, context):
+# Update callback to push name into groups JSON
+def _update_set_name(self, context):
     scene = context.scene
     groups = _load_groups(scene)
     try:
@@ -91,17 +84,17 @@ def _update_pinned_set_icon(self, context):
         return
     if idx < 0 or idx >= len(groups):
         return
-    if groups[idx].get("pinned_set_icon") == self.pinned_set_icon:
+    if groups[idx].get("name") == self.name:
         return
-    groups[idx]["pinned_set_icon"] = self.pinned_set_icon
+    groups[idx]["name"] = self.name
     _set_groups(scene, groups)
 
 class VertexToolsGroupSettings(bpy.types.PropertyGroup):
-    pinned_set_icon: bpy.props.EnumProperty(
-        name="",
-        description="Pinned_set_icon marker",
-        items=pinned_set_icon_items,
-        update=_update_pinned_set_icon
+    name: bpy.props.StringProperty(
+        name="Set Name",
+        description="Name for this vertex set",
+        default="Untitled Set",
+        update=_update_set_name
     )
 
 # Property group for storing bone name filters
@@ -128,12 +121,12 @@ def _sync_group_settings(scene):
         # grow
         while len(coll) < len(groups):
             item = coll.add()
-            item.pinned_set_icon = groups[len(coll)-1]["pinned_set_icon"]
+            item.name = groups[len(coll)-1]["name"]
     else:
         # ensure values match
         for i, g in enumerate(groups):
-            if coll[i].pinned_set_icon != g.get("pinned_set_icon", "red"):
-                coll[i].pinned_set_icon = g.get("pinned_set_icon", "red")
+            if coll[i].name != g.get("name", "Untitled Set"):
+                coll[i].name = g.get("name", "Untitled Set")
 
 ##
 ## Operators
@@ -1064,23 +1057,27 @@ class VERTEX_PT_positions_panel(bpy.types.Panel):
         for idx, g in enumerate(groups):
             box = layout.box()
             header = box.row()
-            op_select = header.operator("vertex.select_group", text=f"select set {idx}")
+            
+            # Show set name in the select button
+            set_name = g.get("name", "Untitled Set")
+            op_select = header.operator("vertex.select_group", text=f"{set_name}", icon='RESTRICT_SELECT_OFF')
             op_select.group_index = idx
+            
             if len(groups) > 1:
-                op_rem = header.operator("vertex.remove_group", text="− Remove", emboss=True)
+                op_rem = header.operator("vertex.remove_group", text="- Remove", emboss=True)
                 op_rem.group_index = idx
 
-            # Second row: Selected From Index + pinned_set_icon dropdown (no label)
+            # Name input field
+            row_name = box.row(align=True)
+            row_name.label(text="Name:")
+            if settings_coll and idx < len(settings_coll):
+                row_name.prop(settings_coll[idx], "name", text="")
+
+            # Second row: Selected From Index
             row_meta = box.row(align=True)
             first_index = g.get("first_index")
             first_text = first_index if first_index is not None else "N/A"
-            row_meta.label(text=f"Selected From Index: {first_text}")
-            if settings_coll and idx < len(settings_coll):
-                # old: row_meta.prop(settings_coll[idx], "pinned_set_icon", text="")
-                pinned_set_icon_row = row_meta.row(align=True)
-                pinned_set_icon_row.scale_x = 0.5  # make the dropdown half as wide
-                pinned_set_icon_row.prop(settings_coll[idx], "pinned_set_icon", text="")
-                # Added pinned_set_icon symbol label to the right of dropdown
+            row_meta.label(text=f"First Index: {first_text}")
                 
             # Saved count
             saved_count = len(g.get("positions", {}))
