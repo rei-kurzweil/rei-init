@@ -313,6 +313,10 @@ class VERTEX_OT_select_group(bpy.types.Operator):
         bpy.context.view_layer.objects.active = obj
         obj.select_set(True)
         bpy.ops.object.mode_set(mode='EDIT')
+        
+        # Switch to vertex selection mode
+        bpy.ops.mesh.select_mode(type='VERT')
+        
         self.report({'INFO'}, f"Group {self.group_index+1}: selected {selected} vertices.")
         return {'FINISHED'}
 
@@ -1031,9 +1035,9 @@ class VERTEX_PT_groups_name_search_panel(bpy.types.Panel):
 # -----------------------------
 # Panel
 # -----------------------------
-class VERTEX_PT_positions_panel(bpy.types.Panel):
+class VERTEX_PT_vertex_sets_panel(bpy.types.Panel):
     bl_label = "Vertex Sets"
-    bl_idname = "VERTEX_PT_positions_panel"
+    bl_idname = "VERTEX_PT_vertex_sets_panel"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = 'Vertex Tools'
@@ -1060,7 +1064,7 @@ class VERTEX_PT_positions_panel(bpy.types.Panel):
             
             # Show set name in the select button
             set_name = g.get("name", "Untitled Set")
-            op_select = header.operator("vertex.select_group", text=f"{set_name}", icon='RESTRICT_SELECT_OFF')
+            op_select = header.operator("vertex.select_group", text="Select Vertices", icon='RESTRICT_SELECT_OFF')
             op_select.group_index = idx
             
             if len(groups) > 1:
@@ -1224,7 +1228,7 @@ classes = (
 
     VERTEX_UL_vgroups_search,
     
-    VERTEX_PT_positions_panel,
+    VERTEX_PT_vertex_sets_panel,
     VERTEX_PT_vertex_info,
     VERTEX_PT_groups_name_search_panel
     

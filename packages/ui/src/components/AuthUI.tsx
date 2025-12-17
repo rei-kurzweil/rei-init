@@ -25,8 +25,10 @@ export function AuthUI({ supabaseUrl, supabaseAnonKey, onSessionChange }: AuthUI
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+
       setSession(session)
       onSessionChange?.(session)
+    
     })
 
     return () => subscription.unsubscribe()
