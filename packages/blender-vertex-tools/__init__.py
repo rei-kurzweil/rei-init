@@ -1063,8 +1063,8 @@ class VERTEX_PT_vertex_sets_panel(bpy.types.Panel):
             header = box.row()
             
             # Show set name in the select button
-            set_name = g.get("name", "Untitled Set")
-            op_select = header.operator("vertex.select_group", text="Select Vertices", icon='RESTRICT_SELECT_OFF')
+            vertex_set_name = g.get("name", "Vertices")
+            op_select = header.operator("vertex.select_group", text=f"Select {vertex_set_name}", icon='RESTRICT_SELECT_OFF')
             op_select.group_index = idx
             
             if len(groups) > 1:
