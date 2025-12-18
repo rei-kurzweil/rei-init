@@ -1,4 +1,5 @@
 from multiprocessing import context
+import traceback
 import bpy
 from bpy.props import StringProperty, IntProperty
 import bmesh
@@ -27,6 +28,8 @@ bl_info = {
     "doc_url": "",
     "category": "Mesh",
 }
+
+
 
 ##
 ## Group helpers 
@@ -139,6 +142,30 @@ def _sync_group_settings(scene):
         for i, g in enumerate(groups):
             if coll[i].name != g.get("name", "Untitled Set"):
                 coll[i].name = g.get("name", "Untitled Set")
+
+##
+## Events
+##
+
+
+# -----------------------------
+# scene context events
+# ----------------------------
+def handle_scene_change(scene):
+    print("Active scene is now:", scene.name)
+    print("Vertex Tools: performing initial sync")
+    _ensure_groups(scene)
+    _sync_group_settings(scene)
+
+def on_load_post(dummy):
+    scene = getattr(bpy.context, "scene", None)
+    if scene:
+        handle_scene_change(scene)
+
+def on_scene_change():
+    scene = bpy.context.scene
+    if scene:
+        handle_scene_change(scene)
 
 ##
 ## Operators
@@ -835,9 +862,17 @@ def register():
         update=panels._update_vg_selector,
     )
 
-    # # Sync collection for all existing scenes
-    # for scene in bpy.data.scenes:
-    #     _sync_group_settings(scene)
+    # register events
+    bpy.app.handlers.load_post.append(on_load_post)
+
+    bpy.msgbus.subscribe_rna(
+        key=(bpy.types.Window, "scene"),
+        owner=__name__,
+        notify=on_scene_change,
+        args=()
+    )
+
+
 
 def unregister():
     # Import panels to unregister
@@ -869,7 +904,11 @@ def unregister():
 
     for c in reversed(classes):
         bpy.utils.unregister_class(c)
-
+    
+    # unregister events
+    bpy.app.handlers.load_post.remove(on_load_post)
+    bpy.msgbus.clear_by_owner(__name__)
+    
 
 if __name__ == "__main__":
     register()
