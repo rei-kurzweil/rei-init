@@ -58,21 +58,27 @@ def _get_vertex_group_weights(obj):
         try:
             bm = bmesh.from_edit_mesh(mesh)
             bm.verts.ensure_lookup_table()
-            selected_verts = [v for v in bm.verts if v.select]
-        except:
+            dlayer = bm.verts.layers.deform.verify()
+            if not dlayer:
+                return {}
+            # Read weights from the deform layer (no mesh.vertices indexing)
+            for v in bm.verts:
+                if not v.select:
+                    continue
+                dvert = v[dlayer]  # dict-like: {group_index: weight}
+                for group_index, w in dvert.items():
+                    if group_index < len(obj.vertex_groups):  # Safety
+                        weights[group_index] += w
+        except Exception:
             return {}
     else:
         selected_verts = [v for v in mesh.vertices if v.select]
-    
-    # Calculate weights
-    for v in selected_verts:
-        # Convert bmesh vert to mesh vert if needed
-        mv = mesh.vertices[v.index] if obj.mode == "EDIT" else v
-        
-        for g in mv.groups:
-            group_index = g.group
-            if group_index < len(obj.vertex_groups):  # Safety check
-                weights[group_index] += g.weight
+        # Calculate weights from mesh vertices in Object Mode
+        for v in selected_verts:
+            for g in v.groups:
+                group_index = g.group
+                if group_index < len(obj.vertex_groups):  # Safety check
+                    weights[group_index] += g.weight
     
     return weights
 
