@@ -1,6 +1,5 @@
 # Blender Addon: blender-vertex-tools
 
-Install by zipping this folder (or directly placing it) into Blender's addons directory, then enable it in Preferences > Add-ons.
-
-Panel: View3D > UI > Mesh
-Operator: mesh.example
+## installation:
+1. download the latest zip file in `dist/`
+2. In blender, go to settings, get add-ons, click the drop down at the top right, choose "install from disk" and choose the zip file
